@@ -19,5 +19,7 @@
   "angularCompilerOptions": {
     "fullTemplateTypeCheck": true,
     "strictInjectionParameters": true
-  }
+  },
+  "types": [ "node" ],
+  "typeRoots": [ "../node_modules/@types" ]
 }

@@ -1,0 +1,24 @@
+.gamesList {
+  background-color:grey;
+  text-align:center;
+}
+a {
+  text-decoration: underline;
+  display:block;
+  cursor:pointer;
+}
+
+table {
+  margin-left:auto;
+  margin-right:auto;
+}
+
+body div {
+  text-align: center;
+}
+
+td {
+  padding-bottom: 10px;
+  vertical-align: top;
+  background-color: #dadaa2;
+}

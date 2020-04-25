@@ -1,0 +1,32 @@
+<div class="userList">
+  <h3>Registered Users</h3>
+  <table>
+    <tr *ngFor="let user of users">
+      <td>
+        {{user.name}}
+      </td>
+  </table>
+  <br/>
+
+  <form>
+    <div>
+      <h4>
+        username
+        <input type="text" id="username"/>
+      </h4>
+      <h4>
+        password
+      </h4>
+      <input type="password" id="password"/>
+      <h4>
+        confirm password
+      </h4>
+      <input type="password" id="confirmPassword"/>
+      <input type="button" (click)="addNewUser()" value="Create User"/>
+    </div>
+  </form>
+
+
+
+
+</div>

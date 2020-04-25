@@ -1,0 +1,26 @@
+<div class="gamesList">
+  <h3>Select a game from the list, or click 'New Game'</h3>
+    <table>
+      <tr *ngFor="let game of games">
+        <td>
+          <a routerLink="/game/{{game.name}}">{{ game.name }}</a>
+        </td>
+        <td *ngIf="game.players && game.players.length">
+          <div *ngFor="let player of game.players">
+            {{player.name}}
+          </div>
+        </td>
+        <td>
+          <input type="button" (click)="join(game.name)" value="Join"/>
+        </td>
+
+        <td>ADMIN OLY!
+          <input type="button" (click)="deleteGame(game.name)" value="Delete"/>
+        </td>
+    </table>
+  <br/>
+  <input type="button" (click)="addNewGame()" value="New Game"/>
+
+
+
+</div>

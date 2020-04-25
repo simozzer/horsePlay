@@ -1,0 +1,31 @@
+<div *ngIf="game" class="gameDetail">
+  <h2>Game: {{game.name}}</h2>
+  <h3>Players:</h3>
+  <div *ngIf="game.players && game.players.length" class="playerList">
+    <table>
+      <tr>
+        <th>Player</th>
+        <th>Funds</th>
+        <th>Horses</th>
+      </tr>
+      <tr *ngFor="let player of game.players">
+        <td>
+         {{ player.name }}
+        </td>
+        <td>
+          {{ player.funds }}
+        </td>
+        <td>
+          <div *ngIf="player.horses && player.horses.length">
+            <div *ngFor="let horse of player.horses">
+              horse.name
+            </div>
+          </div>
+        </td>
+    </table>
+  </div>
+  <div *ngIf="!game.state || game.state === 0">
+    <br/>
+    <h4>Game Not Yet Stated</h4>
+  </div>
+</div>

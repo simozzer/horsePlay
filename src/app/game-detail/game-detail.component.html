@@ -1,5 +1,6 @@
 <div *ngIf="game" class="gameDetail">
-  <h2>Game: {{game.name}}</h2>
+
+  <h2 *ngIf="game"> Game: {{game.NAME}}, {{game.ID}}, {{game}}</h2>
   <h3>Players:</h3>
   <div *ngIf="game.players && game.players.length" class="playerList">
     <table>
@@ -10,10 +11,10 @@
       </tr>
       <tr *ngFor="let player of game.players">
         <td>
-         {{ player.name }}
+         {{ player.NAME }}
         </td>
         <td>
-          {{ player.funds }}
+          {{ player.FUNDS }}
         </td>
         <td>
           <div *ngIf="player.horses && player.horses.length">

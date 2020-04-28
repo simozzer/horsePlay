@@ -25,7 +25,6 @@ export class AuthenticationService {
   addUser(name, password, isAdmin) {
     return this.http.post(this.hostUrl + "users",{username:name,password:password,isAdmin:isAdmin})
       .pipe(map((response: Response) => {
-        debugger;
         return response;
       }));
   }
@@ -36,11 +35,11 @@ export class AuthenticationService {
 
   login(username: string, password: string) {
     let sUrl = `${this.hostUrl}authenticate`;
-    console.log(sUrl);
+
     const loginObj = { username : username, password: password};
     this.http.post<User>(sUrl, loginObj).subscribe((response) => {
       if (response) {
-        if (response.name) {
+        if (response.NAME) {
           // store user details and jwt token in local storage to keep user logged in between page refreshes
           localStorage.setItem('currentUser', JSON.stringify(response));
 

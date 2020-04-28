@@ -17,6 +17,45 @@ export class GamesService {
       .pipe(map((response: Response) => response));
   }
 
+  getMeetings() {
+    return this.http.get(this.hostUrl + "meetings")
+      .pipe(map((response :Response) => response))
+  }
+
+  getRacesInMeeting(meetingId) {
+    return this.http.get(this.hostUrl + "meeting/" + meetingId)
+      .pipe(map((response :Response) => response))
+  }
+
+  getHorsesForPlayer(gameId, playerId) {
+    return this.http.get(this.hostUrl + "game/" + gameId + "/horsesFor/" + playerId)
+      .pipe(map((response :Response) => response));
+  }
+
+  getHorsesForRace(gameId, raceId) {
+    return this.http.get(this.hostUrl + "game/" + gameId + "/horsesInRace/" + raceId)
+      .pipe(map((response :Response) => response));
+  }
+
+  getHorseByName(horses, horseName) {
+    return horses.find((horse) => {
+      if (horse.NAME === horseName) {
+        return horse;
+      }
+    })
+  }
+
+  getHorseForm(gameId, raceId) {
+    return this.http.get(this.hostUrl + "game/" + gameId + "/horseForm/" + raceId)
+      .pipe(map((response :Response) => response));
+
+  }
+
+  addHorseToRace(gameId, raceId, horseId, playerId) {
+    return this.http.post(this.hostUrl + "game/" + gameId + "/horses/" + raceId + "/" + horseId + "/" + playerId,{})
+      .pipe(map((response :Response) => response));
+  }
+
   addGame(name){
     return this.http.post(this.hostUrl + "games",{'name':name})
       .pipe(map((response: Response) => {
@@ -24,15 +63,23 @@ export class GamesService {
       }));
   }
 
-  getGame(name) {
-    return this.http.get(this.hostUrl + "game/" + name,{})
+  getGame(id) {
+    return this.http.get(this.hostUrl + "game/" + id,{})
       .pipe(map((response: Response) => {
         return response;
       }));
   }
 
-  updatePlayerInGame(gameName, playerObject) {
-    return this.http.post( `${this.hostUrl}game/${gameName}/players`,playerObject)
+  getPlayersInGame(id) {
+    return this.http.get(this.hostUrl + "game/" + id + '/players',{})
+      .pipe(map((response: Response) => {
+        return response;
+      }));
+  }
+
+
+  updatePlayerInGame(gameId, playerObject) {
+    return this.http.post( `${this.hostUrl}game/${gameId}/players`,playerObject)
       .pipe(map((response: Response) => {
         return response;
       }));
@@ -45,8 +92,8 @@ export class GamesService {
       }));
   }
 
-  removePlayerFromGame(gameName, playerName) {
-    return this.http.delete( `${this.hostUrl}game/${gameName}/players/${playerName}`)
+  removePlayerFromGame(gameId, playerId) {
+    return this.http.delete( `${this.hostUrl}game/${gameId}/players/${playerId}`)
       .pipe(map((response: Response) => {
         return response;
       }));

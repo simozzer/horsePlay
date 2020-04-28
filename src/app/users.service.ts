@@ -27,7 +27,6 @@ export class UsersService {
   putUser(name, user:User) {
     return this.http.put(this.hostUrl + "users",user)
       .pipe(map((response: Response) => {
-        debugger;
         return response;
       }));
   }

@@ -1,0 +1,37 @@
+<h2>Select your horses for races at {{getMeetingName()}}</h2>
+
+<table>
+  <tr>
+    <th>NAME</th>
+    <th>FORM</th>
+  </tr>
+  <tr *ngFor="let horse of horses">
+    <td>{{horse.NAME}}</td>
+
+    <td *ngIf="horse.FORM">{{horse.FORM}}</td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <th>Race name</th>
+    <th>Length in furlongs</th>
+    <th>Prize</th>
+    <th>Horse</th>
+  </tr>
+<tr *ngFor="let race of races">
+  <td>{{race.NAME}}</td>
+  <td>{{race.LENGTH_FURLONGS}}</td>
+  <td>{{race.PRIZE}}</td>
+  <td>
+    <select class="horseSelector" (change)="this.handleHorseSelected()">
+      <option *ngFor="let horse of horses">
+        {{horse.NAME}}
+      </option>
+    </select>
+  </td>
+</tr>
+</table>
+<input type="button" value="Place" [disabled]="this.invalid" (click)="this.setSelection()"/>
+
+

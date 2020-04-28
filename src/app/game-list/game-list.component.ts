@@ -11,6 +11,7 @@ import {AuthenticationService} from "../authentication.service";
 export class GameListComponent implements OnInit {
 
   games;
+  player;
 
   constructor(private gamesService: GamesService,
               private usersService: UsersService,
@@ -19,14 +20,30 @@ export class GameListComponent implements OnInit {
 
   async ngOnInit() {
     this.getGames();
+    this.player = JSON.parse(localStorage.getItem('currentUser',));
+  }
+
+  async getPlayersInGame(game) {
+    return new Promise(async (resolve,reject) => {
+      this.gamesService.getPlayersInGame(game.ID)
+        .subscribe( (data) => {
+          resolve(data);
+        });
+    });
   }
 
   getGames() {
     this.gamesService.getGames()
-      .subscribe(data => {
+      .subscribe(async(data) => {
           this.games = data;
+          await this.games.forEach( async (game)=> {
+              let players = await this.getPlayersInGame(game);
+              game.players = players;
+              //window.alert(JSON.stringify(players));
+          },this);
+          return this.games;
         }, error =>
-          window.alert("error: " + error)
+          window.alert("error getting games: " + error)
       )
   }
 
@@ -65,17 +82,43 @@ export class GameListComponent implements OnInit {
       )
   }
 
-  join(gameName: string) {
-    let userTmp = JSON.parse(localStorage.getItem("currentUser"));
+  async playerInGame(gameId: number) {
+    return new Promise(async (resolve,reject) => {
+      this.gamesService.getPlayersInGame(gameId)
+        .subscribe( (data) => {
+          let players = [];
+          if (players.find((player) => {
+            if (player.NAME = this.player.Name) {
+              return player;
+            }
+          })) {
+            resolve(true)
+          } else {
+            resolve(false);
+          }
+        });
+    });
+  }
 
-    this.gamesService.updatePlayerInGame(gameName, {name: userTmp.name})
-      .subscribe( data => {
+
+  join(gameId: string) {
+    this.gamesService.updatePlayerInGame(gameId, {id: this.player.ID})
+      .subscribe(data => {
           this.getGames();
         }, error => {
           window.alert("Error: " + error)
         }
-      )
+      );
+  }
 
+  leave(gameId: string) {
+    this.gamesService.removePlayerFromGame(gameId, this.player.ID)
+      .subscribe(data => {
+          this.getGames();
+        }, error => {
+          window.alert("Error: " + error)
+        }
+      );
   }
 
 

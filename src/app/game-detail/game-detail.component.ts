@@ -25,15 +25,25 @@ export class GameDetailComponent implements OnInit {
   }
 
   getGame(): void {
-    let name = this.route.snapshot.paramMap.get('name');
-    console.log(name);
-    this.gamesService.getGame(name)
-      .subscribe(data => {
+    let id = this.route.snapshot.paramMap.get('name');
+    console.log(id);
+    this.gamesService.getGame(id)
+      .subscribe(async data => {
           this.game = data;
+          this.game.players = await this.getPlayersInGame();
           this.sortPlayers();
         }, error =>
-          window.alert("error: " + error)
+          window.alert("error getting game: " + error)
       )
+  }
+
+  async getPlayersInGame() {
+    return new Promise(async (resolve,reject) => {
+      this.gamesService.getPlayersInGame(this.game.ID)
+        .subscribe( (data) => {
+          resolve(data);
+        });
+    });
   }
 
 

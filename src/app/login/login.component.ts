@@ -16,8 +16,8 @@ export class LoginComponent implements OnInit {
   }
 
   submitLogin() {
-    let username = <HTMLInputElement>(document.getElementById('username')).value;
-    let password = <HTMLInputElement>(document.getElementById('password')).value;
+    let username = (<HTMLInputElement>(document.getElementById('username'))).value;
+    let password = (<HTMLInputElement>(document.getElementById('password'))).value;
     this.authService.login(username.toUpperCase(),password);
     this.router.navigate(['games']);
 

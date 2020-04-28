@@ -24,18 +24,17 @@ export class UserListComponent implements OnInit {
       .subscribe(data => {
           this.users = data;
         }, error =>
-          window.alert("error: " + error)
+          window.alert("error getting users: " + error)
       )
   }
 
   addNewUser() {
-    let username = <HTMLInputElement>(document.getElementById('username')).value;
-    let password = <HTMLInputElement>(document.getElementById('password')).value;
-    let confirmPassword = <HTMLInputElement>(document.getElementById('confirmPassword')).value;
+    let username = (<HTMLInputElement>(document.getElementById('username'))).value;
+    let password = (<HTMLInputElement>(document.getElementById('password'))).value;
+    let confirmPassword = (<HTMLInputElement>(document.getElementById('confirmPassword'))).value;
     if ((username && password && confirmPassword) && (password === confirmPassword)) {
-      debugger;
       let matchingUsers = this.users.filter((user) => {
-        if (user.name.toUpperCase() === username.toUpperCase()) {
+        if (user.NAME.toUpperCase() === username.toUpperCase()) {
           return user;
         }
       });

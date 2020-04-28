@@ -12,6 +12,8 @@ import { GameDetailComponent } from './game-detail/game-detail.component';
 import { AuthenticationService } from "./authentication.service";
 import { LoginComponent } from './login/login.component';
 import { UserListComponent } from './user-list/user-list.component';
+import { BetPlacementComponent } from './bet-placement/bet-placement.component';
+import { HorseSelectionComponent } from './horse-selection/horse-selection.component';
 
 
 @NgModule({
@@ -20,7 +22,9 @@ import { UserListComponent } from './user-list/user-list.component';
     GameListComponent,
     GameDetailComponent,
     LoginComponent,
-    UserListComponent
+    UserListComponent,
+    BetPlacementComponent,
+    HorseSelectionComponent
   ],
   imports: [
     BrowserModule,

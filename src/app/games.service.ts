@@ -1,7 +1,5 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, throwError, of } from 'rxjs';
-import { catchError, retry } from 'rxjs/operators';
 import { map } from 'rxjs/operators';
 
 @Injectable({
@@ -21,6 +19,7 @@ export class GamesService {
     return this.http.get(this.hostUrl + "meetings")
       .pipe(map((response :Response) => response))
   }
+
 
   getRacesInMeeting(meetingId) {
     return this.http.get(this.hostUrl + "meeting/" + meetingId)

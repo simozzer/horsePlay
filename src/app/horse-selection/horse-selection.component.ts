@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
 import {GamesService} from "../games.service";
 import {forkJoin} from "rxjs";
+import {SoundsService} from "../sounds.service";
 
 @Component({
   selector: 'app-horse-selection',
@@ -14,13 +15,18 @@ export class HorseSelectionComponent implements OnInit {
   horses: any;
   player: any;
   races: any;
-  meetingId: number;
+  meetingId: any;
   meetings: any;
+  meeting : any;
+  meetingName : string;
+
   invalid : Boolean = true;
   readyForBets: Boolean = false;
 
   constructor(private route:ActivatedRoute,
-              private gamesService: GamesService) { }
+              private gamesService: GamesService,
+              private soundsService: SoundsService) { }
+
 
   ngOnInit(): void {
     this.gameId = parseInt(this.route.snapshot.paramMap.get('gameId') ,10);
@@ -31,11 +37,15 @@ export class HorseSelectionComponent implements OnInit {
       .subscribe(async (data) => {
           console.log(data);
           this.meetings = data;
-        }, error =>
-          window.alert("error getting game: " + error)
-      );
-
-
+          this.meeting = this.meetings.find((m) => {
+            if (m.ID === this.meetingId) {
+              return m;
+            }
+          });
+          this.meetingName = this.meeting.NAME;
+        }, error => {
+          window.alert("error getting game: " + error);
+        });
 
     this.gamesService.getHorsesForPlayer(this.gameId, this.player.ID)
       .subscribe(async (data) => {
@@ -45,14 +55,13 @@ export class HorseSelectionComponent implements OnInit {
           for (let i=0; i < this.horses.length; i++) {
             const horse = this.horses[i];
 
-            this.gamesService.getHorseForm(this.gameId,horse.ID)
-              .subscribe( async(data) => {
+            this.gamesService.getHorseForm(this.gameId, horse.ID)
+              .subscribe(async (data) => {
                 horse.FORM = data;
               }, error => {
                 window.alert("error getting horse form: " + error);
               });
-          }
-
+          };
 
         this.gamesService.getPlayerHorsesForMeeting(this.gameId,this.meetingId,this.player.ID)
           .subscribe( async(data) => {
@@ -61,29 +70,29 @@ export class HorseSelectionComponent implements OnInit {
             window.alert("Error getting player horses for meeting: " + err);
           });
         }, error =>
-          window.alert("error getting game: " + error)
+          window.alert("error getting horses for player: " + error)
       );
 
     this.gamesService.getRacesInMeeting(this.meetingId)
       .subscribe(async (data) => {
           console.log(data);
           this.races = data;
-        }, error =>
-          window.alert("error getting game: " + error)
-      );
+        }, error => {
+          window.alert("error getting game: " + error);
+        });
 
     this.checkReadyForNextStep();
   }
 
-  getMeetingName() {
+
+  getMeeting() {
     if (this.meetings && this.meetingId) {
       return this.meetings.find((meeting) => {
         if (meeting.ID === this.meetingId) {
           return meeting;
         }
-      }).NAME;
+      });
     }
-    return "";
   }
 
   handleHorseSelected() {
@@ -94,6 +103,7 @@ export class HorseSelectionComponent implements OnInit {
 
     // check for duplicated values
     this.invalid = (new Set(selectedValues)).size !== selectedValues.length;
+    this.soundsService.playSound(1);
   }
 
   checkReadyForNextStep() {

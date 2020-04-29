@@ -236,7 +236,7 @@ export class BetPlacementComponent implements OnInit {
       TYPE : 0,
       ODDS : horseOdds.odds
     }
-    debugger;
+
     this.gamesService.placeBet(betObj)
       .subscribe( result => {
         if (result) {

@@ -12,29 +12,56 @@ import {GamesService} from "../games.service";
 
 export class GameDetailComponent implements OnInit {
 
-  id;
+  gameId;
+  player;
+  meetings;
+  meeting;
+  meetingId;
+
   @Input() game: any;
   model = { name: ""};
   constructor(
     private route: ActivatedRoute,
     private gamesService: GamesService
-  ){}
+  ){
+    this.player = JSON.parse(localStorage.getItem('currentUser',));
+    this.gameId = parseInt(this.route.snapshot.paramMap.get('gameId'),10);
+  }
 
   ngOnInit(): void {
     this.getGame();
   }
 
+
+  getMeetings() {
+    this.gamesService.getMeetings()
+      .subscribe(async data => {
+          this.meetings = data;
+          this.meeting = this.meetings[this.game.MEETING_INDEX];
+          this.meetingId = this.meeting.ID;
+        }, error => {
+        window.alert('error getting meetings: ' + error)
+      })
+  }
+
   getGame(): void {
-    let id = this.route.snapshot.paramMap.get('name');
-    console.log(id);
-    this.gamesService.getGame(id)
+    this.gameId = this.route.snapshot.paramMap.get('id');
+    console.log(this.gameId);
+    this.gamesService.getGame(this.gameId)
       .subscribe(async data => {
           this.game = data;
           this.game.players = await this.getPlayersInGame();
+          if (this.game.MEETING_INDEX < 0) {
+            this.game.MEETING_INDEX = 0;
+            this.game.RACE_INDEX = 0;
+            await this.getMeetings();
+          }
           this.sortPlayers();
         }, error =>
           window.alert("error getting game: " + error)
       )
+
+
   }
 
   async getPlayersInGame() {

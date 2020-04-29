@@ -7,6 +7,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { GamesService} from "./games.service";
 import { UsersService } from './users.service';
+import { SoundsService } from './sounds.service';
 import { GameListComponent } from './game-list/game-list.component';
 import { GameDetailComponent } from './game-detail/game-detail.component';
 import { AuthenticationService } from "./authentication.service";
@@ -14,6 +15,7 @@ import { LoginComponent } from './login/login.component';
 import { UserListComponent } from './user-list/user-list.component';
 import { BetPlacementComponent } from './bet-placement/bet-placement.component';
 import { HorseSelectionComponent } from './horse-selection/horse-selection.component';
+import { RaceComponent } from './race/race.component';
 
 
 @NgModule({
@@ -24,7 +26,8 @@ import { HorseSelectionComponent } from './horse-selection/horse-selection.compo
     LoginComponent,
     UserListComponent,
     BetPlacementComponent,
-    HorseSelectionComponent
+    HorseSelectionComponent,
+    RaceComponent
   ],
   imports: [
     BrowserModule,
@@ -32,7 +35,7 @@ import { HorseSelectionComponent } from './horse-selection/horse-selection.compo
     HttpClientModule,
     FormsModule
   ],
-  providers: [GamesService, AuthenticationService, UsersService],
+  providers: [GamesService, AuthenticationService, UsersService, SoundsService],
   bootstrap: [AppComponent]
 })
 export class AppModule {

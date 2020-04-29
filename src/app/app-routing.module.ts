@@ -13,7 +13,7 @@ import {HorseSelectionComponent} from "./horse-selection/horse-selection.compone
 const routes: Routes = [
   { path: '', component: AppComponent, canActivate: [AuthGuard] },
   { path : 'games', component: GameListComponent, canActivate: [AuthGuard] },
-  { path : 'game/:name', component: GameDetailComponent},
+  { path : 'game/:id', component: GameDetailComponent},
   { path : 'login', component: LoginComponent},
   { path : 'users', component: UserListComponent},
   { path : 'betting/:gameId/:raceId', component: BetPlacementComponent, canActivate: [AuthGuard]},

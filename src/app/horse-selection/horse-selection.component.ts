@@ -22,6 +22,7 @@ export class HorseSelectionComponent implements OnInit {
 
   invalid : Boolean = true;
   readyForBets: Boolean = false;
+  gameData : any;
 
   constructor(private route:ActivatedRoute,
               private gamesService: GamesService,
@@ -33,6 +34,7 @@ export class HorseSelectionComponent implements OnInit {
     this.meetingId = parseInt(this.route.snapshot.paramMap.get('meetingId'),10) ;
     this.player = JSON.parse(localStorage.getItem('currentUser',));
 
+    //this.getGameData();
     this.gamesService.getMeetings()
       .subscribe(async (data) => {
           console.log(data);
@@ -84,16 +86,16 @@ export class HorseSelectionComponent implements OnInit {
     this.checkReadyForNextStep();
   }
 
-
-  getMeeting() {
-    if (this.meetings && this.meetingId) {
-      return this.meetings.find((meeting) => {
-        if (meeting.ID === this.meetingId) {
-          return meeting;
-        }
+  /*
+  getGameData() {
+    this.gamesService.getGame(this.gameId)
+      .subscribe((data) => {
+        this.gameData = data;
+      }, (err) => {
+        console.log("Failed to get game data: " + err);
       });
-    }
   }
+  */
 
   handleHorseSelected() {
     let selectionBoxes = Array.from(document.getElementsByClassName("horseSelector"));

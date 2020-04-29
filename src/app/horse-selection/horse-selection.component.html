@@ -38,7 +38,7 @@
 <input type="button" value="Set Selection" [disabled]="this.invalid" (click)="this.setSelection()"/>
 
 <div *ngIf="readyForBets; else notReady">
-  <a routerLink="/betting/{{gameId}}/{{races[0].ID}}">
+  <a routerLink="/betting/{{gameId}}/1">
     READY TO PLACE BETS. CLICK HERE
   </a>
 </div>

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
 import {GamesService} from "../games.service";
+import {forkJoin} from "rxjs";
 
 @Component({
   selector: 'app-horse-selection',
@@ -16,6 +17,8 @@ export class HorseSelectionComponent implements OnInit {
   meetingId: number;
   meetings: any;
   invalid : Boolean = true;
+  readyForBets: Boolean = false;
+
   constructor(private route:ActivatedRoute,
               private gamesService: GamesService) { }
 
@@ -32,6 +35,8 @@ export class HorseSelectionComponent implements OnInit {
           window.alert("error getting game: " + error)
       );
 
+
+
     this.gamesService.getHorsesForPlayer(this.gameId, this.player.ID)
       .subscribe(async (data) => {
           console.log(data);
@@ -39,6 +44,7 @@ export class HorseSelectionComponent implements OnInit {
 
           for (let i=0; i < this.horses.length; i++) {
             const horse = this.horses[i];
+
             this.gamesService.getHorseForm(this.gameId,horse.ID)
               .subscribe( async(data) => {
                 horse.FORM = data;
@@ -46,6 +52,14 @@ export class HorseSelectionComponent implements OnInit {
                 window.alert("error getting horse form: " + error);
               });
           }
+
+
+        this.gamesService.getPlayerHorsesForMeeting(this.gameId,this.meetingId,this.player.ID)
+          .subscribe( async(data) => {
+            this.restoreSelections(data);
+          }, (err) => {
+            window.alert("Error getting player horses for meeting: " + err);
+          });
         }, error =>
           window.alert("error getting game: " + error)
       );
@@ -57,6 +71,8 @@ export class HorseSelectionComponent implements OnInit {
         }, error =>
           window.alert("error getting game: " + error)
       );
+
+    this.checkReadyForNextStep();
   }
 
   getMeetingName() {
@@ -80,6 +96,22 @@ export class HorseSelectionComponent implements OnInit {
     this.invalid = (new Set(selectedValues)).size !== selectedValues.length;
   }
 
+  checkReadyForNextStep() {
+
+    setTimeout((args) => {
+      this.gamesService.getMeetingSelectionsComplete(this.gameId,this.meetingId).subscribe( (response) => {
+        if (response) {
+          this.readyForBets = true;
+        } else {
+          this.checkReadyForNextStep();
+        }
+      }, (err) => {
+        console.log(err);
+      });
+    }, 2000, [this]);
+
+  }
+
   async setSelection() {
     let selectionBoxes = Array.from(document.getElementsByClassName("horseSelector"));
     let selectedValues = selectionBoxes.map((selectionBox, index) => {
@@ -87,16 +119,40 @@ export class HorseSelectionComponent implements OnInit {
       let horse = this.gamesService.getHorseByName(this.horses,horseName);
       return {raceId: this.races[index].ID, horseId: horse.ID};
     });
+    let aSubscriptions = []
     for (const selection of selectedValues) {
-      await this.gamesService.addHorseToRace(this.gameId,selection.raceId,selection.horseId,this.player.ID)
-        .subscribe(async (data) => {
-            console.log(data);
-          }, error =>
-            window.alert("error getting game: " + error)
-        );
+      aSubscriptions.push(this.gamesService.addHorseToRace(this.gameId,selection.raceId,selection.horseId,this.player.ID));
     }
-    window.alert('Done');
 
+    forkJoin(aSubscriptions)
+      .subscribe(async (data) => {
+          console.log(data);
+          this.checkReadyForNextStep();
+
+        }, error =>
+          window.alert("error getting game: " + error)
+      );
+  }
+
+  restoreSelections(sels) {
+
+    const selectionElems = Array.from(document.getElementsByClassName("horseSelector"));
+    if (sels) {
+      for(let selection of sels) {
+        let selRaceId = selection.RACE_ID;
+
+        let raceIndex = this.races.findIndex((race, raceIndex) => {
+            if (race.ID === selRaceId) {
+              return raceIndex;
+            }
+        });
+
+        if (raceIndex >=0) {
+          (<HTMLSelectElement>selectionElems[raceIndex]).value = selection.NAME;
+        }
+
+      }
+    }
 
   }
 

@@ -1,0 +1,47 @@
+.placeBetContainer {
+  background-color: darksalmon;
+  clear: both;
+  text-align: center;
+  font: 14pt sans-serif;
+  color: darkred;
+  padding: 10px;
+}
+
+table {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+td {
+  padding:6px;
+}
+
+h4 {
+  text-align: center;
+}
+
+
+h5 {
+  text-align: center;
+}
+
+label {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.betPlacementSection {
+  background-color: #696912;
+  vertical-align: middle;
+}
+
+.betPlacementSection h4 {
+  vertical-align: middle;
+  height: 100%;
+  margin-bottom: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  color: white;
+}
+
+

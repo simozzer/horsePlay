@@ -1,3 +1,96 @@
 <p>bet-placement works!</p>
 
 <b>{{player.NAME}}</b>
+
+<h4>Horses:</h4>
+<table>
+  <tr>
+    <th>
+      Horse
+    </th>
+    <th>
+      Owner
+    </th>
+    <th>
+      Odds
+    </th>
+    <th>
+      Form
+    </th>
+  </tr>
+  <tr *ngFor="let odds of _oddsStats">
+    <td>
+      {{odds.horse.NAME}}
+    </td>
+    <td>
+      {{odds.horse.PLAYER_NAME}}
+    </td>
+    <td>
+      {{odds.odds}}/1
+    </td>
+    <td>
+      <ul *ngIf="odds.horse.FORM">
+        <li>
+          FORM
+        </li>
+      </ul>
+    </td>
+  </tr>
+</table>
+<br/>
+<div class="betPlacementSection">
+  <h4>Place your bet</h4>
+  <div class="placeBetContainer">
+    <label for="horseSelector">Horse: </label>
+    <select id="horseSelector">
+      <option *ngFor="let odd of _oddsStats">
+        <select *ngIf="odd.horse.PLAYER_ID !== player.ID" id="horseSelector">
+          {{odd.horse.NAME}}
+        </select>
+      </option>
+    </select>
+    <label for="betAmount">Amount:</label>
+    <input type="number" id="betAmount"/>
+    <input type="button" (click)="placeBet()" value="Place Bet"/>
+  </div>
+</div>
+<div *ngIf="playerBets">
+  <h5>Bets Placed:</h5>
+  <table>
+    <tr>
+      <th>
+        Horse
+      </th>
+      <th>
+        Odds
+      </th>
+      <th>
+        Amount
+      </th>
+    </tr>
+    <tr *ngFor="let bet of playerBets">
+      <td>
+        {{bet.HORSE_NAME}}
+      </td>
+      <td>
+        {{bet.ODDS}}/1
+      </td>
+      <td>
+        {{bet.AMOUNT}}
+      </td>
+    </tr>
+  </table>
+</div>
+<br/>
+<input type="button" value="Ready" (click)="handleReadyToRace()"/>
+<br>
+<div *ngIf="playerReady">
+  <div *ngIf="allPlayersReady; else notReady">
+    READY TO GO... display all selections and start race
+  </div>
+  <ng-template #notReady>
+    Waiting for players to complete selections.....
+  </ng-template>`
+
+</div>
+

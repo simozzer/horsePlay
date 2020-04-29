@@ -14,7 +14,7 @@ export class SoundsService {
 
   constructor(){
     // Fix up prefixing
-    window.AudioContext = window.AudioContext || window.webkitAudioContext;
+    window.AudioContext = AudioContext || window.AudioContext;// || window.webkitAudioContext;
     this.context = new AudioContext();
 
     const prefix = '/assets/sounds/';

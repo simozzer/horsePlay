@@ -161,8 +161,9 @@ export class GamesService {
       }));
   }
 
-  setPlayerState(playerId, gameId, state) {
-    return this.http.post( `${this.hostUrl}playerState/${playerId}/game/${gameId}`,{state:state})
+  setPlayerState(gameId,playerId, state) {
+    const url = `${this.hostUrl}plyrState/${playerId}/game/${gameId}/state/${state}`;
+    return this.http.post( url,{value:state})
       .pipe(map((response: Response) => {
         return response;
       }));

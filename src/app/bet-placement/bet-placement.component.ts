@@ -92,9 +92,10 @@ export class BetPlacementComponent implements OnInit {
         return;
       }
 
-      this.gamesService.getPlayerCountWithState(this.gameId,3)
+      this.gamesService.getPlayerCountWithState(this.gameId,4)
         .subscribe(data => {
-          if (data && data["COUNT"] && data["COUNT"] === this.player.length) {
+          console.log('!!!!'+JSON.stringify(data));
+          if (data && data["COUNT"] && (data["COUNT"] === this.players.length)) {
             this.allPlayersReady = true;
           } else {
             window.setTimeout(doCheck, 2000, this);
@@ -217,7 +218,13 @@ export class BetPlacementComponent implements OnInit {
 
   handleReadyToRace() {
     this.playerReady = true;
-    this.checkAllPlayersReady();
+    this.gamesService.setPlayerState(this.gameId, this.player.ID,4)
+      .subscribe((state) => {
+        this.checkAllPlayersReady();
+      }, err => {
+        window.alert("error setting player state: " + err);
+      });
+
   }
 
   placeBet(){
@@ -241,6 +248,7 @@ export class BetPlacementComponent implements OnInit {
       .subscribe( result => {
         if (result) {
           this.getPlayerBets();
+
         } else {
           window.alert("failed to place bet");
         }

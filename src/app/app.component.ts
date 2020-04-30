@@ -15,12 +15,14 @@ export class AppComponent implements OnInit {
   title : string = "";
   currentUser: User;
   _loggedIn: Boolean = false;
+  player: any;
 
   constructor(  private router: Router,
                 private authenticationService: AuthenticationService,
                 private gamesService: GamesService) {
     this.authenticationService.currentUser.subscribe(x => this.currentUser = x);
     this.title = 'Horse Racing';
+    this.player = JSON.parse(localStorage.getItem('currentUser',));
   }
 
   ngOnInit(): void {
@@ -28,6 +30,8 @@ export class AppComponent implements OnInit {
 
   logout() {
     this.authenticationService.logout();
+
+    this.player = null;
     this._loggedIn = false;
     this.updateLoginStatus();
     this.router.navigate(['/login']);

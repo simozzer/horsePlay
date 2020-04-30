@@ -112,6 +112,8 @@ export class HorseSelectionComponent implements OnInit {
 
     // check for duplicated values
     this.invalid = (new Set(selectedValues)).size !== selectedValues.length;
+
+    //TODO REMOVE
     this.soundsService.playSound(1);
   }
 
@@ -130,7 +132,7 @@ export class HorseSelectionComponent implements OnInit {
       }, (err) => {
         console.log(err);
       });
-    }, 2000, [this]);
+    }, 0, [this]);
 
   }
 
@@ -160,19 +162,23 @@ export class HorseSelectionComponent implements OnInit {
 
     const selectionElems = Array.from(document.getElementsByClassName("horseSelector"));
     if (sels) {
+      console.log("Races: " + JSON.stringify(this.races));
       for(let selection of sels) {
+        console.log('selection: ' + JSON.stringify(selection));
         let selRaceId = selection.RACE_ID;
 
         let raceIndex = this.races.findIndex((race, raceIndex) => {
             if (race.ID === selRaceId) {
+              console.log('race: ' + JSON.stringify(race));
               return raceIndex;
             }
         });
 
         if (raceIndex >=0) {
           (<HTMLSelectElement>selectionElems[raceIndex]).value = selection.NAME;
+        } else {
+          console.log('Selection not found: ' + JSON.stringify(selection));
         }
-
       }
     }
 

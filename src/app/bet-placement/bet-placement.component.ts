@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {GamesService} from "../games.service";
-import {ActivatedRoute} from "@angular/router";
+import {ActivatedRoute, Router} from "@angular/router";
+
 
 
 @Component({
@@ -37,9 +38,10 @@ export class BetPlacementComponent implements OnInit {
   allPlayersReady = false;
   playerReady = false;
   constructor(private gamesService: GamesService,
-              private route: ActivatedRoute) {
+              private route: ActivatedRoute,
+              private router: Router) {}
 
-  }
+
 
   ngOnInit(): void {
     this.gameId = parseInt(this.route.snapshot.paramMap.get('gameId'),10);
@@ -87,7 +89,7 @@ export class BetPlacementComponent implements OnInit {
 
   checkAllPlayersReady() {
 
-    const doCheck =() => {
+    const doCheck =(interval) => {
       if (!this.players) {
         return;
       }
@@ -97,6 +99,7 @@ export class BetPlacementComponent implements OnInit {
           console.log('!!!!'+JSON.stringify(data));
           if (data && data["COUNT"] && (data["COUNT"] === this.players.length)) {
             this.allPlayersReady = true;
+            this.router.navigateByUrl(`preRace/${this.gameId}/${this.raceId}`);
           } else {
             window.setTimeout(doCheck, 2000, this);
           }
@@ -106,8 +109,9 @@ export class BetPlacementComponent implements OnInit {
     };
 
     if (!this.allPlayersReady) {
-      window.setTimeout(doCheck, 2000, this);
+      window.setTimeout(doCheck, 0, this);
     }
+
 
   }
 

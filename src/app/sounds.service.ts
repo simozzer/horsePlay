@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
-import { BufferLoader} from "./buffer.loader";
+import { AudioBufferLoader} from "./audioBufferLoader";
 
 @Injectable({
   providedIn: 'root'
 })
 export class SoundsService {
 
-  loader : BufferLoader;
+  loader : AudioBufferLoader;
   finishedLoading = false;
   context;
   soundBuffers;
@@ -18,7 +18,7 @@ export class SoundsService {
     this.context = new AudioContext();
 
     const prefix = '/assets/sounds/';
-    this.loader = new BufferLoader(this.context,
+    this.loader = new AudioBufferLoader(this.context,
       [
         prefix + "Galloping-Horse.wav",
         prefix + "gun.mp3",
@@ -27,18 +27,19 @@ export class SoundsService {
         prefix + "neigh.mp3",
         prefix + "crowd.mp3",
       ],
-      this.finishedLoadingSounds);
+      this.finishedLoadingSounds,
+      this);
 
     this.loadSounds();
   }
 
 
   loadSounds() {
-  //  this.loader.load();
+    this.loader.load();
   }
 
-  finishedLoadingSounds() {
-    this.soundBuffers = [...this.loader._bufferList]
+  finishedLoadingSounds(bufferList: []) {
+    this.soundBuffers = [...bufferList]
     this.finishedLoading = true;
   }
 

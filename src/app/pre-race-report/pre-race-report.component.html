@@ -1,0 +1,40 @@
+<div *ngIf="raceData">
+<h3>Pre race betting summary: {{raceData.NAME}}</h3>
+<h5>Length: {{raceData.LENGTH_FURLONGS}}</h5>
+<h5>Prize: {{raceData.PRIZE}}</h5>
+</div>
+
+<div *ngIf="bets">
+  <h5>Bets Placed:</h5>
+  <table>
+    <tr>
+      <th>Owner</th>
+      <th>
+        Horse
+      </th>
+      <th>
+        Odds
+      </th>
+      <th>
+        Amount
+      </th>
+    </tr>
+    <tr *ngFor="let bet of bets">
+      <td>
+        {{bet.PLAYER_NAME}}
+      </td>
+      <td>
+        {{bet.HORSE_NAME}}
+      </td>
+      <td>
+        {{bet.ODDS}}/1
+      </td>
+      <td>
+        {{bet.AMOUNT}}
+      </td>
+    </tr>
+  </table>
+</div>
+<br/>
+<a routerLink="/race/{{gameId}}/{{raceId}}">Click here to enter race</a>
+

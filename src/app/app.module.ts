@@ -16,6 +16,8 @@ import { UserListComponent } from './user-list/user-list.component';
 import { BetPlacementComponent } from './bet-placement/bet-placement.component';
 import { HorseSelectionComponent } from './horse-selection/horse-selection.component';
 import { RaceComponent } from './race/race.component';
+import { ImagesService } from "./images.service";
+import { PreRaceReportComponent } from './pre-race-report/pre-race-report.component';
 
 
 @NgModule({
@@ -27,7 +29,8 @@ import { RaceComponent } from './race/race.component';
     UserListComponent,
     BetPlacementComponent,
     HorseSelectionComponent,
-    RaceComponent
+    RaceComponent,
+    PreRaceReportComponent
   ],
   imports: [
     BrowserModule,
@@ -35,7 +38,7 @@ import { RaceComponent } from './race/race.component';
     HttpClientModule,
     FormsModule
   ],
-  providers: [GamesService, AuthenticationService, UsersService, SoundsService],
+  providers: [GamesService, AuthenticationService, UsersService, SoundsService, ImagesService],
   bootstrap: [AppComponent]
 })
 export class AppModule {

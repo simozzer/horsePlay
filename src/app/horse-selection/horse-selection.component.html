@@ -1,8 +1,4 @@
-<h3 *ngIf="player">{{player.NAME}}</h3>
-
-<h2>Select your horses for races at </h2>
-<h2>{{meeting.NAME}}</h2>
-
+<h2>Select your horses for races at {{meeting.NAME}}</h2>
 <table>
   <tr>
     <th>NAME</th>
@@ -23,7 +19,7 @@
     <th>Horse</th>
   </tr>
 <tr *ngFor="let race of races">
-  <td>{{race.NAME}}</td>
+  <td>{{race.NAME}},{{race.ID}}</td>
   <td>{{race.LENGTH_FURLONGS}}</td>
   <td>{{race.PRIZE}}</td>
   <td>

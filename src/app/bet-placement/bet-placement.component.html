@@ -1,7 +1,6 @@
-<p>bet-placement works!</p>
-
-<b>{{player.NAME}}</b>
-
+<h3>Place your bets for the {{raceData.NAME}}</h3>
+<h5>Length: {{raceData.LENGTH_FURLONGS}}</h5>
+<h5>Prize: {{raceData.PRIZE}}</h5>
 <h4>Horses:</h4>
 <table>
   <tr>
@@ -86,10 +85,11 @@
 <br>
 <div *ngIf="playerReady">
   <div *ngIf="allPlayersReady; else notReady">
-    READY TO GO... display all selections and start race
+    READY TO GO..
+
   </div>
   <ng-template #notReady>
-    Waiting for players to complete selections.....
+    <h6>WAITING FOR PLAYERS TO PLACE BETS</h6>
   </ng-template>`
 
 </div>

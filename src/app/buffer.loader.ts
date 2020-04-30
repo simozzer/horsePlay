@@ -1,45 +1,40 @@
 export class BufferLoader {
 
-  _context = null;
+
   _urlList = [];
   _callback = null;
+  _callbackOwner = null;
 
   _bufferList = [];
   _loadCount = 0;
 
-  constructor(context, urlList, callback) {
-    this._context = context;
+  _promises = [];
+
+  constructor(urlList, callback, callbackOwner) {
     this._urlList = urlList;
     this._callback = callback;
+    this._callbackOwner = callbackOwner;
+
+    this._promises = [];
     this._bufferList = [];
     this._loadCount = 0;
   }
 
-  loadBuffer(url, index) {
+  async loadBuffer(url, iIndex):Promise<any> {
     // Load buffer asynchronously
     var request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.responseType = "arraybuffer";
 
     var loader = this;
+    var req  = request;
 
     request.onload = function () {
       // Asynchronously decode the audio file data in request.response
-      loader._context.decodeAudioData(
-        request.response,
-        function (buffer) {
-          if (!buffer) {
-            alert("error decoding file data: " + url);
-            return;
-          }
-          this.bufferList[index] = buffer;
-          if (++loader._loadCount == loader._urlList.length)
-            this.onload(loader._bufferList);
-        },
-        function (error) {
-          console.error("decodeAudioData error", error);
-        }
-      );
+      loader._bufferList[iIndex] = request.response;
+      if (++loader._loadCount == loader._urlList.length) {
+        loader._callback.call(loader._callbackOwner,loader._bufferList);
+      };
     };
 
     request.onerror = function () {
@@ -47,10 +42,17 @@ export class BufferLoader {
     };
 
     request.send();
+
+    return request;
   };
 
-  load() {
-    for (let i = 0; i < this._urlList.length; ++i)
-      this.loadBuffer(this._urlList[i], i);
+  getPromise(index) {
+    return this._promises[index];
+  }
+
+  async load() {
+    for (let i = 0; i < this._urlList.length; ++i) {
+      this._promises.push(await this.loadBuffer(this._urlList[i], i));
+    }
   };
 }

@@ -1,9 +1,15 @@
 <div id="main">
-  <h1>{{title}}</h1>
-  <a *ngIf="loggedIn" class="nav-item nav-link" (click)="logout()" >Logout</a>
-  <a *ngIf="loggedIn" routerLink="/games" >Games</a>
-  <router-outlet></router-outlet>
-
+  <div class="appHeader">
+    <div class="gameTitle">{{title}}</div>
+    <div *ngIf="player" class="playerName">{{player.NAME}}</div>
+    <div class="myRoutes">
+      <a *ngIf="loggedIn" class="nav-item nav-link" (click)="logout()" >Logout</a>
+      <a *ngIf="loggedIn" routerLink="/games" >Games</a>
+    </div>
+  </div>
+  <div class="myRouterOutlet">
+    <router-outlet></router-outlet>
+  </div>
 </div>
 
 

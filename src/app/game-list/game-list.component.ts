@@ -41,6 +41,13 @@ export class GameListComponent implements OnInit {
           await this.games.forEach( async (game)=> {
               let players = await this.getPlayersInGame(game);
               game.players = players;
+              let playerInGame = game.players.find(p => {
+                if (p.ID = this.player.ID) {
+                  return p;
+                }
+              });
+
+              game.playerInGame = playerInGame;
               //window.alert(JSON.stringify(players));
           },this);
           return this.games;

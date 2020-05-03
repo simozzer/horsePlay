@@ -3,7 +3,7 @@
     <table>
       <tr *ngFor="let game of games">
         <td>
-          <a routerLink="/game/{{game.ID}}">{{ game.NAME }}</a>
+          <a *ngIf="game.playerInGame" routerLink="/game/{{game.ID}}">{{ game.NAME }}</a>
         </td>
         <td *ngIf="game.players && game.players.length">
           <div *ngFor="let player of game.players">
@@ -11,15 +11,15 @@
           </div>
         </td>
         <td>
-          <input type="button" (click)="join(game.ID)" value="Join"/>
+          <input type="button" (click)="join(game.ID)" [disabled]="game.playerInGame" value="Join"/>
         </td>
         <td>
-          <input type="button" (click)="leave(game.ID)" value="Leave"/>
+          <input type="button" (click)="leave(game.ID)" [disabled]="!game.playerInGame" value="Leave"/>
         </td>
 
 
-        <td>ADMIN ONLY!
-          <input type="button" (click)="deleteGame(game.NAME)" value="Delete"/>
+        <td>
+          <input type="button" (click)="deleteGame(game.NAME)" value="Delete" [disabled]="player.NAME !== 'SIMON'"/>
         </td>
     </table>
   <br/>

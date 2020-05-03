@@ -83,6 +83,7 @@ export class RaceComponent implements OnInit {
         this.gamesService.getPlayersInGame(this.gameId),
       ]).subscribe((responses) => {
         this.raceData = responses[1];
+        this._title = this.raceData.NAME + "("  + this.raceData.LENGTH_FURLONGS + ")";
         this.bets = responses[2];
         this.horses = responses[3];
         this.players = responses[4];
@@ -290,13 +291,14 @@ export class RaceComponent implements OnInit {
 
           // TODO  move to next screen
           await this.updatePlayerStates(5);
-
+          this.showNextStep = true;
         }, err => {
           window.alert("Error saving games indexes: " + err);
         });
 
       } else {
-        window.alert('NO MORE MEETINGS');
+        this.showNextStep = true;
+
       };
     });
 

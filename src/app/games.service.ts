@@ -285,9 +285,7 @@ export class GamesService {
               // last race in meeting move to next meeting
               gameData.MEETING_INDEX = gameData.MEETING_INDEX + 1;
               if (gameData.MEETING_INDEX >= meetings.length) {
-                // no more meetings
-                window.alert(" game over");
-                resolve(false);
+                resolve(null);
               } else {
                 // move to 1st race in next meeting
                 meeting = meetings[gameData.MEETING_INDEX];

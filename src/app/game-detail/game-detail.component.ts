@@ -35,7 +35,6 @@ export class GameDetailComponent implements OnInit {
 
 
 
-
   getMeetings() {
     this.gamesService.getMeetings()
       .subscribe(async data => {

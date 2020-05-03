@@ -17,9 +17,3 @@ a {
   text-transform: uppercase;
   background-color: lightblue;
 }
-
-
-#main{
-  background-image: url("/assets/images/winners.jpg");
-  background-size: cover;
-}

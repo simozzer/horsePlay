@@ -17,6 +17,7 @@ export class GameDetailComponent implements OnInit {
   meetings;
   meeting;
   meetingId;
+  gameData;
 
   @Input() game: any;
   model = { name: ""};
@@ -33,12 +34,17 @@ export class GameDetailComponent implements OnInit {
   }
 
 
+
+
   getMeetings() {
     this.gamesService.getMeetings()
       .subscribe(async data => {
           this.meetings = data;
           this.meeting = this.meetings[this.game.MEETING_INDEX];
           this.meetingId = this.meeting.ID;
+          await this.gamesService.getRaces(this.meetingId).then((races) => {
+            this.game.RACE_ID = races[this.game.RACE_INDEX].ID;
+          })
         }, error => {
         window.alert('error getting meetings: ' + error)
       })
@@ -54,14 +60,12 @@ export class GameDetailComponent implements OnInit {
           if (this.game.MEETING_INDEX < 0) {
             this.game.MEETING_INDEX = 0;
             this.game.RACE_INDEX = 0;
-            await this.getMeetings();
           }
+          await this.getMeetings();
           this.sortPlayers();
         }, error =>
           window.alert("error getting game: " + error)
       )
-
-
   }
 
   async getPlayersInGame() {

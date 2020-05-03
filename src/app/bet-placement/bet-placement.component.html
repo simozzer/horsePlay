@@ -1,6 +1,10 @@
-<h3>Place your bets for the {{raceData.NAME}}</h3>
-<h5>Length: {{raceData.LENGTH_FURLONGS}}</h5>
-<h5>Prize: {{raceData.PRIZE}}</h5>
+<div id="main">
+
+<div *ngIf="raceData">
+  <h3>Place your bets for the {{raceData.NAME}}</h3>
+  <h5>Length: {{raceData.LENGTH_FURLONGS}}</h5>
+  <h5>Prize: {{raceData.PRIZE}}</h5>
+</div>
 <h4>Horses:</h4>
 <table>
   <tr>
@@ -29,8 +33,8 @@
     </td>
     <td>
       <ul *ngIf="odds.horse.FORM">
-        <li>
-          FORM
+        <li *ngFor="let f of odds.horse.FORM">
+          {{f.POSITION}},
         </li>
       </ul>
     </td>
@@ -39,18 +43,23 @@
 <br/>
 <div class="betPlacementSection">
   <h4>Place your bet</h4>
+  <hr/>
+    <h5>Available Funds: {{initialFunds}}</h5>
+    <h5>Remaining Funds: {{remainingFunds}}</h5>
+  <hr/>
   <div class="placeBetContainer">
     <label for="horseSelector">Horse: </label>
     <select id="horseSelector">
       <option *ngFor="let odd of _oddsStats">
-        <select *ngIf="odd.horse.PLAYER_ID !== player.ID" id="horseSelector">
+        <!--<select *ngIf="odd.horse.PLAYER_ID !== player.ID" id="horseSelector"> -->
+        <select id="horseSelector">
           {{odd.horse.NAME}}
         </select>
       </option>
     </select>
     <label for="betAmount">Amount:</label>
-    <input type="number" id="betAmount"/>
-    <input type="button" (click)="placeBet()" value="Place Bet"/>
+    <input type="number" id="betAmount" (change)="updateEnabledState()" (keyup)="updateEnabledState()"/>
+    <input type="button" (click)="placeBet()" value="Place Bet" [disabled]="invalidBetAmount"/>
   </div>
 </div>
 <div *ngIf="playerBets">
@@ -80,6 +89,7 @@
     </tr>
   </table>
 </div>
+<h5>Total Bets Placed: {{this.betsTotal}}</h5>
 <br/>
 <input type="button" value="Ready" (click)="handleReadyToRace()"/>
 <br>
@@ -93,4 +103,4 @@
   </ng-template>`
 
 </div>
-
+</div>

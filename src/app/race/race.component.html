@@ -1,2 +1,132 @@
+<div id="raceArea">
 <canvas id="raceCanvas">
 </canvas>
+
+
+<div *ngIf="_raceFinished">
+  <h2>FINISHERS</h2>
+  <table>
+    <tr>
+      <th>
+        Horse
+      </th>
+      <th>
+        Owner
+      </th>
+    </tr>
+    <tr *ngFor="let f of _finishers">
+      <th>
+        {{f.NAME}}
+      </th>
+      <th>
+        {{f.PLAYER_NAME}}
+      </th>
+    </tr>
+  </table>
+
+    <h2>PRIZES</h2>
+    <table>
+      <tr>
+        <th>
+          Player
+        </th>
+        <th>
+          Prize
+        </th>
+      </tr>
+      <tr *ngFor="let p of _prizes">
+        <th>
+          {{p.PLAYER_NAME}}
+        </th>
+        <th>
+          {{p.PRIZE}}
+        </th>
+      </tr>
+  </table>
+
+  <br/>
+  <div *ngIf="_winningBets && _winningBets.length">
+  <h2>BETS WON</h2>
+  <table>
+    <td>
+      Player
+    </td>
+    <td>
+      Horse
+    </td>
+    <td>
+      Bet
+    </td>
+    <td>
+      Odds
+    </td>
+    <td>
+      Won
+    </td>
+    <tr *ngFor="let win of _winningBets">
+      <td>
+        {{win.PLAYER_NAME}}
+      </td>
+      <td>
+        {{win.HORSE_NAME}}
+      </td>
+      <td>
+        {{win.AMOUNT}}
+      </td>
+      <td>
+        {{win.ODDS}}
+      </td>
+      <td>
+        {{win.WIN}}
+      </td>
+    </tr>
+  </table>
+  </div>
+
+
+  <br/>
+  <div *ngIf="_loosingBets && _loosingBets.length">
+    <h2>BETS LOST</h2>
+    <table>
+      <td>
+        Player
+      </td>
+      <td>
+        Horse
+      </td>
+      <td>
+        Bet
+      </td>
+      <td>
+        Odds
+      </td>
+      <td>
+        Lost
+      </td>
+      <tr *ngFor="let b of _loosingBets">
+        <td>
+          {{b.PLAYER_NAME}}
+        </td>
+        <td>
+          {{b.HORSE_NAME}}
+        </td>
+        <td>
+          {{b.AMOUNT}}
+        </td>
+        <td>
+          {{b.ODDS}}
+        </td>
+        <td>
+          {{b.AMOUNT}}
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <a routerLink="/game/{{gameData.ID}}">Click here to see game leaderboard</a>
+
+</div>
+
+  <a *ngIf="showNextStep" routerLink="/game/{{gameData.ID}}">Click here to see game leaderboard</a>
+
+</div>

@@ -12,10 +12,10 @@ a {
   font-weight: 800;
 }
 
-
 .playerName {
   font: 18pt sans-serif;
-  float: left;
+  font-weight: 800;
+  display: inline-block;
 }
 
 .myRoutes {
@@ -31,8 +31,14 @@ a {
 }
 
 .myRouterOutlet:nth-child(2) {
-  height: 100%;
+  height: calc(90% - 32px);
   margin-bottom: 0px;
+  overflow: auto;
+}
+
+td>ul {
+  margin: 0px;
+  list-style: none;
 }
 
 a {

@@ -39,14 +39,34 @@ input[type="button"] {
 }
 
 
+h3 {
+  text-align: center;
+  background-color: darkorange;
+  font-size: 16pt;
+  padding-bottom: 0px;
+  margin-bottom: 0px;
+}
+
+
 table {
   margin-left:auto;
   margin-right:auto;
+  border: 2px solid beige;
+  border-radius: 10px;
+  background-color: black;
+  color: whitesmoke;
+}
+
+th {
+  border-bottom: 4px solid darkslategrey;
+  font: 12pt arial black;
+  padding-top: ;
 }
 
 td {
   vertical-align: top;
   background-color: #dadaa2;
+  color:black;
 }
 
 td>input[type="button"] {

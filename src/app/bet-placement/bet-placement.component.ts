@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import {GamesService} from "../games.service";
 import {ActivatedRoute, Router} from "@angular/router";
-
+import {HORSETYPES} from "../race-horse";
+import {forkJoin} from "rxjs";
 
 
 @Component({
@@ -10,12 +11,6 @@ import {ActivatedRoute, Router} from "@angular/router";
   styleUrls: ['./bet-placement.component.css']
 })
 export class BetPlacementComponent implements OnInit {
-
-  HORSETYPES = {
-    SHORT_RACE: 0,
-    MEDIUM_RACE: 1,
-    LONG_RACE: 2,
-  };
 
   RACE_LENGTHS = {
     F5: 0,
@@ -37,6 +32,11 @@ export class BetPlacementComponent implements OnInit {
   _oddsStats: any;
   allPlayersReady = false;
   playerReady = false;
+  initialFunds = 0;
+  remainingFunds = 0;
+  betsTotal = 0;
+  _invalidBetAmount = false;
+
   constructor(private gamesService: GamesService,
               private route: ActivatedRoute,
               private router: Router) {}
@@ -49,33 +49,74 @@ export class BetPlacementComponent implements OnInit {
     this.player = JSON.parse(localStorage.getItem('currentUser',));
 
     this.getAllPlayers();
-    this.gamesService.getHorsesForRace(this.gameId, this.raceId)
-      .subscribe(async data => {
-          this.horses = data;
 
-        this.gamesService.getRaceInfo(this.raceId)
-          .subscribe((data) => {
-            this.raceData = data;
-            this.generateOdds(this.horses);
-            this.getPlayerBets();
-          }, (error) => {
-            window.alert("failed to get race info: " + error);
-          })
+    forkJoin([this.gamesService.getHorsesForRace(this.gameId, this.raceId),
+      this.gamesService.getRaceInfo(this.raceId)])
+        .subscribe( async data => {
+          this.horses = data[0];
+          this.raceData = data[1];
+          for (const horse of this.horses) {
+            horse.FORM = await this.getHorseForm(horse.ID);
+          }
+          this.generateOdds(this.horses);
+          this.getPlayerBets();
+          }, err => {
+              window.alert("error setting up: " + err);
+          });
+    this.gamesService.getPlayerFunds(this.gameId,this.player.ID)
+      .subscribe( (data) => {
+        let rec = data;
+        this.initialFunds = rec["FUNDS"];
+        this.remainingFunds = this.initialFunds;
 
-
-
-        }, error =>
-          window.alert("error getting game: " + error)
-      )
+      }, err => {
+        window.alert("Error getting player funds:" + err);
+      })
   }
+
+  async getHorseForm(horseId)  {
+    return new Promise((resolve, reject) => {
+      this.gamesService.getHorseForm(this.gameId,horseId)
+        .subscribe( data => {
+          resolve(data);
+        }, error => {
+          reject(error);
+        });
+    });
+  }
+
 
   getPlayerBets() {
     this.gamesService.getBetsForPlayer(this.gameId,this.raceId,this.player.ID)
       .subscribe( data => {
         this.playerBets = data;
+        let betsAmt = 0;
+        for(let b of this.playerBets) {
+          betsAmt += b.AMOUNT;
+        }
+        this.betsTotal = betsAmt;
+        this.remainingFunds = this.initialFunds - this.betsTotal;
       }, error => {
         window.alert("Failed to get player bets: " + error);
       })
+  }
+
+  get invalidBetAmount() {
+    this._invalidBetAmount = false;
+    let input = (<HTMLInputElement>(document.getElementById("betAmount")));
+    if (input) {
+      let val = +input.value;
+       if ((val <0) || (val> this.remainingFunds)) {
+         this._invalidBetAmount = true;
+        }
+    } else if (this.remainingFunds < 0) {
+      this._invalidBetAmount = true;
+    }
+    return this._invalidBetAmount;
+  }
+
+  updateEnabledState() {
+    this.invalidBetAmount;
   }
 
   getAllPlayers() {
@@ -119,11 +160,11 @@ export class BetPlacementComponent implements OnInit {
     switch (this.raceData.LENGTH_FURLONGS) {
       case 5:
         switch (horse.HORSE_TYPE) {
-          case this.HORSETYPES.SHORT_RACE:
+          case HORSETYPES.SHORT_RACE:
             return horse.SPEED_FACTOR;
-          case this.HORSETYPES.MEDIUM_RACE:
+          case HORSETYPES.MEDIUM_RACE:
             return horse.SPEED_FACTOR * 0.9;
-          case this.HORSETYPES.LONG_RACE:
+          case HORSETYPES.LONG_RACE:
             return horse.SPEED_FACTOR * 0.8;
           default:
         }
@@ -131,11 +172,11 @@ export class BetPlacementComponent implements OnInit {
 
       case 6:
         switch (horse.HORSE_TYPE) {
-          case this.HORSETYPES.SHORT_RACE * 0.95:
+          case HORSETYPES.SHORT_RACE * 0.95:
             return horse.SPEED_FACTOR;
-          case this.HORSETYPES.MEDIUM_RACE:
+          case HORSETYPES.MEDIUM_RACE:
             return horse.SPEED_FACTOR * 0.92;
-          case this.HORSETYPES.LONG_RACE:
+          case HORSETYPES.LONG_RACE:
             return horse.SPEED_FACTOR * 0.8;
           default:
         }
@@ -143,11 +184,11 @@ export class BetPlacementComponent implements OnInit {
 
       case 7:
         switch (horse.HORSE_TYPE) {
-          case this.HORSETYPES.SHORT_RACE:
+          case HORSETYPES.SHORT_RACE:
             return horse.SPEED_FACTOR * 0.85;
-          case this.HORSETYPES.MEDIUM_RACE:
+          case HORSETYPES.MEDIUM_RACE:
             return horse.SPEED_FACTOR * 0.94;
-          case this.HORSETYPES.LONG_RACE:
+          case HORSETYPES.LONG_RACE:
             return horse.SPEED_FACTOR * 0.8;
           default:
         }
@@ -155,11 +196,11 @@ export class BetPlacementComponent implements OnInit {
 
       case 8:
         switch (horse.HORSE_TYPE) {
-          case this.HORSETYPES.SHORT_RACE:
+          case HORSETYPES.SHORT_RACE:
             return horse.SPEED_FACTOR * 0.75;
-          case this.HORSETYPES.MEDIUM_RACE:
+          case HORSETYPES.MEDIUM_RACE:
             return horse.SPEED_FACTOR * 0.96;
-          case this.HORSETYPES.LONG_RACE:
+          case HORSETYPES.LONG_RACE:
             return horse.SPEED_FACTOR * 0.85;
           default:
         }
@@ -167,11 +208,11 @@ export class BetPlacementComponent implements OnInit {
 
       case 16:
         switch (horse.HORSE_TYPE) {
-          case this.HORSETYPES.SHORT_RACE:
+          case HORSETYPES.SHORT_RACE:
             return horse.SPEED_FACTOR * 0.6;
-          case this.HORSETYPES.MEDIUM_RACE:
+          case HORSETYPES.MEDIUM_RACE:
             return horse.SPEED_FACTOR * 0.86;
-          case this.HORSETYPES.LONG_RACE:
+          case HORSETYPES.LONG_RACE:
             return horse.SPEED_FACTOR;
           default:
         }
@@ -184,10 +225,11 @@ export class BetPlacementComponent implements OnInit {
   }
 
   generateOdds(horses) {
+
     let oddsStats = [];
     horses.forEach((horse) => {
       let val = this.getHorseWinChanceScore(horse);
-      oddsStats.push({ horse: horse, score: val });
+      oddsStats.push({ horse: horse, score: val, form: horse.FORM});
     });
     oddsStats.sort((a, b) => {
       if (a.score === b.score) {

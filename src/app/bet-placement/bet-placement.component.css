@@ -1,10 +1,33 @@
 .placeBetContainer {
-  background-color: darksalmon;
   clear: both;
   text-align: center;
   font: 14pt sans-serif;
-  color: darkred;
+  color: darkblue;
   padding: 10px;
+  background-color: lightgoldenrodyellow;
+}
+
+#main {
+  background-image: url(/assets/images/bookies.jpg);
+  background-size: cover;
+}
+
+h3 {
+  text-align: center;
+  background-color: darkorange;
+  font-size: 16pt;
+}
+
+h5 {
+  text-align: center;
+  background-color: white;
+  /* margin: 0px; */
+  font: 13pt sans bold;
+  font-weight: 800;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 4px;
+  margin-bottom: 4px;
 }
 
 table {
@@ -16,9 +39,25 @@ td {
   padding:6px;
 }
 
+td>ul {
+  margin: 0px;
+  padding:0px;
+  list-style-type: none;
+}
+
+td>li {
+  float:left;
+}
+
+
 h4 {
   text-align: center;
+  font-size: 19pt;
+  margin-top: 0;
+  margin-bottom: 0;
+  color:blue;
 }
+
 
 
 h5 {
@@ -31,7 +70,6 @@ label {
 }
 
 .betPlacementSection {
-  background-color: #696912;
   vertical-align: middle;
 }
 
@@ -41,7 +79,6 @@ label {
   margin-bottom: initial;
   padding-top: 4px;
   padding-bottom: 4px;
-  color: white;
 }
 
 .placeBetContainer input[type="button"] {

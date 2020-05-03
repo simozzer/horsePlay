@@ -105,7 +105,6 @@ export class ImagesService {
         return item;
       }
     });
-    console.log('got image' + result.img);
     return (<HTMLImageElement>(result.img));
 
 

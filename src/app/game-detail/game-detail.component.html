@@ -1,6 +1,7 @@
+<div id="main">
 <div *ngIf="game" class="gameDetail">
   <h2 *ngIf="game"> Game: {{game.NAME}}</h2>
-  <h3>Players:</h3>
+  <h3>SCOREBOARD:</h3>
   <div *ngIf="game.players && game.players.length" class="playerList">
     <table>
       <tr>
@@ -17,10 +18,16 @@
 
     </table>
   </div>
-  <div *ngIf="!game.state || game.state === 0">
-    <br/>
-    <h4>Game Not Yet Stated</h4>
+
+  {{game.ID}},
+  {{game.RACE_INDEX}};
+  <div *ngIf="game.RACE_INDEX === 0; else showBets">
+    <a routerLink="/selection/{{game.ID}}/{{meetingId}}">Select horses for meeting</a>
   </div>
-  <a routerLink="/selection/{{game.ID}}/{{meetingId}}">Select horses
-  </a>
+
+  <ng-template #showBets>
+    <a routerLink="//betting/{{game.ID}}/{{game.RACE_ID}}">place bets</a>
+  </ng-template>
+
+</div>
 </div>

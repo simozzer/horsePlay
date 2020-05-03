@@ -12,3 +12,18 @@ h5 {
   margin-bottom:4px;
   font:14pt sans black;
 }
+
+a {
+  text-decoration: underline;
+  display: block;
+  cursor: pointer;
+  text-align: center;
+  font: 20pt sans bold;
+  text-transform: uppercase;
+  background-color: lightblue;
+}
+
+#main{
+  background-image: url("/assets/images/betsPlaced.jpg");
+  background-size: cover;
+}

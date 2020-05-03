@@ -1,7 +1,9 @@
-<div id="main">
+
   <div class="appHeader">
-    <div class="gameTitle">{{title}}</div>
-    <div *ngIf="player" class="playerName">{{player.NAME}}</div>
+    <div class="gameTitle">{{title}}
+      <div *ngIf="player" class="playerName">{{player.NAME}}</div>
+    </div>
+
     <div class="myRoutes">
       <a *ngIf="loggedIn" class="nav-item nav-link" (click)="logout()" >Logout</a>
       <a *ngIf="loggedIn" routerLink="/games" >Games</a>
@@ -10,7 +12,7 @@
   <div class="myRouterOutlet">
     <router-outlet></router-outlet>
   </div>
-</div>
+
 
 
 

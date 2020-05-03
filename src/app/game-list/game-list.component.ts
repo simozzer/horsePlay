@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import {GamesService} from "../games.service";
 import {UsersService} from "../users.service";
 import {AuthenticationService} from "../authentication.service";
+import {HORSES_PER_PLAYER, RaceHorse, HorseNameGenerator, INITIAL_PLAYER_FUNDS} from "../race-horse";
+import {map} from "rxjs/operators";
 
 @Component({
   selector: 'app-game-list',
@@ -82,29 +84,34 @@ export class GameListComponent implements OnInit {
       )
   }
 
-  async playerInGame(gameId: number) {
-    return new Promise(async (resolve,reject) => {
-      this.gamesService.getPlayersInGame(gameId)
-        .subscribe( (data) => {
-          let players = [];
-          if (players.find((player) => {
-            if (player.NAME = this.player.Name) {
-              return player;
-            }
-          })) {
-            resolve(true)
-          } else {
-            resolve(false);
-          }
-        });
-    });
-  }
-
 
   join(gameId: string) {
     this.gamesService.updatePlayerInGame(gameId, {id: this.player.ID})
       .subscribe(data => {
-          this.getGames();
+          //ADD HORSES FOR PLAYER
+          let horses = [];
+          for(let i = 0; i < HORSES_PER_PLAYER; i++) {
+            let i = Math.round(Math.random() * 50);
+            let horseName = HorseNameGenerator.getHorseName() + i;
+            let horse = new RaceHorse(horseName);
+            horses.push(horse);
+          };
+          this.gamesService.savePlayerHorses(gameId,this.player.ID,horses).subscribe(
+            data => {
+              this.gamesService.adjustPlayerFunds(gameId,this.player.ID,INITIAL_PLAYER_FUNDS)
+                .subscribe( data =>{
+                  this.getGames();
+                }, err => {
+                  window.alert("Failed to adjust player funds: " + err)
+                })
+
+            },
+            error => {
+              window.alert("error saving player horses: " + error);
+            }
+          );
+          this.gamesService.setPlayerState(gameId,this.player.ID,2);// ready to select horses
+
         }, error => {
           window.alert("Error: " + error)
         }

@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
+import {forkJoin} from "rxjs";
+import {fn} from "@angular/compiler/src/output/output_ast";
 
 @Injectable({
   providedIn: 'root'
@@ -40,6 +42,11 @@ export class GamesService {
       .pipe(map((response :Response) => response));
   }
 
+  savePlayerHorses(gameId, playerId, horses){
+    return this.http.post(this.hostUrl + "game/" + gameId + '/horsesFor/' + playerId, horses)
+      .pipe(map((response :Response) => response));
+  }
+
 
   getHorsesForRace(gameId, raceId) {
     return this.http.get(this.hostUrl + "game/" + gameId + "/horsesInRace/" + raceId)
@@ -56,11 +63,12 @@ export class GamesService {
   }
 
 
-  getHorseForm(gameId, raceId) {
-    return this.http.get(this.hostUrl + "game/" + gameId + "/horseForm/" + raceId)
+  getHorseForm(gameId, horseId) {
+    return this.http.get(this.hostUrl + "game/" + gameId + "/horseForm/" + horseId)
       .pipe(map((response :Response) => response));
 
   }
+
 
 
   addHorseToRace(gameId, raceId, horseId, playerId) {
@@ -70,7 +78,7 @@ export class GamesService {
 
 
   addGame(name){
-    return this.http.post(this.hostUrl + "games",{'name':name})
+    return this.http.post(this.hostUrl + "games",{'name':name })
       .pipe(map((response: Response) => {
         return response;
       }));
@@ -78,6 +86,13 @@ export class GamesService {
 
   getGame(id) {
     return this.http.get(this.hostUrl + "game/" + id,{})
+      .pipe(map((response: Response) => {
+        return response;
+      }));
+  }
+
+  saveGameIndexes(gameObj) {
+    return this.http.post(this.hostUrl + "gameIndexes", gameObj)
       .pipe(map((response: Response) => {
         return response;
       }));
@@ -94,6 +109,20 @@ export class GamesService {
 
   updatePlayerInGame(gameId, playerObject) {
     return this.http.post( `${this.hostUrl}game/${gameId}/players`,playerObject)
+      .pipe(map((response: Response) => {
+        return response;
+      }));
+  }
+
+  adjustPlayerFunds(gameId, playerId, adjustment) {
+    return this .http.post(`${this.hostUrl}playerFunds/${gameId}/${playerId}/${adjustment}`,{})
+      .pipe(map((response: Response) => {
+        return response;
+      }));
+  }
+
+  getPlayerFunds(gameId, playerId) {
+    return this .http.get(`${this.hostUrl}playerFunds/${gameId}/${playerId}`,{})
       .pipe(map((response: Response) => {
         return response;
       }));
@@ -154,8 +183,35 @@ export class GamesService {
       }));
   }
 
+  saveHorseForm(gameId,raceId,horseId,position) {
+      return this.http.post(`${this.hostUrl}game/${gameId}/horseForm/${raceId}/${horseId}/${position}`,{})
+        .pipe(map((response: Response) => {
+          return response;
+        }));
+    }
+
+  clearRaceBets(gameId, raceId) {
+   return this.http.delete(`${this.hostUrl}game/${gameId}/bets/${raceId}`)
+     .pipe(map((response: Response) => {
+       return response;
+     }));
+
+  }
+
+
   getPlayerCountWithState(gameId, state) {
     return this.http.get( `${this.hostUrl}playerStates/${gameId}/state/${state}`)
+      .pipe(map((response: Response) => {
+        return response;
+      }));
+  }
+
+  clearHorsesForPlayer(gameId, playerId, meetingId) {
+    return this.http.post( `${this.hostUrl}delHorse`,{
+      gameId : gameId,
+      playerId : playerId,
+      meetingId : meetingId
+    })
       .pipe(map((response: Response) => {
         return response;
       }));
@@ -167,6 +223,107 @@ export class GamesService {
       .pipe(map((response: Response) => {
         return response;
       }));
+  }
+
+  getPlayerState(gameId,playerId) {
+    const url = `${this.hostUrl}plyrState/${playerId}/game/${gameId}`;
+    return this.http.get( url )
+      .pipe(map((response: Response) => {
+        return response;
+      }));
+  }
+
+  async waitForAllPlayersToHaveState(gameId, state, expectedCount) {
+
+    return new Promise((resolve, reject) => {
+      const doCheck =() => {
+        this.getPlayerCountWithState(gameId,state)
+          .subscribe(data => {
+            if (data && data["COUNT"] && (data["COUNT"] === expectedCount)) {
+
+              resolve(true);
+            } else {
+              window.setTimeout(doCheck, 2000, this);
+            }
+          }, error => {
+            reject(error);
+          });
+      };
+      doCheck();
+    });
+  }
+
+
+
+  async getRaces(meetingId) {
+    return new Promise((resolve,reject)=> {
+      this.getRacesInMeeting(meetingId)
+        .subscribe((r) => {
+          resolve(r)
+        }, e => {
+          reject(e);
+        })
+    });
+  }
+
+  async getNextMeeting(gameData) {
+    return new Promise((resolve,reject) => {
+      let meetings;
+      forkJoin([this.getGame(gameData.ID),this.getMeetings()])
+        .subscribe(async (arr) => {
+          gameData = arr[0];
+          meetings = arr[1];
+          let meeting;
+          meeting = meetings[gameData.MEETING_INDEX];
+          await this.getRaces(meeting.ID).then(async (races) => {
+
+            gameData.RACE_INDEX = gameData.RACE_INDEX + 1;
+
+            if (gameData.RACE_INDEX >= races["length"]) {
+
+              gameData.RACE_INDEX = 0;
+              // last race in meeting move to next meeting
+              gameData.MEETING_INDEX = gameData.MEETING_INDEX + 1;
+              if (gameData.MEETING_INDEX >= meetings.length) {
+                // no more meetings
+                window.alert(" game over");
+                resolve(false);
+              } else {
+                // move to 1st race in next meeting
+                meeting = meetings[gameData.MEETING_INDEX];
+                gameData.MEETING_ID = meeting.ID;
+                gameData.MEETING_NAME = meeting.NAME;
+                gameData.RACE_INDEX = 0;
+                await this.getRaces(meeting.ID).then((races) => {
+                  gameData.RACE_ID = races[0].ID;
+                  gameData.RACE_NAME = races[0].NAME;
+                  gameData.RACE_INDEX = 0;
+                  resolve(gameData);
+                });
+
+              }
+            } else {
+              // move to next race in current meeting
+             // gameData.RACE_INDEX = gameData.RACE_INDEX+1;
+              gameData.MEETING_ID = meeting.ID;
+              gameData.MEETING_NAME = meeting.NAME;
+              gameData.RACE_ID = races[gameData.RACE_INDEX].ID;
+              gameData.RACE_NAME = races[gameData.RACE_INDEX].NAME;
+              await this.getRaces(meeting.ID).then((races) => {
+                gameData.RACE_ID = races[gameData.RACE_INDEX].ID;
+                gameData.RACE_NAME = races[gameData.RACE_INDEX].NAME;
+                debugger;
+                resolve(gameData);
+              });
+
+            }
+          })
+
+        }, err => {
+          window.alert("error getting next meeting: " + err)
+        })
+
+    });
   }
 
 

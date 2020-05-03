@@ -1,0 +1,32 @@
+ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+li {
+  clear: none;
+  float: left;
+}
+
+h2 {
+  font-size: 20pt arial white;
+  font: 18pt sans white;
+  text-align: center;
+  background-color: aliceblue;
+}
+
+h5 {
+  text-align: center;
+  background-color: yellow;
+  font: 16pt arial;
+}
+
+
+a {
+  text-decoration: underline;
+  display: block;
+  cursor: pointer;
+  text-align: center;
+  color: white;
+  font: 16pt -webkit-xxx-large;
+}

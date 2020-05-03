@@ -73,7 +73,7 @@ export class HorseSelectionComponent implements OnInit {
 
         this.gamesService.getPlayerHorsesForMeeting(this.gameId,this.meetingId,this.player.ID)
           .subscribe( async(data) => {
-            this.restoreSelections(data);
+            //this.restoreSelections(data);
           }, (err) => {
             window.alert("Error getting player horses for meeting: " + err);
           });
@@ -93,17 +93,6 @@ export class HorseSelectionComponent implements OnInit {
   }
 
 
-  /*
-  getGameData() {
-    this.gamesService.getGame(this.gameId)
-      .subscribe((data) => {
-        this.gameData = data;
-      }, (err) => {
-        console.log("Failed to get game data: " + err);
-      });
-  }*/
-
-
   handleHorseSelected() {
     let selectionBoxes = Array.from(document.getElementsByClassName("horseSelector"));
     let selectedValues = selectionBoxes.map((selectionBox) => {
@@ -112,9 +101,6 @@ export class HorseSelectionComponent implements OnInit {
 
     // check for duplicated values
     this.invalid = (new Set(selectedValues)).size !== selectedValues.length;
-
-    //TODO REMOVE
-    this.soundsService.playSound(1);
   }
 
   checkReadyForNextStep() {
@@ -132,31 +118,38 @@ export class HorseSelectionComponent implements OnInit {
       }, (err) => {
         console.log(err);
       });
-    }, 0, [this]);
+    }, 2000, [this]);
 
   }
 
   async setSelection() {
-    let selectionBoxes = Array.from(document.getElementsByClassName("horseSelector"));
-    let selectedValues = selectionBoxes.map((selectionBox, index) => {
-      let horseName = (<HTMLSelectElement>selectionBox).value;
-      let horse = this.gamesService.getHorseByName(this.horses,horseName);
-      return {raceId: this.races[index].ID, horseId: horse.ID};
-    });
-    let aSubscriptions = []
-    for (const selection of selectedValues) {
-      aSubscriptions.push(this.gamesService.addHorseToRace(this.gameId,selection.raceId,selection.horseId,this.player.ID));
-    }
 
-    forkJoin(aSubscriptions)
-      .subscribe(async (data) => {
-          console.log(data);
-          this.checkReadyForNextStep();
+    this.gamesService.clearHorsesForPlayer(this.gameId, this.player.ID, this.meetingId)
+      .subscribe((success) => {
 
-        }, error =>
-          window.alert("error getting game: " + error)
-      );
+        let selectionBoxes = Array.from(document.getElementsByClassName("horseSelector"));
+        let selectedValues = selectionBoxes.map((selectionBox, index) => {
+          debugger;
+          let horseName = (<HTMLSelectElement>selectionBox).value;
+          let horse = this.gamesService.getHorseByName(this.horses, horseName);
+          return {raceId: this.races[index].ID, horseId: horse.ID};
+        });
+        let aSubscriptions = []
+        for (const selection of selectedValues) {
+          aSubscriptions.push(this.gamesService.addHorseToRace(this.gameId, selection.raceId, selection.horseId, this.player.ID));
+        }
+        forkJoin(aSubscriptions)
+          .subscribe(async (data) => {
+              console.log(data);
+              this.checkReadyForNextStep();
+            }, error =>
+              window.alert("error getting game: " + error)
+          );
+      }, error => {
+        window.alert("error clearing player horses:" + error)
+      });
   }
+
 
   restoreSelections(sels) {
 

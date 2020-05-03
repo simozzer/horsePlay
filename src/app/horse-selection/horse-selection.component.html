@@ -1,5 +1,10 @@
-<h2>Select your horses for races at {{meeting.NAME}}</h2>
+<div id="main">
 <table>
+  <tr>
+    <th colspan=2>
+      Horses in race
+    </th>
+  </tr>
   <tr>
     <th>NAME</th>
     <th>FORM</th>
@@ -7,11 +12,23 @@
   <tr *ngFor="let horse of horses">
     <td>{{horse.NAME}}</td>
 
-    <td *ngIf="horse.FORM">{{horse.FORM}}</td>
+    <td *ngIf="horse.FORM">
+      <ul *ngIf="horse.FORM">
+        <li *ngFor="let f of horse.FORM">
+          {{f.POSITION}}
+        </li>
+      </ul>
+    </td>
   </tr>
 </table>
-
+  <h2>Select your horses for races at {{meeting.NAME}}</h2>
+  <br/>
 <table>
+  <tr>
+    <th colspan =4>
+      Your selections
+    </th>
+  </tr>
   <tr>
     <th>Race name</th>
     <th>Length in furlongs</th>
@@ -34,12 +51,13 @@
 <input type="button" value="Set Selection" [disabled]="this.invalid" (click)="this.setSelection()"/>
 
 <div *ngIf="readyForBets; else notReady">
-  <a routerLink="/betting/{{gameId}}/1">
+  <a routerLink="/betting/{{gameId}}/{{races[0].ID}}">
     READY TO PLACE BETS. CLICK HERE
   </a>
 </div>
 
 <ng-template #notReady>
-  Waiting for players to complete selections
+  <h5>Waiting for all players to complete selections, please be patient...</h5>
 </ng-template>
+</div>
 

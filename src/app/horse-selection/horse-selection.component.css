@@ -30,3 +30,9 @@ a {
   color: white;
   font: 16pt -webkit-xxx-large;
 }
+
+div#main {
+  height: 100%;
+  background-image: url(/assets/images/chooseHorse.jpg);
+  background-size: cover;
+}

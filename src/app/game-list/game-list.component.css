@@ -1,8 +1,10 @@
 .gamesList {
-  background-color:grey;
+  background-image:url("/assets/images/allHorse.jpg");
+  background-size:cover;
   text-align:center;
   height:100%
 }
+
 a {
   text-decoration: underline;
   display:block;

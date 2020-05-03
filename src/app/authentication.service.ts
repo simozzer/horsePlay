@@ -16,44 +16,32 @@ export class AuthenticationService {
     this.currentUser = this.currentUserSubject.asObservable();
   }
 
-
-  getUsers(){
-    return this.http.get(this.hostUrl + "users")
-      .pipe(map((response: Response) => response));
-  }
-
-  addUser(name, password, isAdmin) {
-    return this.http.post(this.hostUrl + "users",{username:name,password:password,isAdmin:isAdmin})
-      .pipe(map((response: Response) => {
-        return response;
-      }));
-  }
-
   public get currentUserValue(): User {
     return this.currentUserSubject.value;
   }
 
-  login(username: string, password: string) {
-    let sUrl = `${this.hostUrl}authenticate`;
+  async login(username: string, password: string) {
 
-    const loginObj = { username : username, password: password};
-    this.http.post<User>(sUrl, loginObj).subscribe((response) => {
-      if (response) {
-        if (response.NAME) {
-          // store user details and jwt token in local storage to keep user logged in between page refreshes
-          localStorage.setItem('currentUser', JSON.stringify(response));
+    return new Promise((resolve,reject) => {
+      const loginObj = { username : username, password: password};
+      let sUrl = `${this.hostUrl}authenticate`;
+      this.http.post<User>(sUrl, loginObj).subscribe((response) => {
+        if (response) {
+          if (response.NAME) {
+            // store user details and jwt token in local storage to keep user logged in between page refreshes
+            localStorage.setItem('currentUser', JSON.stringify(response));
 
-          this.currentUserSubject.next(response);
-          return response;
+            this.currentUserSubject.next(response);
+            resolve(response);
+          } else {
+            resolve(false);
+          }
         } else {
-          window.alert("Failed to login");
+          resolve(false);
         }
-      } else {
-        window.alert("Failed to login")
-      }
-
-    }, (error) => {
-      console.log("error: " + error.toString());
+      }, (error) => {
+       reject(error);
+      });
     });
   }
 

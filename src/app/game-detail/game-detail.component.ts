@@ -35,6 +35,7 @@ export class GameDetailComponent implements OnInit {
 
 
 
+
   getMeetings() {
     this.gamesService.getMeetings()
       .subscribe(async data => {
@@ -60,6 +61,7 @@ export class GameDetailComponent implements OnInit {
             this.game.MEETING_INDEX = 0;
             this.game.RACE_INDEX = 0;
           }
+
           await this.getMeetings();
           this.sortPlayers();
         }, error =>

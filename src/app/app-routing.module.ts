@@ -14,7 +14,6 @@ import {RaceComponent} from "./race/race.component";
 
 
 const routes: Routes = [
-  { path: '', component: AppComponent, canActivate: [AuthGuard] },
   { path : 'games', component: GameListComponent, canActivate: [AuthGuard] },
   { path : 'game/:id', component: GameDetailComponent, canActivate: [AuthGuard]},
   { path : 'login', component: LoginComponent},
@@ -22,7 +21,8 @@ const routes: Routes = [
   { path : 'betting/:gameId/:raceId', component: BetPlacementComponent, canActivate: [AuthGuard]},
   { path : 'selection/:gameId/:meetingId', component: HorseSelectionComponent, canActivate: [AuthGuard]},
   { path : 'preRace/:gameId/:raceId', component: PreRaceReportComponent, canActivate: [AuthGuard]},
-  { path : 'race/:gameId/:raceId', component: RaceComponent, canActivate: [AuthGuard]}
+  { path : 'race/:gameId/:raceId', component: RaceComponent, canActivate: [AuthGuard]},
+  { path: '', component: AppComponent, canActivate: [AuthGuard] },
 ];
 
 @NgModule({

@@ -15,12 +15,16 @@ export class LoginComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  submitLogin() {
+  async submitLogin() {
     let username = (<HTMLInputElement>(document.getElementById('username'))).value;
     let password = (<HTMLInputElement>(document.getElementById('password'))).value;
-    this.authService.login(username.toUpperCase(),password);
-    this.router.navigate(['games']);
-
+    await this.authService.login(username.toUpperCase(),password).then((loggedIn) => {
+      if (loggedIn) {
+        this.router.navigateByUrl('games');
+      } else {
+        window.alert("Failed to log in");
+      }
+    })
   }
 
 

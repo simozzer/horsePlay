@@ -18,11 +18,13 @@ export class GameListComponent implements OnInit {
   constructor(private gamesService: GamesService,
               private usersService: UsersService,
               private authService: AuthenticationService) {
+    this.games = [];
   }
 
   async ngOnInit() {
-    this.getGames();
     this.player = JSON.parse(localStorage.getItem('currentUser',));
+    await this.getGames();
+
   }
 
   async getPlayersInGame(game) {
@@ -34,26 +36,43 @@ export class GameListComponent implements OnInit {
     });
   }
 
-  getGames() {
-    this.gamesService.getGames()
-      .subscribe(async(data) => {
-          this.games = data;
-          await this.games.forEach( async (game)=> {
+  async getGames() {
+    return new Promise((resolve,reject) => {
+      this.gamesService.getGames()
+        .subscribe(async(data) => {
+            this.games = data;
+            await this.games.forEach( async (game)=> {
               let players = await this.getPlayersInGame(game);
               game.players = players;
-              let playerInGame = game.players.find(p => {
-                if (p.ID = this.player.ID) {
-                  return p;
-                }
-              });
+              game.playerInGame = this.getInGame(game);
+            },this);
+            resolve(this.games);
+          }, error => {
+            reject(error);
+          });
+    });
+  }
 
-              game.playerInGame = playerInGame;
-              //window.alert(JSON.stringify(players));
-          },this);
-          return this.games;
-        }, error =>
-          window.alert("error getting games: " + error)
-      )
+  getInGame(game) {
+
+    if (game && game.players) {
+      debugger;
+      let plyr = game.players.find(p => {
+        debugger;
+        if (p.PLAYER_ID === this.player.ID) {
+          return p;
+        }
+      });
+
+      if (plyr) {
+        console.log("FOUND")
+      } else {
+        console.log("NOT FOUND");
+      }
+      return plyr ? true : false;
+    }
+    return false;
+
   }
 
   addGame(name) {

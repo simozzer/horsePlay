@@ -23,6 +23,9 @@ a {
   display:block;
   cursor:pointer;
   text-align: center;
+  background-color:white;
+  text-decoration: underline;
+  text-transform: uppercase;
 }
 
 input[type="button"] {

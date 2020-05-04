@@ -89,7 +89,7 @@ export class RaceComponent implements OnInit {
         this.players = responses[4];
         this.setup();
       }, error => {
-        console.log("error in forkJoin: " + error)
+        window.alert("error in forkJoin: " + error)
       });
     }
 
@@ -376,7 +376,7 @@ export class RaceComponent implements OnInit {
 
   addFurlongs() {
     this._lines = [{ x: 0, color: "white", label: "start" }];
-    for (var i = 0; i < this.raceData.LENGTH_FURLONGS; i++) {
+    for (let i = 0; i < this.raceData.LENGTH_FURLONGS; i++) {
       let line = {
         x: (i + 1) * PIXELS_PER_FURLONG,
         color: "yellow",

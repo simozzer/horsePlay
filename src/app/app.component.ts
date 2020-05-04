@@ -1,5 +1,4 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { GamesService } from './games.service';
 import {User} from "./user";
 import {AuthenticationService} from "./authentication.service";
 import { Router} from "@angular/router";
@@ -18,8 +17,7 @@ export class AppComponent implements OnInit {
   player: any;
 
   constructor(  private router: Router,
-                private authenticationService: AuthenticationService,
-                private gamesService: GamesService) {
+                private authenticationService: AuthenticationService) {
     this.authenticationService.currentUser.subscribe(x => this.currentUser = x);
     this.title = 'Horse Racing';
     this.player = JSON.parse(localStorage.getItem('currentUser',));
@@ -41,7 +39,7 @@ export class AppComponent implements OnInit {
     this.authenticationService.currentUser.subscribe( value => {
       this._loggedIn = (value !== null);
     }, err => {
-      console.log("failed to update logon status: " + err.toString());
+      window.alert("failed to update logon status: " + err.toString());
     });
     return true;
   }

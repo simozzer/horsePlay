@@ -1,5 +1,5 @@
 .placeBetContainer {
-  clear: both;
+  display:inline-block;
   text-align: center;
   font: 14pt sans-serif;
   color: darkblue;
@@ -16,6 +16,7 @@ h3 {
   text-align: center;
   background-color: darkorange;
   font-size: 16pt;
+  opacity: 0.9;
 }
 
 h5 {
@@ -28,6 +29,7 @@ h5 {
   margin-right: auto;
   margin-top: 4px;
   margin-bottom: 4px;
+  opacity:0.7;
 }
 
 table {
@@ -55,8 +57,7 @@ h4 {
   font-size: 19pt;
   margin-top: 0;
   margin-bottom: 0;
-  color:blue;
-  background-color: white;
+  text-transform: uppercase;
 }
 
 
@@ -86,6 +87,21 @@ label {
   display: inline-block;
   border: 1px solid red;
   margin-left: 12px;
+  clear:both;
+}
+
+.leftArea {
+  float: left;
+  height: calc(100% - 6em);
+  vertical-align: middle;
+  width:50%;
+}
+
+.rightArea {
+  float: right;
+  vertical-align: middle;
+  width:50%;
+  height: calc(100% - 6em);
 }
 
 

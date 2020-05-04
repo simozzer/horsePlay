@@ -22,14 +22,14 @@ export class BufferLoader {
 
   async loadBuffer(url, iIndex):Promise<any> {
     // Load buffer asynchronously
-    var request = new XMLHttpRequest();
-    request.open("GET", url, true);
+      const request = new XMLHttpRequest();
+      request.open("GET", url, true);
     request.responseType = "arraybuffer";
 
-    var loader = this;
-    var req  = request;
+      const loader = this;
+      const req = request;
 
-    request.onload = function () {
+      request.onload = function () {
       // Asynchronously decode the audio file data in request.response
       loader._bufferList[iIndex] = request.response;
       if (++loader._loadCount == loader._urlList.length) {

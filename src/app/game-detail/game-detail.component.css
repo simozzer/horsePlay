@@ -9,18 +9,18 @@ h3{
 
 a {
   text-decoration: underline;
-  display: block;
+  display: inline-block;
   cursor: pointer;
   text-align: center;
   font: 16pt arial blue;
   font-weight: 800;
   text-transform: capitalize;
-  background-color: azure;
   margin-top: 2em;
 }
 
 #main{
   background-image: url("/assets/images/leaders.jpg");
   background-size: cover;
+  padding-top:2em;
 }
 

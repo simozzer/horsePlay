@@ -12,16 +12,6 @@ import {forkJoin} from "rxjs";
 })
 export class BetPlacementComponent implements OnInit {
 
-  RACE_LENGTHS = {
-    F5: 0,
-    F6: 1,
-    F7: 2,
-    M1: 3,
-    M2: 4,
-  };
-
-
-  playerCount : number = 0;
   gameId : number;
   raceId : number;
   player: any;
@@ -124,7 +114,8 @@ export class BetPlacementComponent implements OnInit {
       .subscribe(data => {
         this.players = data;
       }, error => {
-        console.log('Error fetching players in game: ' + error)
+        window.alert('Error fetching players in game: ' + error);
+        throw error;
       });
   }
 
@@ -137,7 +128,6 @@ export class BetPlacementComponent implements OnInit {
 
       this.gamesService.getPlayerCountWithState(this.gameId,4)
         .subscribe(data => {
-          console.log('!!!!'+JSON.stringify(data));
           if (data && data["COUNT"] && (data["COUNT"] === this.players.length)) {
             this.allPlayersReady = true;
             this.router.navigateByUrl(`preRace/${this.gameId}/${this.raceId}`);
@@ -145,7 +135,7 @@ export class BetPlacementComponent implements OnInit {
             window.setTimeout(doCheck, 2000, this);
           }
         }, error => {
-          console.log('error fetching player count for state: ' + error);
+          window.alert('error fetching player count for state: ' + error);
         });
     };
 
@@ -248,7 +238,6 @@ export class BetPlacementComponent implements OnInit {
       }
 
       stat.horse._raceOdds = stat.odds;
-      console.log(stat.horse.NAME + "=" + stat.score + "=" + stat.odds + "/1");
     });
     this._oddsStats = oddsStats;
   }

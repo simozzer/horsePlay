@@ -20,7 +20,6 @@ export class GameDetailComponent implements OnInit {
   gameData;
 
   @Input() game: any;
-  model = { name: ""};
   constructor(
     private route: ActivatedRoute,
     private gamesService: GamesService
@@ -43,7 +42,9 @@ export class GameDetailComponent implements OnInit {
           this.meeting = this.meetings[this.game.MEETING_INDEX];
           this.meetingId = this.meeting.ID;
           await this.gamesService.getRaces(this.meetingId).then((races) => {
-            this.game.RACE_ID = races[this.game.RACE_INDEX].ID;
+            const race = races[this.game.RACE_INDEX];
+            this.game.RACE_ID = race.ID;
+            this.game.RACE_NAME = race.NAME;
           })
         }, error => {
         window.alert('error getting meetings: ' + error)
@@ -52,7 +53,6 @@ export class GameDetailComponent implements OnInit {
 
   getGame(): void {
     this.gameId = this.route.snapshot.paramMap.get('id');
-    console.log(this.gameId);
     this.gamesService.getGame(this.gameId)
       .subscribe(async data => {
           this.game = data;

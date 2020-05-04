@@ -27,6 +27,12 @@ export class LoginComponent implements OnInit {
     })
   }
 
+  handleKeyDown() {
+    if (event && (event["keyCode"] === 13)) {
+      this.submitLogin();
+    }
+  }
+
 
 
 }

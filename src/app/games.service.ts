@@ -310,7 +310,6 @@ export class GamesService {
               await this.getRaces(meeting.ID).then((races) => {
                 gameData.RACE_ID = races[gameData.RACE_INDEX].ID;
                 gameData.RACE_NAME = races[gameData.RACE_INDEX].NAME;
-                debugger;
                 resolve(gameData);
               });
 

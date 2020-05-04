@@ -38,12 +38,11 @@ export class HorseSelectionComponent implements OnInit {
       .subscribe((data) => {
         this.gameData = data;
       }, (err) => {
-        console.log("Failed to get game data: " + err);
+        window.alert("Failed to get game data: " + err);
       });
 
     this.gamesService.getMeetings()
       .subscribe(async (data) => {
-          console.log(data);
           this.meetings = data;
           this.meeting = this.meetings.find((m) => {
             if (m.ID === this.meetingId) {
@@ -57,7 +56,7 @@ export class HorseSelectionComponent implements OnInit {
 
     this.gamesService.getHorsesForPlayer(this.gameId, this.player.ID)
       .subscribe(async (data) => {
-          console.log(data);
+
           this.horses = data;
 
           for (let i=0; i < this.horses.length; i++) {
@@ -83,7 +82,6 @@ export class HorseSelectionComponent implements OnInit {
 
     this.gamesService.getRacesInMeeting(this.meetingId)
       .subscribe(async (data) => {
-          console.log(data);
           this.races = data;
         }, error => {
           window.alert("error getting game: " + error);
@@ -129,7 +127,7 @@ export class HorseSelectionComponent implements OnInit {
 
         let selectionBoxes = Array.from(document.getElementsByClassName("horseSelector"));
         let selectedValues = selectionBoxes.map((selectionBox, index) => {
-          debugger;
+
           let horseName = (<HTMLSelectElement>selectionBox).value;
           let horse = this.gamesService.getHorseByName(this.horses, horseName);
           return {raceId: this.races[index].ID, horseId: horse.ID};
@@ -140,7 +138,6 @@ export class HorseSelectionComponent implements OnInit {
         }
         forkJoin(aSubscriptions)
           .subscribe(async (data) => {
-              console.log(data);
               this.checkReadyForNextStep();
             }, error =>
               window.alert("error getting game: " + error)
@@ -155,14 +152,14 @@ export class HorseSelectionComponent implements OnInit {
 
     const selectionElems = Array.from(document.getElementsByClassName("horseSelector"));
     if (sels) {
-      console.log("Races: " + JSON.stringify(this.races));
+
       for(let selection of sels) {
-        console.log('selection: ' + JSON.stringify(selection));
+
         let selRaceId = selection.RACE_ID;
 
         let raceIndex = this.races.findIndex((race, raceIndex) => {
             if (race.ID === selRaceId) {
-              console.log('race: ' + JSON.stringify(race));
+
               return raceIndex;
             }
         });

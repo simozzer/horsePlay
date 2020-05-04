@@ -15,15 +15,18 @@ h5 {
 
 a {
   text-decoration: underline;
-  display: block;
   cursor: pointer;
   text-align: center;
-  font: 20pt sans bold;
   text-transform: uppercase;
   background-color: lightblue;
+  display: inline-block;
+  font: 18pt sans black;
+  text-transform: uppercase;
+  font-weight: bold;
 }
 
 #main{
   background-image: url("/assets/images/betsPlaced.jpg");
   background-size: cover;
+  padding-top:2em;
 }

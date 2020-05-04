@@ -21,12 +21,12 @@ export class AudioBufferLoader {
 
   loadBuffer(url, index) {
     // Load buffer asynchronously
-    var request = new XMLHttpRequest();
+    const request = new XMLHttpRequest();
     request.open("GET", url, true);
     request.responseType = "arraybuffer";
 
-    var loader = this;
-    var req  = request;
+    const loader = this;
+    const req = request;
 
     request.onload = function () {
       // Asynchronously decode the audio file data in request.response

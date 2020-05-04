@@ -56,23 +56,13 @@ export class GameListComponent implements OnInit {
   getInGame(game) {
 
     if (game && game.players) {
-      debugger;
-      let plyr = game.players.find(p => {
-        debugger;
+      const plyr = game.players.find(p => {
         if (p.PLAYER_ID === this.player.ID) {
           return p;
         }
       });
-
-      if (plyr) {
-        console.log("FOUND")
-      } else {
-        console.log("NOT FOUND");
-      }
-      return plyr ? true : false;
+      return plyr;
     }
-    return false;
-
   }
 
   addGame(name) {

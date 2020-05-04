@@ -2,9 +2,6 @@
   display:inline-block;
   text-align: center;
   font: 14pt sans-serif;
-  color: darkblue;
-  padding: 10px;
-  background-color: lightgoldenrodyellow;
 }
 
 #main {
@@ -22,7 +19,7 @@ h3 {
 h5 {
   text-align: center;
   background-color: white;
-  /* margin: 0px; */
+  display:inline-block;
   font: 13pt sans bold;
   font-weight: 800;
   margin-left: auto;
@@ -30,7 +27,23 @@ h5 {
   margin-top: 4px;
   margin-bottom: 4px;
   opacity:0.7;
+  clear:both;
+  padding-left:4px;
+  padding-right:4px;
+  text-align: center;
 }
+
+h6 {
+  margin:0;
+  padding:0;
+  display:inline-block;
+  font-size: 14px;
+  color: white;
+  background-color: red;
+  clear:both;
+}
+
+
 
 table {
   margin-left: auto;
@@ -90,18 +103,5 @@ label {
   clear:both;
 }
 
-.leftArea {
-  float: left;
-  height: calc(100% - 6em);
-  vertical-align: middle;
-  width:50%;
-}
-
-.rightArea {
-  float: right;
-  vertical-align: middle;
-  width:50%;
-  height: calc(100% - 6em);
-}
 
 

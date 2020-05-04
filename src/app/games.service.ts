@@ -183,8 +183,8 @@ export class GamesService {
       }));
   }
 
-  saveHorseForm(gameId,raceId,horseId,position) {
-      return this.http.post(`${this.hostUrl}game/${gameId}/horseForm/${raceId}/${horseId}/${position}`,{})
+  saveHorseForm(gameId,raceId,horseId,position, going) {
+      return this.http.post(`${this.hostUrl}game/${gameId}/horseForm/${raceId}/${horseId}/${position}`,{going:going})
         .pipe(map((response: Response) => {
           return response;
         }));
@@ -202,6 +202,9 @@ export class GamesService {
   getPlayerCountWithState(gameId, state) {
     return this.http.get( `${this.hostUrl}playerStates/${gameId}/state/${state}`)
       .pipe(map((response: Response) => {
+        if (response.playerStates) {
+          response.playerStates = response.playerStates.filter((o)=>(o.STATE !== state));
+        }
         return response;
       }));
   }

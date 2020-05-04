@@ -58,6 +58,7 @@
 
 <ng-template #notReady>
   <h5>Waiting for all players to complete selections, please be patient...</h5>
+  <h6 *ngFor="let w of waitingFor">{{w.PLAYER_NAME}}</h6>;
 </ng-template>
 </div>
 

@@ -23,6 +23,7 @@ export class HorseSelectionComponent implements OnInit {
   invalid : Boolean = true;
   readyForBets: Boolean = false;
   gameData : any;
+  waitingFor : any;
 
   constructor(private route:ActivatedRoute,
               private gamesService: GamesService,
@@ -109,7 +110,12 @@ export class HorseSelectionComponent implements OnInit {
     setTimeout((args) => {
       this.gamesService.getMeetingSelectionsComplete(this.gameId,this.meetingId).subscribe( (response) => {
         if (response) {
-          this.readyForBets = true;
+          if (response.ready) {
+            this.readyForBets = true;
+          } else {
+            this.waitingFor = response;
+            this.checkReadyForNextStep();
+          }
         } else {
           this.checkReadyForNextStep();
         }

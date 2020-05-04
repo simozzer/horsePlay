@@ -15,12 +15,12 @@
       </th>
     </tr>
     <tr *ngFor="let f of _finishers">
-      <th>
+      <td>
         {{f.NAME}}
-      </th>
-      <th>
+      </td>
+      <td>
         {{f.PLAYER_NAME}}
-      </th>
+      </td>
     </tr>
   </table>
 
@@ -35,12 +35,12 @@
         </th>
       </tr>
       <tr *ngFor="let p of _prizes">
-        <th>
+        <td>
           {{p.PLAYER_NAME}}
-        </th>
-        <th>
+        </td>
+        <td>
           {{p.PRIZE}}
-        </th>
+        </td>
       </tr>
   </table>
 
@@ -88,21 +88,21 @@
   <div *ngIf="_loosingBets && _loosingBets.length">
     <h2>BETS LOST</h2>
     <table>
-      <td>
+      <th>
         Player
-      </td>
-      <td>
+      </th>
+      <th>
         Horse
-      </td>
-      <td>
+      </th>
+      <th>
         Bet
-      </td>
-      <td>
+      </th>
+      <th>
         Odds
-      </td>
-      <td>
+      </th>
+      <th>
         Lost
-      </td>
+      </th>
       <tr *ngFor="let b of _loosingBets">
         <td>
           {{b.PLAYER_NAME}}

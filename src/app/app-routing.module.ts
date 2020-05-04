@@ -22,7 +22,7 @@ const routes: Routes = [
   { path : 'selection/:gameId/:meetingId', component: HorseSelectionComponent, canActivate: [AuthGuard]},
   { path : 'preRace/:gameId/:raceId', component: PreRaceReportComponent, canActivate: [AuthGuard]},
   { path : 'race/:gameId/:raceId', component: RaceComponent, canActivate: [AuthGuard]},
-  { path: '', component: AppComponent, canActivate: [AuthGuard] },
+  { path: '', component: GameListComponent, canActivate: [AuthGuard] },
 ];
 
 @NgModule({

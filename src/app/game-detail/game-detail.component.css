@@ -24,3 +24,9 @@ a {
   padding-top:2em;
 }
 
+h1 {
+  font: 32pt Sans black;
+  font-weight: 800;
+  background-color: red;
+}
+

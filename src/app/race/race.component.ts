@@ -210,7 +210,7 @@ export class RaceComponent implements OnInit {
 
         for (let i=0; i < this._finishers.length; i++) {
           let finisher = this._finishers[i];
-          requests.push(this.gamesService.saveHorseForm(this.gameId, this.raceId, finisher.ID, i+1));
+          requests.push(this.gamesService.saveHorseForm(this.gameId, this.raceId, finisher.ID, i+1, finisher.GOING_TYPE));
         }
 
         forkJoin(requests)
@@ -297,7 +297,13 @@ export class RaceComponent implements OnInit {
         });
 
       } else {
-        this.showNextStep = true;
+
+        this.gameData.MEETING_INDEX = -1;
+        this.gamesService.saveGameIndexes(this.gameData).subscribe((success)=> {
+          this.showNextStep = true;
+        }, err => {
+          window.alert("Error saving game indexes: " + err)
+        });
 
       };
     });

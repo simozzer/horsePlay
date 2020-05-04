@@ -26,6 +26,7 @@ export class BetPlacementComponent implements OnInit {
   remainingFunds = 0;
   betsTotal = 0;
   _invalidBetAmount = false;
+  waitingFor: any;
 
   constructor(private gamesService: GamesService,
               private route: ActivatedRoute,
@@ -130,8 +131,10 @@ export class BetPlacementComponent implements OnInit {
         .subscribe(data => {
           if (data && data["COUNT"] && (data["COUNT"] === this.players.length)) {
             this.allPlayersReady = true;
+            this.waitingFor = [];
             this.router.navigateByUrl(`preRace/${this.gameId}/${this.raceId}`);
           } else {
+            this.waitingFor = data.playerStates;
             window.setTimeout(doCheck, 2000, this);
           }
         }, error => {

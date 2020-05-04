@@ -5,9 +5,11 @@
 <h5>Prize: {{raceData.PRIZE}}</h5>
 </div>
 
-<div *ngIf="bets">
-  <h5>Bets Placed:</h5>
+<div *ngIf="bets  && bets.length; else noBets">
   <table>
+    <tr>
+      <th colspan="4">Bets Placed</th>
+    </tr>
     <tr>
       <th>Owner</th>
       <th>
@@ -36,6 +38,9 @@
     </tr>
   </table>
 </div>
+  <ng-template #noBets>
+    <h3>No Bets Have Been Placed</h3>
+  </ng-template>
 <br/>
 <a routerLink="/race/{{gameId}}/{{raceId}}">Click here to enter race</a>
 

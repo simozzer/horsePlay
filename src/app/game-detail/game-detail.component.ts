@@ -57,11 +57,6 @@ export class GameDetailComponent implements OnInit {
       .subscribe(async data => {
           this.game = data;
           this.game.players = await this.getPlayersInGame();
-          if (this.game.MEETING_INDEX < 0) {
-            this.game.MEETING_INDEX = 0;
-            this.game.RACE_INDEX = 0;
-          }
-
           await this.getMeetings();
           this.sortPlayers();
         }, error =>

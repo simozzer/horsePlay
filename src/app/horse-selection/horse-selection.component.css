@@ -18,6 +18,16 @@ h5 {
   text-align: center;
   background-color: yellow;
   font: 16pt arial;
+  padding:0px;
+  margin:0px;
+}
+
+h6 {
+  padding: 0;
+  margin: 0;
+  background-color: white;
+  font: 12pt sans 800;
+  display: inline-block;
 }
 
 

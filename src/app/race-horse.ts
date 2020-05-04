@@ -2221,6 +2221,7 @@ export class RaceHorse {
   SPEED_FACTOR: number;
   ENERGY_FALL_DISTANCE: number;
   SLOWER_SPEED_FACTOR : number;
+  GOING_TYPE: number;
 
   constructor (horseName) {
     this.NAME = horseName;
@@ -2229,6 +2230,7 @@ export class RaceHorse {
     const horseType = (Math.random() * 3) | 0;
     this.HORSE_TYPE = horseType;
     this.SPEED_FACTOR = 0;
+    this.GOING_TYPE = 1;
     switch (this.HORSE_TYPE) {
       case HORSETYPES.SHORT_RACE:
         // energy falls after 3 - 6 furlongs

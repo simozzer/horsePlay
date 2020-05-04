@@ -92,21 +92,33 @@
 </div>
   <div class="betPlacementSection">
 
-    <div class="placeBetContainer">
-      <h4>Place Your Bets</h4>
-      <label for="horseSelector">Horse: </label>
-      <select id="horseSelector">
-        <option *ngFor="let odd of _oddsStats">
-          <!--<select *ngIf="odd.horse.PLAYER_ID !== player.ID"> -->
-          <select>
-            {{odd.horse.NAME}}
+    <table class="placeBetContainer">
+      <tr>
+        <th colspan="3">Place Your Bets</th>
+      </tr>
+      <tr>
+        <th><label for="horseSelector">Horse</label></th>
+        <th colspan="2"><label for="betAmount">Bet</label></th>
+      </tr>
+      <tr>
+        <td>
+          <select id="horseSelector">
+            <option *ngFor="let odd of _oddsStats">
+              <!--<select *ngIf="odd.horse.PLAYER_ID !== player.ID"> -->
+              <select>
+                {{odd.horse.NAME}}
+              </select>
+            </option>
           </select>
-        </option>
-      </select>
-      <label for="betAmount">Amount:</label>
-      <input type="number" id="betAmount" (change)="updateEnabledState()" (keyup)="updateEnabledState()"/>
-      <input type="button" (click)="placeBet()" value="Place Bet" [disabled]="invalidBetAmount"/>
-    </div>
+        </td>
+        <td>
+          <input type="number" id="betAmount" (change)="updateEnabledState()" (keyup)="updateEnabledState()"/>
+        </td>
+        <td>
+          <input type="button" (click)="placeBet()" value="Place" [disabled]="invalidBetAmount"/>
+        </td>
+      </tr>
+    </table>
   </div>
 </div>
 <input type="button" value="Ready" (click)="handleReadyToRace()"/>
@@ -118,6 +130,9 @@
   </div>
   <ng-template #notReady>
     <h6>WAITING FOR PLAYERS TO PLACE BETS</h6>
+    <h5 *ngFor="let p of waitingFor">
+      {{p.NAME}}
+    </h5>
   </ng-template>`
 
 </div>

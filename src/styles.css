@@ -20,10 +20,11 @@ div#main {
 
 a {
   text-decoration: underline;
-  display:block;
+  display:inline-block;
   cursor:pointer;
   text-align: center;
   background-color:white;
+  color:blue;
   text-decoration: underline;
   text-transform: uppercase;
 }

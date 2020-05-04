@@ -12,6 +12,12 @@ a {
   font-weight: 800;
 }
 
+.appHeader {
+  height: 2.3em;
+  display: block;
+  overflow: hidden;
+}
+
 .playerName {
   font: 18pt sans-serif;
   font-weight: 800;
@@ -28,10 +34,11 @@ a {
   width: 100%;
   margin-bottom: 0px;
   height: 100%;
+  text-align:center;
 }
 
 .myRouterOutlet:nth-child(2) {
-  height: calc(90% - 32px);
+  height: calc(100% - 2.3em);
   margin-bottom: 0px;
   overflow: auto;
 }

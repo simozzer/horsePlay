@@ -110,7 +110,7 @@ export class HorseSelectionComponent implements OnInit {
     setTimeout((args) => {
       this.gamesService.getMeetingSelectionsComplete(this.gameId,this.meetingId).subscribe( (response) => {
         if (response) {
-          if (response.ready) {
+          if (response['ready']) {
             this.readyForBets = true;
           } else {
             this.waitingFor = response;

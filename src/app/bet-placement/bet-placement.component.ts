@@ -134,7 +134,7 @@ export class BetPlacementComponent implements OnInit {
             this.waitingFor = [];
             this.router.navigateByUrl(`preRace/${this.gameId}/${this.raceId}`);
           } else {
-            this.waitingFor = data.playerStates;
+            this.waitingFor = data['playerStates'];
             window.setTimeout(doCheck, 2000, this);
           }
         }, error => {
@@ -260,18 +260,18 @@ export class BetPlacementComponent implements OnInit {
       .subscribe((state) => {
         this.checkAllPlayersReady();
       }, err => {
-        window.alert("error setting player state: " + err);
+        window.alert('error setting player state: ' + err);
       });
 
   }
 
   placeBet(){
-    const horseSelector = (<HTMLSelectElement> document.getElementById("horseSelector"));
+    const horseSelector = (<HTMLSelectElement>document.getElementById('horseSelector'));
     let selIndex = horseSelector.selectedIndex;
     let horseName = (<HTMLOptionElement>horseSelector.childNodes[selIndex]).value;
     let horseOdds = this.getOdds(horseName);
     let horseId = horseOdds.horse.ID;
-    let amount = (<HTMLInputElement>document.getElementById("betAmount")).value;
+    let amount = (<HTMLInputElement>document.getElementById('betAmount')).value;
     const betObj = {
       PLAYER_ID : this.player.ID,
       GAME_ID : this.gameId,

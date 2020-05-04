@@ -46,23 +46,25 @@
 
   <br/>
   <div *ngIf="_winningBets && _winningBets.length">
-  <h2>BETS WON</h2>
   <table>
-    <td>
+    <tr>
+      <th colspan="5">Bets Won</th>
+    </tr>
+    <th>
       Player
-    </td>
-    <td>
+    </th>
+    <th>
       Horse
-    </td>
-    <td>
+    </th>
+    <th>
       Bet
-    </td>
-    <td>
+    </th>
+    <th>
       Odds
-    </td>
-    <td>
+    </th>
+    <th>
       Won
-    </td>
+    </th>
     <tr *ngFor="let win of _winningBets">
       <td>
         {{win.PLAYER_NAME}}
@@ -86,8 +88,10 @@
 
   <br/>
   <div *ngIf="_loosingBets && _loosingBets.length">
-    <h2>BETS LOST</h2>
     <table>
+      <tr>
+        <th colspan="5">Bets Lost</th>
+      </tr>
       <th>
         Player
       </th>

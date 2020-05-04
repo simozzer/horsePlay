@@ -202,8 +202,8 @@ export class GamesService {
   getPlayerCountWithState(gameId, state) {
     return this.http.get( `${this.hostUrl}playerStates/${gameId}/state/${state}`)
       .pipe(map((response: Response) => {
-        if (response.playerStates) {
-          response.playerStates = response.playerStates.filter((o)=>(o.STATE !== state));
+        if (response['playerStates']) {
+          response['playerStates'] = response['playerStates'].filter((o)=>(o.STATE !== state));
         }
         return response;
       }));

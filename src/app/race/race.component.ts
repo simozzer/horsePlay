@@ -93,6 +93,17 @@ export class RaceComponent implements OnInit {
       });
     }
 
+    async getPlayerCountWIthState(state) {
+      return new Promise((resolve,reject) => {
+        this.gamesService.getPlayerCountWithState(this.gameId,5)
+          .subscribe((data) => {
+            resolve(data['COUNT']);
+          }, err => {
+            reject(err);
+          });
+      });
+    }
+
   ngOnInit(): void {
     this.gameId = parseInt(this.route.snapshot.paramMap.get('gameId'),10);
     this.player = JSON.parse(localStorage.getItem('currentUser',));
@@ -100,22 +111,35 @@ export class RaceComponent implements OnInit {
     this.gamesService.getGame(this.gameId)
       .subscribe(async data => {
         this.gameData = data;
-        this.showRace = ((this.gameData.MASTER_PLAYER_ID === this.player.ID) || (this.player.NAME === 'SIMON'));
-        if (this.showRace) {
-          this.initializeRace();
+        let count = await this.getPlayerCountWIthState(5);
+        if (count > 0) {
+          // players are still in finshed race state
+          console.log("It appears that we've run this");
+          this._mainCanvas = <HTMLCanvasElement>document.getElementById('raceCanvas');
+          this._mainCanvas.width = 0;
+          this._mainCanvas.height = 0;
+          this.showNextStep = true;
         } else {
-          this.gamesService.setPlayerState(this.gameId,this.player.ID,4).subscribe(()=>{},
-            err => {
-              window.alert("error setting player state: " + err);
-            }); // racing
-          this.gamesService.getPlayersInGame(this.gameId).subscribe(async (pl) => {
+
+
+          this.showRace = ((this.gameData.MASTER_PLAYER_ID === this.player.ID) || (this.player.NAME === 'SIMON'));
+          if (this.showRace) {
+            this.initializeRace();
+          } else {
+            this.gamesService.setPlayerState(this.gameId, this.player.ID, 4).subscribe(() => {
+              },
+              err => {
+                window.alert("error setting player state: " + err);
+              }); // racing
+            this.gamesService.getPlayersInGame(this.gameId).subscribe(async (pl) => {
               this.players = pl;
-              await this.gamesService.waitForAllPlayersToHaveState(this.gameId,5,this.players.length).then(()=>{
+              await this.gamesService.waitForAllPlayersToHaveState(this.gameId, 5, this.players.length).then(() => {
                 this.showNextStep = true;
               }, err => {
                 window.alert("error waiting for players with state: " + err);
               });
             });
+          }
         }
       },error => {
           window.alert("Error getting game: " + error);

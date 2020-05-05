@@ -19,11 +19,13 @@ export const horseColors = [
 export class ImagesService {
   horseImages;
   taggedImages;
+  baseUrl:string;
 
   constructor() {
     this.horseImages = [];
+    this.baseUrl = 'http://' + window.location.hostname + ':80/assets/horses/images/';
     this.taggedImages = [
-      { name: "grass", url: "./assets/images//grass.jpeg" },
+      { name: 'grass', url: this.baseUrl + 'grass.jpeg' },
     ];
 
   }
@@ -44,7 +46,7 @@ export class ImagesService {
       let imagePromises = [];
       for (let index in horseColors) {
         let name = horseColors[index];
-        let colorName = `./assets/images/Horse${name}.png`;
+        let colorName = `${this.baseUrl}Horse${name}.png`;
         imagePromises.push(this.getNewImagePromise(colorName));
       }
       Promise.all(imagePromises)

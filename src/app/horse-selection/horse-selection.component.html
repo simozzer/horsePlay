@@ -40,7 +40,7 @@
   <td>{{race.LENGTH_FURLONGS}}</td>
   <td>{{race.PRIZE}}</td>
   <td>
-    <select class="horseSelector" (change)="this.handleHorseSelected()">
+    <select *ngIf="horses && horses.length" class="horseSelector" (change)="this.handleHorseSelected()">
       <option *ngFor="let horse of horses">
         {{horse.NAME}}
       </option>

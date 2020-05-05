@@ -41,6 +41,6 @@ a {
 
 div#main {
   height: 100%;
-  background-image: url(/assets/images/chooseHorse.jpg);
+  background-image: url('http://te4m19.co.uk/assets/images/chooseHorse.jpg');
   background-size: cover;
 }

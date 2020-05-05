@@ -36,7 +36,7 @@ export class GameDetailComponent implements OnInit {
 
 
   getMeetings() {
-    this.gamesService.getMeetings()
+    this.gamesService.getMeetings(this.gameId)
       .subscribe(async data => {
           this.meetings = data;
           this.meeting = this.meetings[this.game.MEETING_INDEX];

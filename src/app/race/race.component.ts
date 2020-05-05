@@ -68,7 +68,6 @@ export class RaceComponent implements OnInit {
               private sounds : SoundsService) {}
 
     initializeRace() {
-
       this._mainCanvas = <HTMLCanvasElement>document.getElementById('raceCanvas');
       this._mainCanvasContext = this._mainCanvas.getContext('2d');
       this._canvasWidth = this._mainCanvas.clientWidth;
@@ -77,13 +76,13 @@ export class RaceComponent implements OnInit {
       this._mainCanvas.height = this._canvasHeight;
 
       forkJoin([this.images.loadImages(),
-        this.gamesService.getRaceInfo(this.raceId),
+        this.gamesService.getRaceInfo(this.raceId, this.gameId),
         this.gamesService.getBetsForRace(this.gameId, this.raceId),
         this.gamesService.getHorsesForRace(this.gameId, this.raceId),
         this.gamesService.getPlayersInGame(this.gameId),
       ]).subscribe((responses) => {
         this.raceData = responses[1];
-        this._title = this.raceData.NAME + '('  + this.raceData.LENGTH_FURLONGS + ')';
+        this._title = this.raceData.NAME + '('  + this.raceData.LENGTH_FURLONGS + ' furlongs, going: ' + this.goingString + ')';
         this.bets = responses[2];
         this.horses = responses[3];
         this.players = responses[4];
@@ -91,6 +90,27 @@ export class RaceComponent implements OnInit {
       }, error => {
         window.alert('error in forkJoin: ' + error)
       });
+    }
+
+    get goingString() {
+
+      switch (this.going) {
+        case 0:
+          return 'firm';
+        case 1:
+          return 'good';
+        case 2:
+          return 'soft';
+        default:
+          return 'unknown going type ' + this.raceData.GOING;
+      }
+
+    }
+
+    get going() {
+     if (this.raceData) {
+       return this.raceData.GOING;
+     }
     }
 
     async getPlayerCountWIthState(state) {
@@ -120,6 +140,7 @@ export class RaceComponent implements OnInit {
         } else {
           this.showRace = ((this.gameData.MASTER_PLAYER_ID === this.player.ID) || (this.player.NAME === 'SIMON'));
           if (this.showRace) {
+            // we're the master screen
             this.initializeRace();
           } else {
             this.gamesService.setPlayerState(this.gameId, this.player.ID, 4).subscribe(() => {
@@ -229,9 +250,8 @@ export class RaceComponent implements OnInit {
         let requests = [];
 
         for (let i=0; i < this._finishers.length; i++) {
-          let finisher = this._finishers[i];
-          let raceGoing = 1; // TODO use going for current race
-          requests.push(this.gamesService.saveHorseForm(this.gameId, this.raceId, finisher.ID, i+1, raceGoing));
+          const finisher = this._finishers[i];
+          requests.push(this.gamesService.saveHorseForm(this.gameId, this.raceId, finisher.ID, i+1, this.going));
         }
 
         forkJoin(requests)

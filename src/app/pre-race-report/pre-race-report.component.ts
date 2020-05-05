@@ -32,12 +32,26 @@ export class PreRaceReportComponent implements OnInit {
           window.alert("error getting bets: " + error)
       );
 
-    this.gamesService.getRaceInfo(this.raceId)
+    this.gamesService.getRaceInfo(this.raceId, this.gameId)
       .subscribe(async data => {
           this.raceData = data;
         }, error =>
           window.alert("error getting race data: " + error)
       );
   }
+
+  get going() {
+    if (this.raceData) {
+      switch (this.raceData.GOING) {
+        case 0:
+          return "firm";
+        case 1:
+          return "good";
+        case 2:
+          return "soft";
+      }
+    }
+  }
+
 
 }

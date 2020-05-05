@@ -1,5 +1,5 @@
 <div id="main">
-  <h2>Select your horses for races at {{meeting.NAME}}</h2>
+  <h2>Select your horses for races at {{meeting.NAME}}. Going {{going}}</h2>
 <table>
   <tr>
     <th colspan=2>
@@ -16,7 +16,7 @@
     <td *ngIf="horse.FORM">
       <ul *ngIf="horse.FORM">
         <li *ngFor="let f of horse.FORM">
-          {{f.POSITION}}({{f.LENGTH_FURLONGS}}f),
+          {{f.POSITION}}({{f.LENGTH_FURLONGS}}f, {{f.going}}),
         </li>
       </ul>
     </td>

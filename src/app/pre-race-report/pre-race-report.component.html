@@ -3,6 +3,7 @@
 <h3>Pre race betting summary: {{raceData.NAME}}</h3>
 <h5>Length: {{raceData.LENGTH_FURLONGS}}</h5>
 <h5>Prize: {{raceData.PRIZE}}</h5>
+  <h5>Going: {{going}}</h5>
 </div>
 
 <div *ngIf="bets  && bets.length; else noBets">

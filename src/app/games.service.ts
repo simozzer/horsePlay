@@ -17,8 +17,8 @@ export class GamesService {
       .pipe(map((response: Response) => response));
   }
 
-  getMeetings() {
-    return this.http.get(this.hostUrl + "meetings")
+  getMeetings(gameId) {
+    return this.http.get(this.hostUrl + "meetings/" + gameId)
       .pipe(map((response :Response) => response))
   }
 
@@ -28,8 +28,8 @@ export class GamesService {
       .pipe(map((response :Response) => response))
   }
 
-  getRaceInfo(raceId) {
-    const url = this.hostUrl + `raceINfo/${raceId}`;
+  getRaceInfo(raceId, gameId) {
+    const url = this.hostUrl + `RINFO/${raceId}?g=${gameId}`;
     return this.http.get( url)
       .pipe(map((response: Response) => {
         return response;
@@ -272,7 +272,7 @@ export class GamesService {
   async getNextMeeting(gameData) {
     return new Promise((resolve,reject) => {
       let meetings;
-      forkJoin([this.getGame(gameData.ID),this.getMeetings()])
+      forkJoin([this.getGame(gameData.ID),this.getMeetings(gameData.ID)])
         .subscribe(async (arr) => {
           gameData = arr[0];
           meetings = arr[1];

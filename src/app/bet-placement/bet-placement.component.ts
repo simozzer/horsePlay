@@ -19,14 +19,14 @@ export class BetPlacementComponent implements OnInit {
   horses: any;
   raceData : any;
   playerBets : any;
-  _oddsStats: any;
   allPlayersReady = false;
   playerReady = false;
   initialFunds = 0;
   remainingFunds = 0;
   betsTotal = 0;
-  _invalidBetAmount = false;
   waitingFor: any;
+  _invalidBetAmount;
+  _oddsStats:any;
 
   constructor(private gamesService: GamesService,
               private route: ActivatedRoute,
@@ -42,12 +42,21 @@ export class BetPlacementComponent implements OnInit {
     this.getAllPlayers();
 
     forkJoin([this.gamesService.getHorsesForRace(this.gameId, this.raceId),
-      this.gamesService.getRaceInfo(this.raceId)])
+      this.gamesService.getRaceInfo(this.raceId,this.gameId)])
         .subscribe( async data => {
           this.horses = data[0];
           this.raceData = data[1];
           for (const horse of this.horses) {
-            horse.FORM = await this.getHorseForm(horse.ID);
+            let horseForm:any = await this.getHorseForm(horse.ID);
+            for (const f of horseForm) {
+              switch (f.GOING) {
+                case 0: f.going = "firm"; break;
+                case 1: f.going = "good"; break;
+                case 2: f.going = "soft"; break;
+                default : f.going =  "?";
+              }
+            }
+
           }
           this.generateOdds(this.horses);
           this.getPlayerBets();
@@ -74,6 +83,16 @@ export class BetPlacementComponent implements OnInit {
           reject(error);
         });
     });
+  }
+  get going(){
+    if (this.raceData) {
+      switch(this.raceData.GOING) {
+        case 0: return "firm";
+        case 1: return "good";
+        case 2: return "soft";
+        default : return "?";
+      }
+    }
   }
 
 

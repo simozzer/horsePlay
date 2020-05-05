@@ -1,7 +1,7 @@
 <div id="main">
 
 <div *ngIf="raceData">
-  <h3>Place your bets for the {{raceData.NAME}}. Length: {{raceData.LENGTH_FURLONGS}}, Prize: {{raceData.PRIZE}}</h3>
+  <h3>{{raceData.NAME}}. Length: {{raceData.LENGTH_FURLONGS}}, Prize: {{raceData.PRIZE}},  Going: {{going}} </h3>
 </div>
 <div class="leftArea">
 
@@ -38,7 +38,7 @@
         <td>
           <ul *ngIf="odds.horse.FORM">
             <li *ngFor="let f of odds.horse.FORM">
-              {{f.POSITION}}({{f.LENGTH_FURLONGS}}f),
+              {{f.POSITION}}({{f.LENGTH_FURLONGS}}f - {{f.going}}),
             </li>
           </ul>
         </td>

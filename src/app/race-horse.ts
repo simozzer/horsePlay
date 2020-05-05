@@ -4,7 +4,7 @@ export const HORSETYPES = {
   MEDIUM_RACE: 1,
   LONG_RACE: 2,
 };
-export const PIXELS_PER_FURLONG = 250; //780;
+export const PIXELS_PER_FURLONG = 300;
 export const HORSES_PER_PLAYER = 5;
 export const INITIAL_PLAYER_FUNDS = 250;
 
@@ -2230,7 +2230,7 @@ export class RaceHorse {
     const horseType = (Math.random() * 3) | 0;
     this.HORSE_TYPE = horseType;
     this.SPEED_FACTOR = 0;
-    this.GOING_TYPE = 1;
+    this.GOING_TYPE = (Math.random() * 3) | 0;
     switch (this.HORSE_TYPE) {
       case HORSETYPES.SHORT_RACE:
         // energy falls after 3 - 6 furlongs

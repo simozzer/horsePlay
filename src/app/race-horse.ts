@@ -5,7 +5,7 @@ export const HORSETYPES = {
   LONG_RACE: 2,
 };
 export const PIXELS_PER_FURLONG = 300;
-export const HORSES_PER_PLAYER = 5;
+export const HORSES_PER_PLAYER = 8;
 export const INITIAL_PLAYER_FUNDS = 250;
 
 let _horseNames = [
@@ -2233,23 +2233,20 @@ export class RaceHorse {
     this.GOING_TYPE = (Math.random() * 3) | 0;
     switch (this.HORSE_TYPE) {
       case HORSETYPES.SHORT_RACE:
-        // energy falls after 3 - 6 furlongs
-        this.ENERGY_FALL_DISTANCE =
-          ((3 + Math.random() * 3) | 0) * PIXELS_PER_FURLONG;
+        // energy falls after 5 - 8 furlongs
+        this.ENERGY_FALL_DISTANCE = 5 + (Math.random() * 3);
         this.SPEED_FACTOR = 1.2 + this.SPEED_FACTOR + Math.random() / 5;
         this.SLOWER_SPEED_FACTOR = this.SPEED_FACTOR * 0.5 + Math.random() / 10;
         break;
       case HORSETYPES.MEDIUM_RACE:
-        // energy fails are 5-15 furlongs
-        this.ENERGY_FALL_DISTANCE =
-          ((5 + Math.random() * 10) | 0) * PIXELS_PER_FURLONG;
+        // energy fails are 7 -15 furlongs
+        this.ENERGY_FALL_DISTANCE = 7 + (Math.random() * 3);
         this.SPEED_FACTOR = 1 + this.SPEED_FACTOR + Math.random() / 4;
         this.SLOWER_SPEED_FACTOR = this.SPEED_FACTOR * 0.6 + Math.random() / 10;
         break;
       case HORSETYPES.LONG_RACE:
         // energy fails are 12+ furlongs
-        this.ENERGY_FALL_DISTANCE =
-          ((12 + Math.random() * 10) | 0) * PIXELS_PER_FURLONG;
+        this.ENERGY_FALL_DISTANCE = 12 + (Math.random() * 5);
         this.SPEED_FACTOR = 0.9 + this.SPEED_FACTOR + Math.random() / 10;
         this.SLOWER_SPEED_FACTOR = this.SPEED_FACTOR * 0.7 + Math.random() / 10;
         break;

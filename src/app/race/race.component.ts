@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import {GamesService} from "../games.service";
+import {GamesService} from '../games.service';
 import {ActivatedRoute, Router} from "@angular/router";
 import {SoundsService} from "../sounds.service";
 import {ImagesService, horseColors} from "../images.service";
@@ -115,13 +115,9 @@ export class RaceComponent implements OnInit {
         if (count > 0) {
           // players are still in finshed race state
           console.log("It appears that we've run this");
-          this._mainCanvas = <HTMLCanvasElement>document.getElementById('raceCanvas');
-          this._mainCanvas.width = 0;
-          this._mainCanvas.height = 0;
+          document.getElementById("raceCanvas").hidden = true;
           this.showNextStep = true;
         } else {
-
-
           this.showRace = ((this.gameData.MASTER_PLAYER_ID === this.player.ID) || (this.player.NAME === 'SIMON'));
           if (this.showRace) {
             this.initializeRace();
@@ -234,7 +230,8 @@ export class RaceComponent implements OnInit {
 
         for (let i=0; i < this._finishers.length; i++) {
           let finisher = this._finishers[i];
-          requests.push(this.gamesService.saveHorseForm(this.gameId, this.raceId, finisher.ID, i+1, finisher.GOING_TYPE));
+          let raceGoing = 1; // TODO use going for current race
+          requests.push(this.gamesService.saveHorseForm(this.gameId, this.raceId, finisher.ID, i+1, raceGoing));
         }
 
         forkJoin(requests)
@@ -313,8 +310,8 @@ export class RaceComponent implements OnInit {
         this.gameData = meetingInfo;
           this.gamesService.saveGameIndexes(meetingInfo).subscribe(async ()=> {
 
-          // TODO  move to next screen
           await this.updatePlayerStates(5);
+          document.getElementById("raceCanvas").hidden = true;
           this.showNextStep = true;
         }, err => {
           window.alert("Error saving games indexes: " + err);
@@ -323,10 +320,11 @@ export class RaceComponent implements OnInit {
       } else {
 
         this.gameData.MEETING_INDEX = -1;
-        this.gamesService.saveGameIndexes(this.gameData).subscribe((success)=> {
+        this.gamesService.saveGameIndexes(this.gameData).subscribe((success) => {
+          document.getElementById('raceCanvas').hidden = true;
           this.showNextStep = true;
         }, err => {
-          window.alert("Error saving game indexes: " + err)
+          window.alert('Error saving game indexes: ' + err);
         });
 
       };
@@ -495,10 +493,11 @@ export class RaceComponent implements OnInit {
 
     let moveValues = [];
     const getHorseSpeedFactorAtPosition = (horse, pos) => {
-      if (pos < horse.ENERGY_FALL_DISTANCE) {
+      const furlongs = pos / PIXELS_PER_FURLONG;
+      if (furlongs < horse.ENERGY_FALL_DISTANCE) {
         return horse.SPEED_FACTOR + horse.raceSpeedFactor;
       } else {
-        return horse.SPEED_FACTOR + horse.raceSpeedFactor;
+        return horse.SLOWER_SPEED_FACTOR + horse.raceSpeedFactor;
       }
     };
     this.horses.forEach((horse, index) => {

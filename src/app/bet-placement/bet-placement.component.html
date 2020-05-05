@@ -48,7 +48,7 @@
 </div>
 
 <div class="rightArea">
-<div class="playerBets" *ngIf="playerBets">
+<div class="playerBets" *ngIf="(playerBets && playerBets.length); else noBet">
   <table>
     <tr>
       <th colspan=3>Bets Placed</th>
@@ -77,6 +77,9 @@
     </tr>
   </table>
 </div>
+  <ng-template #noBet>
+    <h1>NO BETS PLACED</h1>
+  </ng-template>
 <div class="fundsSummary">
   <table>
     <tr>

@@ -9,6 +9,13 @@
   background-size: cover;
 }
 
+h1 {
+  font: 20pt sans;
+  font-weight: 800;
+  background: red;
+  display: inline-block;
+}
+
 h3 {
   text-align: center;
   background-color: darkorange;
@@ -60,8 +67,11 @@ td>ul {
   list-style-type: none;
 }
 
-td>li {
+td li {
   float:left;
+  display:inline-block;
+  clear:none;
+  padding-right:4px;
 }
 
 
@@ -97,7 +107,6 @@ label {
 }
 
 .placeBetContainer input[type="button"] {
-  display: inline-block;
   border: 1px solid red;
   margin-left: 12px;
   clear:both;

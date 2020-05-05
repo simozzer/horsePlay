@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import {GamesService} from '../games.service';
-import {ActivatedRoute, Router} from "@angular/router";
-import {SoundsService} from "../sounds.service";
-import {ImagesService, horseColors} from "../images.service";
-import {forkJoin} from "rxjs";
-import {PIXELS_PER_FURLONG} from "../race-horse";
+import {ActivatedRoute, Router} from '@angular/router';
+import {SoundsService} from '../sounds.service';
+import {ImagesService, horseColors} from '../images.service';
+import {forkJoin} from 'rxjs';
+import {PIXELS_PER_FURLONG} from '../race-horse';
 
 
 const MAX_PROGRESS_PER_SECOND = 250;
@@ -51,7 +51,7 @@ export class RaceComponent implements OnInit {
   _scrollAdjust: number;
   _pauseCycles: number;
   _lastFrameTimestamp: number;
-  _title : string = "TESTING";
+  _title : string = 'TESTING';
   _lines : any;
   _raceFinished;
   _finishers;
@@ -70,7 +70,7 @@ export class RaceComponent implements OnInit {
     initializeRace() {
 
       this._mainCanvas = <HTMLCanvasElement>document.getElementById('raceCanvas');
-      this._mainCanvasContext = this._mainCanvas.getContext("2d");
+      this._mainCanvasContext = this._mainCanvas.getContext('2d');
       this._canvasWidth = this._mainCanvas.clientWidth;
       this._canvasHeight = this._mainCanvas.clientHeight;
       this._mainCanvas.width = this._canvasWidth;
@@ -83,13 +83,13 @@ export class RaceComponent implements OnInit {
         this.gamesService.getPlayersInGame(this.gameId),
       ]).subscribe((responses) => {
         this.raceData = responses[1];
-        this._title = this.raceData.NAME + "("  + this.raceData.LENGTH_FURLONGS + ")";
+        this._title = this.raceData.NAME + '('  + this.raceData.LENGTH_FURLONGS + ')';
         this.bets = responses[2];
         this.horses = responses[3];
         this.players = responses[4];
         this.setup();
       }, error => {
-        window.alert("error in forkJoin: " + error)
+        window.alert('error in forkJoin: ' + error)
       });
     }
 
@@ -114,8 +114,8 @@ export class RaceComponent implements OnInit {
         let count = await this.getPlayerCountWIthState(5);
         if (count > 0) {
           // players are still in finshed race state
-          console.log("It appears that we've run this");
-          document.getElementById("raceCanvas").hidden = true;
+          console.log('It appears that we\'ve run this');
+          document.getElementById('raceCanvas').hidden = true;
           this.showNextStep = true;
         } else {
           this.showRace = ((this.gameData.MASTER_PLAYER_ID === this.player.ID) || (this.player.NAME === 'SIMON'));
@@ -125,20 +125,20 @@ export class RaceComponent implements OnInit {
             this.gamesService.setPlayerState(this.gameId, this.player.ID, 4).subscribe(() => {
               },
               err => {
-                window.alert("error setting player state: " + err);
+                window.alert('error setting player state: ' + err);
               }); // racing
             this.gamesService.getPlayersInGame(this.gameId).subscribe(async (pl) => {
               this.players = pl;
               await this.gamesService.waitForAllPlayersToHaveState(this.gameId, 5, this.players.length).then(() => {
                 this.showNextStep = true;
               }, err => {
-                window.alert("error waiting for players with state: " + err);
+                window.alert('error waiting for players with state: ' + err);
               });
             });
           }
         }
       },error => {
-          window.alert("Error getting game: " + error);
+          window.alert('Error getting game: ' + error);
         });
   }
 
@@ -147,9 +147,9 @@ export class RaceComponent implements OnInit {
     // All resources ready at this point.
     this._finishLine = this.raceData.LENGTH_FURLONGS * PIXELS_PER_FURLONG;
     this._verticalInterval = ((4 * this._canvasHeight) / 5 - 100) / this.horses.length;
-    this._mainCanvasContext.drawImage(this.images.getTaggedImage("grass"), 0, 0);
-    this._backCanvas = document.createElement("canvas");
-    this._backContext = this._backCanvas.getContext("2d");
+    this._mainCanvasContext.drawImage(this.images.getTaggedImage('grass'), 0, 0);
+    this._backCanvas = document.createElement('canvas');
+    this._backContext = this._backCanvas.getContext('2d');
     this._backCanvas.width = this._mainCanvas.width;
     this._backCanvas.height = this._mainCanvas.height;
     this._scrollAdjust = 0;
@@ -205,7 +205,7 @@ export class RaceComponent implements OnInit {
         forkJoin(betAdjustments).subscribe(data => {
             resolve(data);
           }, err =>
-            window.alert("error adjusting bets: " + err)
+            window.alert('error adjusting bets: ' + err)
         );
       }
     });
@@ -218,7 +218,7 @@ export class RaceComponent implements OnInit {
         .subscribe(() => {
           resolve();
         }, err => {
-          window.alert("error clearing bets: " + err);
+          window.alert('error clearing bets: ' + err);
         });
     });
   }
@@ -273,7 +273,7 @@ export class RaceComponent implements OnInit {
           .subscribe((data) => {
             resolve(data);
           }, err => {
-            window.alert("Error adding winnings: " + err)
+            window.alert('Error adding winnings: ' + err)
           });
 
       }
@@ -311,17 +311,18 @@ export class RaceComponent implements OnInit {
           this.gamesService.saveGameIndexes(meetingInfo).subscribe(async ()=> {
 
           await this.updatePlayerStates(5);
-          document.getElementById("raceCanvas").hidden = true;
+          document.getElementById('raceCanvas').hidden = true;
           this.showNextStep = true;
         }, err => {
-          window.alert("Error saving games indexes: " + err);
+          window.alert('Error saving games indexes: ' + err);
         });
 
       } else {
 
         this.gameData.MEETING_INDEX = -1;
-        this.gamesService.saveGameIndexes(this.gameData).subscribe((success) => {
+        this.gamesService.saveGameIndexes(this.gameData).subscribe(async (success) => {
           document.getElementById('raceCanvas').hidden = true;
+          await this.updatePlayerStates(5); // mark race as done
           this.showNextStep = true;
         }, err => {
           window.alert('Error saving game indexes: ' + err);
@@ -377,8 +378,8 @@ export class RaceComponent implements OnInit {
       }
     }
 
-    this._backContext.fillStyle = "darkblue";
-    this._backContext.font = "24pt arial";
+    this._backContext.fillStyle = 'darkblue';
+    this._backContext.font = '24pt arial';
     this._backContext.fillText(this._title, 50, 50);
   }
 
@@ -391,8 +392,8 @@ export class RaceComponent implements OnInit {
         this._backContext.moveTo(transformedOrigin, 0);
         this._backContext.lineTo(transformedOrigin, this._canvasHeight);
         this._backContext.stroke();
-        this._backContext.fillStyle = "white";
-        this._backContext.font = "12px Sans";
+        this._backContext.fillStyle = 'white';
+        this._backContext.font = '12px Sans';
         this._backContext.fillText(label, transformedOrigin, 20);
       }
     };
@@ -403,17 +404,17 @@ export class RaceComponent implements OnInit {
   }
 
   addFurlongs() {
-    this._lines = [{ x: 0, color: "white", label: "start" }];
+    this._lines = [{ x: 0, color: 'white', label: 'start' }];
     for (let i = 0; i < this.raceData.LENGTH_FURLONGS; i++) {
       let line = {
         x: (i + 1) * PIXELS_PER_FURLONG,
-        color: "yellow",
-        label: "F" + (i + 1),
+        color: 'yellow',
+        label: 'F' + (i + 1),
       };
 
       this._lines.push(line);
     }
-    this._lines[this._lines.length - 1].label = "Finish";
+    this._lines[this._lines.length - 1].label = 'Finish';
   }
 
   drawHorses() {
@@ -432,8 +433,8 @@ export class RaceComponent implements OnInit {
         100
       );
       this._backContext.fillStyle = horseColors[index % 12 | 0];
-      this._backContext.font = "16px Sans";
-      const caption = horse.PLAYER_NAME + ": " + horse.NAME;// + "(" + horse._raceOdds + "/1)",
+      this._backContext.font = '16px Sans';
+      const caption = horse.PLAYER_NAME + ': ' + horse.NAME;// + '(' + horse._raceOdds + '/1)',
       this._backContext.fillText(
         caption,
         10,
@@ -518,6 +519,10 @@ export class RaceComponent implements OnInit {
         this._canvasWidth - 350 - (maxAfterMove + this._scrollAdjust)
       );
       this._scrollAdjust += maxProgressThisFrame;
+
+      if (this._scrollAdjust > (this._finishLine - (this._canvasWidth / 2))) {
+        this._scrollAdjust = (this._finishLine - (this._canvasWidth / 2));
+      }
     }
   }
 
@@ -580,19 +585,19 @@ export class RaceComponent implements OnInit {
 
   drawFinishers() {
     if (this._finishers.length > 0) {
-      this._backContext.fillStyle = "white";
-      this._backContext.strokeStyle = "black";
+      this._backContext.fillStyle = 'white';
+      this._backContext.strokeStyle = 'black';
       this._backContext.fillRect(
         this._canvasWidth - 150,
         0,
         150,
         40 + 16 * this._finishers.length
       );
-      this._backContext.font = "12px Sans";
-      this._backContext.fillStyle = "black";
+      this._backContext.font = '12px Sans';
+      this._backContext.fillStyle = 'black';
       this._finishers.forEach((horse, index) => {
         this._backContext.fillText(
-          horse.NAME + "/" + horse.PLAYER_NAME,
+          horse.NAME + '/' + horse.PLAYER_NAME,
           this._canvasWidth - 140,
           30 + 16 * index
         );
@@ -602,7 +607,7 @@ export class RaceComponent implements OnInit {
   }
 
   drawPositionList() {
-    this._backContext.fillStyle = "Green";
+    this._backContext.fillStyle = 'Green';
     const boxTop = this._canvasHeight - (40 + 16 * this.horses.length);
     this._backContext.fillRect(
       this._canvasWidth - 150,
@@ -611,12 +616,12 @@ export class RaceComponent implements OnInit {
       40 + 16 * this.horses.length
     );
 
-    this._backContext.font = "12px Sans";
-    this._backContext.fillStyle = "white";
+    this._backContext.font = '12px Sans';
+    this._backContext.fillStyle = 'white';
     const cloneHorses = this.getHorsesInOrder(this.horses);
     cloneHorses.forEach((horse, index) => {
       this._backContext.fillText(
-        horse.NAME + "/" + horse.PLAYER_NAME,
+        horse.NAME + '/' + horse.PLAYER_NAME,
         this._canvasWidth - 140,
         boxTop + 30 + 16 * index
       );

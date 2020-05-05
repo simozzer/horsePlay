@@ -19,7 +19,7 @@ a {
 }
 
 #main{
-  background-image: url("http://te4m19.co.uk/assets/images/leaders.jpg");
+  background-image: url("/assets/images/leaders.jpg");
   background-size: cover;
   padding-top:2em;
 }

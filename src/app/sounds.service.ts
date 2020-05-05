@@ -20,7 +20,7 @@ export class SoundsService {
     const prefix = '/assets/sounds/';
     this.loader = new AudioBufferLoader(this.context,
       [
-        prefix + "Galloping-Horse.wav",
+        prefix + "Galloping-Horse.mp3",
         prefix + "gun.mp3",
         prefix + "ding.mp3",
         prefix + "bugle.mp3",

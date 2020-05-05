@@ -26,7 +26,7 @@ a {
 }
 
 #main{
-  background-image: url("http://te4m19.co.uk/assets/images/betsPlaced.jpg");
+  background-image: url("/assets/images/betsPlaced.jpg");
   background-size: cover;
   padding-top:2em;
 }

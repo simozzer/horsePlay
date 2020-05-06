@@ -48,7 +48,7 @@
   </td>
 </tr>
 </table>
-<input type="button" value="Set Selection" [disabled]="this.invalid" (click)="this.setSelection()"/>
+<input *ngIf="showSubmit" type="button" value="Set Selection" [disabled]="this.invalid" (click)="this.setSelection()"/>
 
 <div *ngIf="readyForBets; else notReady">
   <a routerLink="/betting/{{gameId}}/{{races[0].ID}}">

@@ -18,12 +18,8 @@
         </td>
         <td>
           <input type="button" (click)="join(game.ID)" [disabled]="game.playerInGame" value="Join"/>
-        </td>
-        <td>
-          <input type="button" (click)="leave(game.ID)" [disabled]="game.playerInGame === false" value="Leave"/>
-        </td>
-        <td>
-          <input type="button" (click)="deleteGame(game.NAME)" value="Delete" [disabled]="player.NAME !== 'SIMON'"/>
+          <input type="button" (click)="leave(game.ID)" [disabled]="(!(game.playerInGame) || (player.ID === game.OWNER_ID))" value="Leave"/>
+          <input type="button" (click)="deleteGame(game.NAME)" value="Delete" [disabled]="(player.ID !== game.OWNER_ID)"/>
         </td>
     </table>
   <br/>

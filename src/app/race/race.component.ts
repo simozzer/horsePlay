@@ -60,6 +60,7 @@ export class RaceComponent implements OnInit {
   _prizes;
   runningRace: Boolean = true;
   showNextStep: Boolean = false;
+  waitMessaage: string;
 
   constructor(private gamesService: GamesService,
               private route: ActivatedRoute,
@@ -125,6 +126,7 @@ export class RaceComponent implements OnInit {
     }
 
   ngOnInit(): void {
+    this.waitMessaage = '';
     this.gameId = parseInt(this.route.snapshot.paramMap.get('gameId'),10);
     this.player = JSON.parse(localStorage.getItem('currentUser',));
     this.raceId = parseInt(this.route.snapshot.paramMap.get('raceId'),10);
@@ -133,24 +135,35 @@ export class RaceComponent implements OnInit {
         this.gameData = data;
         let count = await this.getPlayerCountWIthState(5);
         if (count > 0) {
-          // players are still in finshed race state
-          console.log('It appears that we\'ve run this');
+          // players are still in finished race state
+          this.waitMessaage = `It appears that this race is finished`;
           document.getElementById('raceCanvas').hidden = true;
           this.showNextStep = true;
         } else {
-          this.showRace = ((this.gameData.MASTER_PLAYER_ID === this.player.ID) || (this.player.NAME === 'SIMON'));
+          this.showRace = (this.gameData.MASTER_PLAYER_ID === this.player.ID);
           if (this.showRace) {
             // we're the master screen
             this.initializeRace();
           } else {
+            document.getElementById('raceCanvas').hidden = true;
+            // mark player as racing.
             this.gamesService.setPlayerState(this.gameId, this.player.ID, 4).subscribe(() => {
               },
               err => {
                 window.alert('error setting player state: ' + err);
               }); // racing
+
+
+            // wait for all players to finish race
             this.gamesService.getPlayersInGame(this.gameId).subscribe(async (pl) => {
               this.players = pl;
+              debugger;
+              const masterPlayer = this.players.find((p) => {
+                return p.PLAYER_ID === this.gameData.MASTER_PLAYER_ID;
+              });
+              this.waitMessaage = `Waiting for ${masterPlayer.NAME} to run race`;
               await this.gamesService.waitForAllPlayersToHaveState(this.gameId, 5, this.players.length).then(() => {
+                this.waitMessaage = '';
                 this.showNextStep = true;
               }, err => {
                 window.alert('error waiting for players with state: ' + err);
@@ -165,40 +178,42 @@ export class RaceComponent implements OnInit {
 
 
   setup() {
-    // All resources ready at this point.
-    this._finishLine = this.raceData.LENGTH_FURLONGS * PIXELS_PER_FURLONG;
-    this._verticalInterval = ((4 * this._canvasHeight) / 5 - 100) / this.horses.length;
-    this._mainCanvasContext.drawImage(this.images.getTaggedImage('grass'), 0, 0);
-    this._backCanvas = document.createElement('canvas');
-    this._backContext = this._backCanvas.getContext('2d');
-    this._backCanvas.width = this._mainCanvas.width;
-    this._backCanvas.height = this._mainCanvas.height;
-    this._scrollAdjust = 0;
-    this._pauseCycles = 0;
-    this._lastFrameTimestamp = -1;
-    this._finishers = [];
-    this.runningRace = true;
-    this.showRace = false;
+    this.gamesService.waitForAllPlayersToHaveState(this.gameId, 4, this.players.length).then(() => {
+      // All resources ready at this point.
+      this._finishLine = this.raceData.LENGTH_FURLONGS * PIXELS_PER_FURLONG;
+      this._verticalInterval = ((4 * this._canvasHeight) / 5 - 100) / this.horses.length;
+      this._mainCanvasContext.drawImage(this.images.getTaggedImage('grass'), 0, 0);
+      this._backCanvas = document.createElement('canvas');
+      this._backContext = this._backCanvas.getContext('2d');
+      this._backCanvas.width = this._mainCanvas.width;
+      this._backCanvas.height = this._mainCanvas.height;
+      this._scrollAdjust = 0;
+      this._pauseCycles = 0;
+      this._lastFrameTimestamp = -1;
+      this._finishers = [];
+      this.runningRace = true;
+      this.showRace = false;
 
-    let y = this._verticalInterval;
-    for (let i = 0; i < this.horses.length; i++) {
-      let horse = this.horses[i];
-      horse.top = (1 + i) * this._verticalInterval;
-      horse.backgroundPositionX = 0;
-      horse.backgroundPositionY = 0;
-      horse.animIndexer = 0.0;
-    }
-    this.horses.forEach((horse) => {
-      horse.raceSpeedFactor = Math.random() / 5;
-      horse.raceLengthFactor - Math.random();
-      horse.left = 0;
-      horse.finished = false;
+      let y = this._verticalInterval;
+      for (let i = 0; i < this.horses.length; i++) {
+        let horse = this.horses[i];
+        horse.top = (1 + i) * this._verticalInterval;
+        horse.backgroundPositionX = 0;
+        horse.backgroundPositionY = 0;
+        horse.animIndexer = 0.0;
+      }
+      this.horses.forEach((horse) => {
+        horse.raceSpeedFactor = Math.random() / 5;
+        horse.left = 0;
+        horse.finished = false;
+      });
+      this.updateDisplay();
+      this.gamesService.waitForAllPlayersToHaveState(this.gameId,4,this.players.length).then(()=> {
+        this.sounds.playSound(1);
+        window.requestAnimationFrame(this.handleDrawRequest.bind(this));
+      });
     });
-    this.updateDisplay();
-    this.gamesService.waitForAllPlayersToHaveState(this.gameId,4,this.players.length).then(()=> {
-      this.sounds.playSound(1);
-      window.requestAnimationFrame(this.handleDrawRequest.bind(this));
-    });
+
   }
 
   async processBets() {

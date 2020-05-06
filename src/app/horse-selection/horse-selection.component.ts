@@ -23,6 +23,7 @@ export class HorseSelectionComponent implements OnInit {
   readyForBets: Boolean = false;
   gameData: any;
   waitingFor: any;
+  showSubmit: Boolean = false;
 
   constructor(private route: ActivatedRoute,
               private gamesService: GamesService,
@@ -78,7 +79,7 @@ export class HorseSelectionComponent implements OnInit {
 
           this.gamesService.getPlayerHorsesForMeeting(this.gameId, this.meetingId, this.player.ID)
             .subscribe(async (data) => {
-              // this.restoreSelections(data);
+               this.restoreSelections(data);
             }, (err) => {
               window.alert('Error getting player horses for meeting: ' + err);
             });
@@ -169,6 +170,7 @@ export class HorseSelectionComponent implements OnInit {
         }
         forkJoin(aSubscriptions)
           .subscribe(async (data) => {
+              this.showSubmit = false;
               this.checkReadyForNextStep();
             }, error =>
               window.alert('error getting game: ' + error)
@@ -180,29 +182,30 @@ export class HorseSelectionComponent implements OnInit {
 
 
   restoreSelections(sels) {
+    let bHideSumbit = false;
 
     const selectionElems = Array.from(document.getElementsByClassName('horseSelector'));
-    if (sels) {
-
+    if (sels && sels.length) {
+      let bHideSubmit = true;
       for (let selection of sels) {
 
         let selRaceId = selection.RACE_ID;
 
-        let raceIndex = this.races.findIndex((race, raceIndex) => {
-          if (race.ID === selRaceId) {
-
-            return raceIndex;
-          }
+        const raceIndex = this.races.findIndex((race) => {
+          return (race.ID === selRaceId);
         });
 
         if (raceIndex >= 0) {
-          (<HTMLSelectElement>selectionElems[raceIndex]).value = selection.NAME;
+          const selElem = (<HTMLSelectElement>selectionElems[raceIndex]);
+          selElem.value = selection.NAME;
+          selElem.disabled = true;
         } else {
           console.log('Selection not found: ' + JSON.stringify(selection));
+          bHideSubmit = false;
         }
       }
     }
-
+    this.showSubmit = !bHideSumbit;
   }
 
 }

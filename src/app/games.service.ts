@@ -77,8 +77,8 @@ export class GamesService {
   }
 
 
-  addGame(name){
-    return this.http.post(this.hostUrl + "games",{'name':name })
+  addGame(name, playerId){
+    return this.http.post(this.hostUrl + "games",{'name':name, ownerId: playerId })
       .pipe(map((response: Response) => {
         return response;
       }));

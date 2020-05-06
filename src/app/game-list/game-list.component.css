@@ -19,3 +19,7 @@ body div {
 table {
   margin-top: 20px;
 }
+
+input[type="button"]:disabled {
+  display: none;
+}

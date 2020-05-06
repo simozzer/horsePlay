@@ -56,6 +56,7 @@ export class BetPlacementComponent implements OnInit {
                 default : f.going =  "?";
               }
             }
+            horse.FORM = horseForm;
 
           }
           this.generateOdds(this.horses);

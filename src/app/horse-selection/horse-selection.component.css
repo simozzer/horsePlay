@@ -44,3 +44,7 @@ div#main {
   background-image: url('/assets/images/chooseHorse.jpg');
   background-size: cover;
 }
+
+input[type="button"]:disabled {
+  display: none;
+}

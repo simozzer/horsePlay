@@ -328,3 +328,13 @@ export class GamesService {
 
 
 }
+
+
+export const GamesStates = {
+  selectingHorses:2,
+  placingBets:3,
+  viewingPreRaceSummary:4,
+  readyToRace:5,
+  racing:6,
+  raceFinished:7
+};

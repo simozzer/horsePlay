@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import {GamesService} from "../games.service";
+import {GamesService, GamesStates} from "../games.service";
 import {ActivatedRoute, Router} from "@angular/router";
+import {forkJoin} from "rxjs";
 
 @Component({
   selector: 'app-pre-race-report',
@@ -10,11 +11,13 @@ import {ActivatedRoute, Router} from "@angular/router";
 export class PreRaceReportComponent implements OnInit {
 
   gameId;
+  gameData;
   raceId;
   bets;
   raceData;
-
-
+  showNextLink = false;
+  player;
+  players;
 
   constructor(private gamesService: GamesService,
               private route: ActivatedRoute,
@@ -24,20 +27,52 @@ export class PreRaceReportComponent implements OnInit {
   ngOnInit(): void {
     this.gameId = parseInt(this.route.snapshot.paramMap.get('gameId'),10);
     this.raceId = parseInt(this.route.snapshot.paramMap.get('raceId'),10);
+    this.player = JSON.parse(localStorage.getItem('currentUser',));
 
-    this.gamesService.getBetsForRace(this.gameId, this.raceId)
-      .subscribe(async data => {
-          this.bets = data;
-        }, error =>
-          window.alert("error getting bets: " + error)
-      );
+    forkJoin([this.gamesService.getBetsForRace(this.gameId, this.raceId),
+      this.gamesService.getRaceInfo(this.raceId, this.gameId),
+      this.gamesService.getGame(this.gameId),
+      this.gamesService.getPlayersInGame(this.gameId),
+      this.gamesService.setPlayerState(this.gameId,this.player.ID, GamesStates.viewingPreRaceSummary)])
+      .subscribe((data) => {
+        this.bets = data[0];
+        this.raceData = data[1];
+        this.gameData = data[2];
+        this.players = data[3];
+        if (this.gameData.MASTER_PLAYER_ID !== this.player.ID) {
+          this.showNextLink = true;
+        } else {
+          this.updateShowNextLink();
+        }
+      }, error => {
+        window.alert("error: " + error);
+      });
 
-    this.gamesService.getRaceInfo(this.raceId, this.gameId)
-      .subscribe(async data => {
-          this.raceData = data;
-        }, error =>
-          window.alert("error getting race data: " + error)
-      );
+  }
+
+
+
+  updateShowNextLink() {
+
+    const doCheck =() => {
+      if (this.showNextLink) {
+        return;
+      }
+
+      this.gamesService.getPlayerCountWithState(this.gameId, GamesStates.viewingPreRaceSummary)
+        .subscribe((data) => {
+          if (data['COUNT'] && (data['COUNT'] === this.players.length)) {
+            this.showNextLink = true;
+          } else {
+            window.setTimeout(doCheck, 2000, [this]);
+          }
+        }, error => {
+          window.alert('error fetching player count with state: ' + error);
+        });
+    }
+
+    doCheck();
+
   }
 
   get going() {
@@ -52,6 +87,5 @@ export class PreRaceReportComponent implements OnInit {
       }
     }
   }
-
 
 }

@@ -1,15 +1,15 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import {AppComponent} from "./app.component";
-import {GameListComponent} from "./game-list/game-list.component";
-import {GameDetailComponent} from "./game-detail/game-detail.component";
+import {AppComponent} from './app.component';
+import {GameListComponent} from './game-list/game-list.component';
+import {GameDetailComponent} from './game-detail/game-detail.component';
 import { AuthGuard } from './auth.guard';
-import {LoginComponent} from "./login/login.component";
-import {UserListComponent} from "./user-list/user-list.component";
-import {BetPlacementComponent} from "./bet-placement/bet-placement.component";
-import {HorseSelectionComponent} from "./horse-selection/horse-selection.component";
-import {PreRaceReportComponent} from "./pre-race-report/pre-race-report.component";
-import {RaceComponent} from "./race/race.component";
+import {LoginComponent} from './login/login.component';
+import {UserListComponent} from './user-list/user-list.component';
+import {BetPlacementComponent} from './bet-placement/bet-placement.component';
+import {HorseSelectionComponent} from './horse-selection/horse-selection.component';
+import {PreRaceReportComponent} from './pre-race-report/pre-race-report.component';
+import {RaceComponent} from './race/race.component';
 
 
 

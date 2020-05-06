@@ -43,6 +43,6 @@
     <h3>No Bets Have Been Placed</h3>
   </ng-template>
 <br/>
-<a routerLink="/race/{{gameId}}/{{raceId}}">Click here to enter race</a>
+<a *ngIf="showNextLink" routerLink="/race/{{gameId}}/{{raceId}}">Click here to enter race</a>
 
 </div>

@@ -19,11 +19,11 @@ export class HorseSelectionComponent implements OnInit {
   meetings: any;
   meeting: any;
   meetingName: string;
-  invalid: Boolean = true;
-  readyForBets: Boolean = false;
+  invalid = true;
+  readyForBets = false;
   gameData: any;
   waitingFor: any;
-  showSubmit: Boolean = false;
+  showSubmit = false;
 
   constructor(private route: ActivatedRoute,
               private gamesService: GamesService,

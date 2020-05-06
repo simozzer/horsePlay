@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import {GamesService} from '../games.service';
+import {GamesService, GamesStates} from '../games.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {SoundsService} from '../sounds.service';
 import {ImagesService, horseColors} from '../images.service';
@@ -58,9 +58,9 @@ export class RaceComponent implements OnInit {
   _winningBets;
   _loosingBets;
   _prizes;
-  runningRace: Boolean = true;
-  showNextStep: Boolean = false;
-  waitMessaage: string;
+  runningRace = true;
+  showNextStep = false;
+  waitMessage: string;
 
   constructor(private gamesService: GamesService,
               private route: ActivatedRoute,
@@ -116,7 +116,7 @@ export class RaceComponent implements OnInit {
 
     async getPlayerCountWIthState(state) {
       return new Promise((resolve,reject) => {
-        this.gamesService.getPlayerCountWithState(this.gameId,5)
+        this.gamesService.getPlayerCountWithState(this.gameId,state)
           .subscribe((data) => {
             resolve(data['COUNT']);
           }, err => {
@@ -126,28 +126,31 @@ export class RaceComponent implements OnInit {
     }
 
   ngOnInit(): void {
-    this.waitMessaage = '';
+    this.waitMessage = '';
     this.gameId = parseInt(this.route.snapshot.paramMap.get('gameId'),10);
     this.player = JSON.parse(localStorage.getItem('currentUser',));
     this.raceId = parseInt(this.route.snapshot.paramMap.get('raceId'),10);
     this.gamesService.getGame(this.gameId)
       .subscribe(async data => {
         this.gameData = data;
-        let count = await this.getPlayerCountWIthState(5);
+        let count = await this.getPlayerCountWIthState(GamesStates.raceFinished);
         if (count > 0) {
           // players are still in finished race state
-          this.waitMessaage = `It appears that this race is finished`;
+          this.waitMessage = `It appears that this race is finished`;
           document.getElementById('raceCanvas').hidden = true;
           this.showNextStep = true;
         } else {
           this.showRace = (this.gameData.MASTER_PLAYER_ID === this.player.ID);
           if (this.showRace) {
             // we're the master screen
-            this.initializeRace();
+            this.gamesService.setPlayerState(this.gameId, this.player.ID, GamesStates.readyToRace).subscribe((data) => {
+              this.initializeRace();
+            });
+
           } else {
             document.getElementById('raceCanvas').hidden = true;
             // mark player as racing.
-            this.gamesService.setPlayerState(this.gameId, this.player.ID, 4).subscribe(() => {
+            this.gamesService.setPlayerState(this.gameId, this.player.ID,  GamesStates.readyToRace).subscribe(() => {
               },
               err => {
                 window.alert('error setting player state: ' + err);
@@ -161,9 +164,9 @@ export class RaceComponent implements OnInit {
               const masterPlayer = this.players.find((p) => {
                 return p.PLAYER_ID === this.gameData.MASTER_PLAYER_ID;
               });
-              this.waitMessaage = `Waiting for ${masterPlayer.NAME} to run race`;
-              await this.gamesService.waitForAllPlayersToHaveState(this.gameId, 5, this.players.length).then(() => {
-                this.waitMessaage = '';
+              this.waitMessage = `Waiting for ${masterPlayer.NAME} to run race`;
+              await this.gamesService.waitForAllPlayersToHaveState(this.gameId, GamesStates.raceFinished, this.players.length).then(() => {
+                this.waitMessage = '';
                 this.showNextStep = true;
               }, err => {
                 window.alert('error waiting for players with state: ' + err);
@@ -178,7 +181,7 @@ export class RaceComponent implements OnInit {
 
 
   setup() {
-    this.gamesService.waitForAllPlayersToHaveState(this.gameId, 4, this.players.length).then(() => {
+    this.gamesService.waitForAllPlayersToHaveState(this.gameId, GamesStates.readyToRace, this.players.length).then(() => {
       // All resources ready at this point.
       this._finishLine = this.raceData.LENGTH_FURLONGS * PIXELS_PER_FURLONG;
       this._verticalInterval = ((4 * this._canvasHeight) / 5 - 100) / this.horses.length;
@@ -208,7 +211,7 @@ export class RaceComponent implements OnInit {
         horse.finished = false;
       });
       this.updateDisplay();
-      this.gamesService.waitForAllPlayersToHaveState(this.gameId,4,this.players.length).then(()=> {
+      this.gamesService.waitForAllPlayersToHaveState(this.gameId,GamesStates.readyToRace, this.players.length).then(()=> {
         this.sounds.playSound(1);
         window.requestAnimationFrame(this.handleDrawRequest.bind(this));
       });
@@ -329,8 +332,7 @@ export class RaceComponent implements OnInit {
     }
 
     for(const p of this.players) {
-      await fnSetPlayerState(p)
-
+      await fnSetPlayerState(p);
     }
   }
 
@@ -346,7 +348,7 @@ export class RaceComponent implements OnInit {
         this.gameData = meetingInfo;
           this.gamesService.saveGameIndexes(meetingInfo).subscribe(async ()=> {
 
-          await this.updatePlayerStates(5);
+          await this.updatePlayerStates(GamesStates.raceFinished);
           document.getElementById('raceCanvas').hidden = true;
           this.showNextStep = true;
         }, err => {
@@ -358,7 +360,7 @@ export class RaceComponent implements OnInit {
         this.gameData.MEETING_INDEX = -1;
         this.gamesService.saveGameIndexes(this.gameData).subscribe(async (success) => {
           document.getElementById('raceCanvas').hidden = true;
-          await this.updatePlayerStates(5); // mark race as done
+          await this.updatePlayerStates(GamesStates.raceFinished); // mark race as done
           this.showNextStep = true;
         }, err => {
           window.alert('Error saving game indexes: ' + err);

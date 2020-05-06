@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import {GamesService} from "../games.service";
+import {GamesService, GamesStates} from "../games.service";
 import {ActivatedRoute, Router} from "@angular/router";
 import {HORSETYPES} from "../race-horse";
 import {forkJoin} from "rxjs";
+
 
 
 @Component({
@@ -141,19 +142,41 @@ export class BetPlacementComponent implements OnInit {
   }
 
   checkAllPlayersReady() {
+    if (this.allPlayersReady) {
+      return;
+    }
 
+    const expectedState = GamesStates.viewingPreRaceSummary;
     const doCheck =(interval) => {
       if (!this.players) {
         return;
       }
 
-      this.gamesService.getPlayerCountWithState(this.gameId,4)
+      this.gamesService.getPlayerCountWithState(this.gameId,expectedState)
         .subscribe(data => {
           if (data && data["COUNT"] && (data["COUNT"] === this.players.length)) {
             this.allPlayersReady = true;
             this.waitingFor = [];
             this.router.navigateByUrl(`preRace/${this.gameId}/${this.raceId}`);
           } else {
+            /*
+            debugger;
+            if (data && data['playerStates']) {
+              const playerStates = data['playerStates'];
+              let fail = false;
+              for (let p of playerStates) {
+                if (p.state < expectedState) {
+                  fail = true;
+                }
+              }
+              if (!fail) {
+                this.allPlayersReady = true;
+                this.waitingFor = [];
+                this.router.navigateByUrl(`preRace/${this.gameId}/${this.raceId}`);
+              }
+
+            }
+             */
             this.waitingFor = data['playerStates'];
             window.setTimeout(doCheck, 2000, this);
           }
@@ -276,7 +299,7 @@ export class BetPlacementComponent implements OnInit {
 
   handleReadyToRace() {
     this.playerReady = true;
-    this.gamesService.setPlayerState(this.gameId, this.player.ID,4)
+    this.gamesService.setPlayerState(this.gameId, this.player.ID, GamesStates.viewingPreRaceSummary)
       .subscribe((state) => {
         this.checkAllPlayersReady();
       }, err => {
@@ -286,7 +309,7 @@ export class BetPlacementComponent implements OnInit {
   }
 
   placeBet(){
-    const horseSelector = (<HTMLSelectElement>document.getElementById('horseSelector'));
+    const horseSelector = (<HTMLSelectElement> document.getElementById('horseSelector'));
     let selIndex = horseSelector.selectedIndex;
     let horseName = (<HTMLOptionElement>horseSelector.childNodes[selIndex]).value;
     let horseOdds = this.getOdds(horseName);

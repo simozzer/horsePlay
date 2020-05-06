@@ -65,7 +65,7 @@ export class HorseSelectionComponent implements OnInit {
 
             this.gamesService.getHorseForm(this.gameId, horse.ID)
               .subscribe(async (data) => {
-                let form = data;
+                let form:any = data;
                 for (let f of form) {
                   f.going = this.getGoingString(f.GOING);
                 }

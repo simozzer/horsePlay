@@ -190,6 +190,7 @@ export class RaceComponent implements OnInit {
     }
     this.horses.forEach((horse) => {
       horse.raceSpeedFactor = Math.random() / 5;
+      horse.raceLengthFactor - Math.random();
       horse.left = 0;
       horse.finished = false;
     });
@@ -512,15 +513,70 @@ export class RaceComponent implements OnInit {
     const maxProgressPerSecMs = MAX_PROGRESS_PER_SECOND / 1000;
     const maxProgressThisFrame = maxProgressPerSecMs * ticksSinceLastFrame;
 
-    let moveValues = [];
+
     const getHorseSpeedFactorAtPosition = (horse, pos) => {
       const furlongs = pos / PIXELS_PER_FURLONG;
-      if (furlongs < horse.ENERGY_FALL_DISTANCE) {
-        return horse.SPEED_FACTOR + horse.raceSpeedFactor;
+      let speed: number = 0;
+      if (furlongs < (horse.ENERGY_FALL_DISTANCE + horse.raceLengthFactor)) {
+        speed = horse.SPEED_FACTOR + horse.raceSpeedFactor;
       } else {
-        return horse.SLOWER_SPEED_FACTOR + horse.raceSpeedFactor;
+        speed =  horse.SLOWER_SPEED_FACTOR + horse.raceSpeedFactor;
       }
+      switch(this.raceData.GOING) {
+        case 0:
+          switch (horse.GOING_TYPE) {
+            case 0:
+                speed += 0.1;
+              break;
+            case 1:
+                //
+              break;
+            case 2:
+                speed -= 0.1;
+              break;
+            default :
+              console.log("unhandled going type: " + horse.GOING_TYPE);
+          }
+          break;
+        case 1:
+          switch (horse.GOING_TYPE) {
+            case 0:
+              speed -= 0.05;
+              break;
+            case 1:
+              //
+              break;
+            case 2:
+              speed -= 0.05;
+              break;
+            default :
+              console.log("unhandled going type: " + horse.GOING_TYPE);
+            }
+          break;
+
+        case 2:
+          switch (horse.GOING_TYPE) {
+            case 0:
+              speed -= 0.1;
+              break;
+            case 1:
+              speed -= 0.05;
+              break;
+            case 2:
+              speed += 0.1;
+              break;
+            default :
+              console.log("unhandled going type: " + horse.GOING_TYPE);
+          }
+          break;
+        default:
+          console.log('unhandled going: ' + this.raceData.going);
+
+      }
+      return speed;
     };
+
+    const moveValues = [];
     this.horses.forEach((horse, index) => {
       this.animateHorse(horse, ticksSinceLastFrame);
       let moveX =

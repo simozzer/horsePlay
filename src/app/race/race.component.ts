@@ -5,6 +5,7 @@ import {SoundsService} from '../sounds.service';
 import {ImagesService, horseColors} from '../images.service';
 import {forkJoin} from 'rxjs';
 import {PIXELS_PER_FURLONG} from '../race-horse';
+import {HorseSocketService} from '../horse-socket.service';
 
 
 const MAX_PROGRESS_PER_SECOND = 250;
@@ -31,7 +32,7 @@ const HORSE_NOSE_ADJUST = [
 })
 export class RaceComponent implements OnInit {
 
-  showRace: boolean = false;
+  showRace = false;
   gameData;
   player;
   gameId;
@@ -51,8 +52,8 @@ export class RaceComponent implements OnInit {
   _scrollAdjust: number;
   _pauseCycles: number;
   _lastFrameTimestamp: number;
-  _title : string = 'TESTING';
-  _lines : any;
+  _title = 'TESTING';
+  _lines: any;
   _raceFinished;
   _finishers;
   _winningBets;
@@ -61,15 +62,17 @@ export class RaceComponent implements OnInit {
   runningRace = true;
   showNextStep = false;
   waitMessage: string;
+  observing = false;
 
   constructor(private gamesService: GamesService,
               private route: ActivatedRoute,
               private router: Router,
               private images: ImagesService,
-              private sounds : SoundsService) {}
+              private sounds: SoundsService,
+              private socket: HorseSocketService) {}
 
     initializeRace() {
-      this._mainCanvas = <HTMLCanvasElement>document.getElementById('raceCanvas');
+      this._mainCanvas = (document.getElementById('raceCanvas') as HTMLCanvasElement);
       this._mainCanvasContext = this._mainCanvas.getContext('2d');
       this._canvasWidth = this._mainCanvas.clientWidth;
       this._canvasHeight = this._mainCanvas.clientHeight;
@@ -89,7 +92,7 @@ export class RaceComponent implements OnInit {
         this.players = responses[4];
         this.setup();
       }, error => {
-        window.alert('error in forkJoin: ' + error)
+        window.alert('error in forkJoin: ' + error);
       });
     }
 
@@ -115,25 +118,44 @@ export class RaceComponent implements OnInit {
     }
 
     async getPlayerCountWIthState(state) {
-      return new Promise((resolve,reject) => {
-        this.gamesService.getPlayerCountWithState(this.gameId,state)
+      return new Promise((resolve, reject) => {
+        this.gamesService.getPlayerCountWithState(this.gameId, state)
           .subscribe((data) => {
-            resolve(data['COUNT']);
+            resolve(data.COUNT);
           }, err => {
             reject(err);
           });
       });
     }
 
+    fnSocketNotify(data) {
+      let obj = JSON.parse(data);
+      this._scrollAdjust = obj.scrollAdjust;
+      const positions = obj.positions;
+      for (let i = 0; i < this.horses.length; i++) {
+        const horse = this.horses[i];
+        horse.left = positions[i].x;
+        horse.animIndexer = positions[i].a;
+
+        const frameIndex = horse.animIndexer % 12 | 0;
+        const xIndex = frameIndex % 3;
+        const yIndex = frameIndex % 4;
+        horse.backgroundPositionX = xIndex * 150;
+        horse.backgroundPositionY = yIndex * 100;
+      }
+      // TODO.. move horses
+    }
+
   ngOnInit(): void {
+    this.observing = false;
     this.waitMessage = '';
-    this.gameId = parseInt(this.route.snapshot.paramMap.get('gameId'),10);
-    this.player = JSON.parse(localStorage.getItem('currentUser',));
-    this.raceId = parseInt(this.route.snapshot.paramMap.get('raceId'),10);
+    this.gameId = parseInt(this.route.snapshot.paramMap.get('gameId'), 10);
+    this.player = JSON.parse(localStorage.getItem('currentUser', ));
+    this.raceId = parseInt(this.route.snapshot.paramMap.get('raceId'), 10);
     this.gamesService.getGame(this.gameId)
       .subscribe(async data => {
         this.gameData = data;
-        let count = await this.getPlayerCountWIthState(GamesStates.raceFinished);
+        const count = await this.getPlayerCountWIthState(GamesStates.raceFinished);
         if (count > 0) {
           // players are still in finished race state
           this.waitMessage = `It appears that this race is finished`;
@@ -148,7 +170,9 @@ export class RaceComponent implements OnInit {
             });
 
           } else {
-            document.getElementById('raceCanvas').hidden = true;
+           // document.getElementById('raceCanvas').hidden = true;
+            this.socket.addObserver(this);
+            this.observing = true;
             // mark player as racing.
             this.gamesService.setPlayerState(this.gameId, this.player.ID,  GamesStates.readyToRace).subscribe(() => {
               },
@@ -156,16 +180,17 @@ export class RaceComponent implements OnInit {
                 window.alert('error setting player state: ' + err);
               }); // racing
 
+            this.initializeRace();
 
             // wait for all players to finish race
             this.gamesService.getPlayersInGame(this.gameId).subscribe(async (pl) => {
               this.players = pl;
-              debugger;
               const masterPlayer = this.players.find((p) => {
                 return p.PLAYER_ID === this.gameData.MASTER_PLAYER_ID;
               });
               this.waitMessage = `Waiting for ${masterPlayer.NAME} to run race`;
               await this.gamesService.waitForAllPlayersToHaveState(this.gameId, GamesStates.raceFinished, this.players.length).then(() => {
+                this.socket.removeObserver(this);
                 this.waitMessage = '';
                 this.showNextStep = true;
               }, err => {
@@ -174,7 +199,7 @@ export class RaceComponent implements OnInit {
             });
           }
         }
-      },error => {
+      }, error => {
           window.alert('Error getting game: ' + error);
         });
   }
@@ -197,21 +222,23 @@ export class RaceComponent implements OnInit {
       this.runningRace = true;
       this.showRace = false;
 
-      let y = this._verticalInterval;
+      const y = this._verticalInterval;
       for (let i = 0; i < this.horses.length; i++) {
-        let horse = this.horses[i];
+        const horse = this.horses[i];
         horse.top = (1 + i) * this._verticalInterval;
         horse.backgroundPositionX = 0;
         horse.backgroundPositionY = 0;
         horse.animIndexer = 0.0;
       }
-      this.horses.forEach((horse) => {
-        horse.raceSpeedFactor = Math.random() / 5;
-        horse.left = 0;
-        horse.finished = false;
-      });
+      if (!this.observing) {
+        this.horses.forEach((horse) => {
+          horse.raceSpeedFactor = Math.random() / 5;
+          horse.left = 0;
+          horse.finished = false;
+        });
+      }
       this.updateDisplay();
-      this.gamesService.waitForAllPlayersToHaveState(this.gameId,GamesStates.readyToRace, this.players.length).then(()=> {
+      this.gamesService.waitForAllPlayersToHaveState(this.gameId, GamesStates.readyToRace, this.players.length).then(() => {
         this.sounds.playSound(1);
         window.requestAnimationFrame(this.handleDrawRequest.bind(this));
       });
@@ -225,20 +252,24 @@ export class RaceComponent implements OnInit {
       if ((!this.bets)  || (this.bets.length === 0)) {
         resolve();
       } else {
-        let betAdjustments = [];
+        const betAdjustments = [];
         this._winningBets = [];
         this._loosingBets = [];
         this.bets.forEach((b) => {
           if (this._finishers[0].ID === b.HORSE_ID) {
-            //1st place
-            let winAmount = b.AMOUNT * b.ODDS;
+            // 1st place
+            const winAmount = b.AMOUNT * b.ODDS;
             b.WIN = winAmount;
             this._winningBets.push(b);
-            betAdjustments.push(this.gamesService.adjustPlayerFunds(this.gameId, b.PLAYER_ID, winAmount));
+            if (!this.observing) {
+              betAdjustments.push(this.gamesService.adjustPlayerFunds(this.gameId, b.PLAYER_ID, winAmount));
+            }
           } else {
             // not 1st place
             this._loosingBets.push(b);
-            betAdjustments.push(this.gamesService.adjustPlayerFunds(this.gameId, b.PLAYER_ID, -b.AMOUNT));
+            if (!this.observing) {
+              betAdjustments.push(this.gamesService.adjustPlayerFunds(this.gameId, b.PLAYER_ID, -b.AMOUNT));
+            }
           }
         });
 
@@ -253,24 +284,26 @@ export class RaceComponent implements OnInit {
 
   async clearRaceBets() {
 
-    return new Promise( (resolve, reject) => {
-      this.gamesService.clearRaceBets(this.gameId, this.raceId)
-        .subscribe(() => {
-          resolve();
-        }, err => {
-          window.alert('error clearing bets: ' + err);
-        });
-    });
+    if (!this.observing) {
+      return new Promise((resolve, reject) => {
+        this.gamesService.clearRaceBets(this.gameId, this.raceId)
+          .subscribe(() => {
+            resolve();
+          }, err => {
+            window.alert('error clearing bets: ' + err);
+          });
+      });
+    }
   }
 
   async saveHorseForm() {
-    return new Promise((resolve,reject) => {
-      if (this._finishers && (this._finishers.length >0)) {
-        let requests = [];
+    return new Promise((resolve, reject) => {
+      if (this._finishers && (this._finishers.length > 0)) {
+        const requests = [];
 
-        for (let i=0; i < this._finishers.length; i++) {
+        for (let i = 0; i < this._finishers.length; i++) {
           const finisher = this._finishers[i];
-          requests.push(this.gamesService.saveHorseForm(this.gameId, this.raceId, finisher.ID, i+1, this.going));
+          requests.push(this.gamesService.saveHorseForm(this.gameId, this.raceId, finisher.ID, i + 1, this.going));
         }
 
         forkJoin(requests)
@@ -290,30 +323,40 @@ export class RaceComponent implements OnInit {
   async processWinnings() {
 
     return new Promise((resolve) => {
-      let prizes = this.raceData.PRIZE;
-      let won = [];
+      const prizes = this.raceData.PRIZE;
+      const won = [];
       this._prizes = [];
       if (this._finishers && (this._finishers.length > 0)) {
         let prize = (prizes * 0.5) | 0;
-        won.push(this.gamesService.adjustPlayerFunds(this.gameId, this._finishers[0].PLAYER_ID, prize));
+        if (!this.observing) {
+          won.push(this.gamesService.adjustPlayerFunds(this.gameId, this._finishers[0].PLAYER_ID, prize));
+        }
         this._prizes.push({PLAYER_NAME: this._finishers[0].PLAYER_NAME, PRIZE: prize});
         if (this._finishers.length > 1) {
           prize = (prizes * 0.3) | 0;
-          won.push(this.gamesService.adjustPlayerFunds(this.gameId, this._finishers[1].PLAYER_ID, prize));
+          if (!this.observing) {
+            won.push(this.gamesService.adjustPlayerFunds(this.gameId, this._finishers[1].PLAYER_ID, prize));
+          }
           this._prizes.push({PLAYER_NAME: this._finishers[1].PLAYER_NAME, PRIZE: prize});
         }
         if (this._finishers.length > 2) {
           prize = (prizes * 0.2) | 0;
-          won.push(this.gamesService.adjustPlayerFunds(this.gameId, this._finishers[2].PLAYER_ID, prize));
+          if (!this.observing) {
+            won.push(this.gamesService.adjustPlayerFunds(this.gameId, this._finishers[2].PLAYER_ID, prize));
+          }
           this._prizes.push({PLAYER_NAME: this._finishers[2].PLAYER_NAME, PRIZE: prize});
         }
 
-        forkJoin(won)
-          .subscribe((data) => {
-            resolve(data);
-          }, err => {
-            window.alert('Error adding winnings: ' + err)
-          });
+        if (!this.observing) {
+          forkJoin(won)
+            .subscribe((data) => {
+              resolve(data);
+            }, err => {
+              window.alert('Error adding winnings: ' + err);
+            });
+        } else {
+          resolve(true);
+        }
 
       }
     });
@@ -322,16 +365,16 @@ export class RaceComponent implements OnInit {
 
   async updatePlayerStates(state) {
     const fnSetPlayerState = async (p) => {
-      return new Promise((resolve,reject) => {
-        this.gamesService.setPlayerState(this.gameId,p.PLAYER_ID,state).subscribe(result => {
+      return new Promise((resolve, reject) => {
+        this.gamesService.setPlayerState(this.gameId, p.PLAYER_ID, state).subscribe(result => {
           resolve(result);
         }, err => {
           reject(err);
         }); // RACE END
       });
-    }
+    };
 
-    for(const p of this.players) {
+    for (const p of this.players) {
       await fnSetPlayerState(p);
     }
   }
@@ -341,32 +384,36 @@ export class RaceComponent implements OnInit {
     await this.processBets();
     await this.clearRaceBets();
     await this.processWinnings();
-    await this.saveHorseForm();
+    if (!this.observing) {
+      await this.saveHorseForm();
+    }
 
     this.gamesService.getNextMeeting(this.gameData).then( (meetingInfo) => {
       if (meetingInfo !== null) {
         this.gameData = meetingInfo;
-          this.gamesService.saveGameIndexes(meetingInfo).subscribe(async ()=> {
-
-          await this.updatePlayerStates(GamesStates.raceFinished);
-          document.getElementById('raceCanvas').hidden = true;
-          this.showNextStep = true;
-        }, err => {
-          window.alert('Error saving games indexes: ' + err);
-        });
+        if (!this.observing) {
+            this.gamesService.saveGameIndexes(meetingInfo).subscribe(async () => {
+              await this.updatePlayerStates(GamesStates.raceFinished);
+              document.getElementById('raceCanvas').hidden = true;
+              this.showNextStep = true;
+            }, err => {
+              window.alert('Error saving games indexes: ' + err);
+            });
+          }
 
       } else {
-
         this.gameData.MEETING_INDEX = -1;
-        this.gamesService.saveGameIndexes(this.gameData).subscribe(async (success) => {
-          document.getElementById('raceCanvas').hidden = true;
-          await this.updatePlayerStates(GamesStates.raceFinished); // mark race as done
-          this.showNextStep = true;
-        }, err => {
-          window.alert('Error saving game indexes: ' + err);
-        });
+        if (!this.observing) {
+          this.gamesService.saveGameIndexes(this.gameData).subscribe(async (success) => {
+            document.getElementById('raceCanvas').hidden = true;
+            await this.updatePlayerStates(GamesStates.raceFinished); // mark race as done
+            this.showNextStep = true;
+          }, err => {
+            window.alert('Error saving game indexes: ' + err);
+          });
+        }
 
-      };
+      }
     });
 
     document.getElementById('raceCanvas').hidden = true;
@@ -381,13 +428,17 @@ export class RaceComponent implements OnInit {
     }
     this._lastFrameTimestamp = lTicks;
 
-    this.moveHorses(ticksSinceLastFrame);
+    if (!this.observing) {
+      this.moveHorses(ticksSinceLastFrame);
+    }
     this.checkHorsesFinished();
     this.tileBackground();
     this.drawLines();
     this.drawHorses();
-    this.drawFinishers();
-    this.drawPositionList();
+    if (!this.observing) {
+      this.drawFinishers();
+      this.drawPositionList();
+    }
 
     this.paintFromBackground();
 
@@ -423,7 +474,7 @@ export class RaceComponent implements OnInit {
 
   drawLines() {
     const drawLineIfVisible = (x, color, label) => {
-      let transformedOrigin = x + HORSE_NOSE - this._scrollAdjust;
+      const transformedOrigin = x + HORSE_NOSE - this._scrollAdjust;
       if (transformedOrigin > 0 && transformedOrigin < this._canvasWidth) {
         this._backContext.strokeStyle = color;
         this._backContext.beginPath();
@@ -444,7 +495,7 @@ export class RaceComponent implements OnInit {
   addFurlongs() {
     this._lines = [{ x: 0, color: 'white', label: 'start' }];
     for (let i = 0; i < this.raceData.LENGTH_FURLONGS; i++) {
-      let line = {
+      const line = {
         x: (i + 1) * PIXELS_PER_FURLONG,
         color: 'yellow',
         label: 'F' + (i + 1),
@@ -472,7 +523,7 @@ export class RaceComponent implements OnInit {
       );
       this._backContext.fillStyle = horseColors[index % 12 | 0];
       this._backContext.font = '16px Sans';
-      const caption = horse.PLAYER_NAME + ': ' + horse.NAME;// + '(' + horse._raceOdds + '/1)',
+      const caption = horse.PLAYER_NAME + ': ' + horse.NAME; // + '(' + horse._raceOdds + '/1)',
       this._backContext.fillText(
         caption,
         10,
@@ -497,8 +548,8 @@ export class RaceComponent implements OnInit {
   getHorsesInOrder(horses) {
     const cloneHorses = [...horses];
     cloneHorses.sort((a, b) => {
-      let a1 = a.left;
-      let b1 = b.left;
+      const a1 = a.left;
+      const b1 = b.left;
       if (a1 === b1) {
         return 0;
       } else if (a1 < b1) {
@@ -533,26 +584,26 @@ export class RaceComponent implements OnInit {
 
     const getHorseSpeedFactorAtPosition = (horse, pos) => {
       const furlongs = pos / PIXELS_PER_FURLONG;
-      let speed: number = 0;
+      let speed = 0;
       if (furlongs < (horse.ENERGY_FALL_DISTANCE + horse.raceLengthFactor)) {
         speed = horse.SPEED_FACTOR + horse.raceSpeedFactor;
       } else {
         speed =  horse.SLOWER_SPEED_FACTOR + horse.raceSpeedFactor;
       }
-      switch(this.raceData.GOING) {
+      switch (this.raceData.GOING) {
         case 0:
           switch (horse.GOING_TYPE) {
             case 0:
                 speed += 0.1;
-              break;
+                break;
             case 1:
                 //
               break;
             case 2:
                 speed -= 0.1;
-              break;
+                break;
             default :
-              console.log("unhandled going type: " + horse.GOING_TYPE);
+              console.log('unhandled going type: ' + horse.GOING_TYPE);
           }
           break;
         case 1:
@@ -567,7 +618,7 @@ export class RaceComponent implements OnInit {
               speed -= 0.05;
               break;
             default :
-              console.log("unhandled going type: " + horse.GOING_TYPE);
+              console.log('unhandled going type: ' + horse.GOING_TYPE);
             }
           break;
 
@@ -583,7 +634,7 @@ export class RaceComponent implements OnInit {
               speed += 0.1;
               break;
             default :
-              console.log("unhandled going type: " + horse.GOING_TYPE);
+              console.log('unhandled going type: ' + horse.GOING_TYPE);
           }
           break;
         default:
@@ -594,21 +645,29 @@ export class RaceComponent implements OnInit {
     };
 
     const moveValues = [];
+    const newPositions = [];
     this.horses.forEach((horse, index) => {
       this.animateHorse(horse, ticksSinceLastFrame);
-      let moveX =
+      const moveX =
         Math.random() *
         maxProgressThisFrame *
-        getHorseSpeedFactorAtPosition(horse,horse.left);
-      let left = horse.left + moveX;
+        getHorseSpeedFactorAtPosition(horse, horse.left);
+      const left = horse.left + moveX;
       moveValues.push(moveX);
+      newPositions.push({x: left | 0, a: horse.animIndexer | 0});
       horse.left = left;
     });
 
-    let maxAfterMove = this.getMaxHorsePosition();
+    const displayData = {
+      scrollAdjust : this._scrollAdjust,
+      positions : newPositions
+    };
+    this.socket.sendData(JSON.stringify(displayData));
+
+    const maxAfterMove = this.getMaxHorsePosition();
     if (maxAfterMove > this._scrollAdjust + this._canvasWidth - 350) {
       // 1st horse approaching right of screen.
-      let adjust = Math.abs(
+      const adjust = Math.abs(
         this._canvasWidth - 350 - (maxAfterMove + this._scrollAdjust)
       );
       this._scrollAdjust += maxProgressThisFrame;
@@ -668,7 +727,7 @@ export class RaceComponent implements OnInit {
 
   addWinner(horse) {
     this._finishers.push(horse);
-    //TODO horse.FORM.push(this._finishers.length);
+    // TODO horse.FORM.push(this._finishers.length);
     this.sounds.playSound(2);
     if (this._finishers.length === this.horses.length) {
       this._raceFinished = true;

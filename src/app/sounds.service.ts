@@ -10,6 +10,7 @@ export class SoundsService {
   finishedLoading = false;
   context;
   soundBuffers;
+  hostUrl;
 
 
   constructor(){
@@ -17,10 +18,11 @@ export class SoundsService {
     window.AudioContext = AudioContext || window.AudioContext;// || window.webkitAudioContext;
     this.context = new AudioContext();
 
-    const prefix = '/assets/sounds/';
+    this.hostUrl = "http://" + window.location.hostname;
+    const prefix = this.hostUrl + '/assets/horses/sounds/';
     this.loader = new AudioBufferLoader(this.context,
       [
-        prefix + "Galloping-Horse.mp3",
+        prefix + "Galloping-Horse.wav",
         prefix + "gun.mp3",
         prefix + "ding.mp3",
         prefix + "bugle.mp3",

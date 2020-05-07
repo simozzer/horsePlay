@@ -18,6 +18,7 @@ import { HorseSelectionComponent } from './horse-selection/horse-selection.compo
 import { RaceComponent } from './race/race.component';
 import { ImagesService } from "./images.service";
 import { PreRaceReportComponent } from './pre-race-report/pre-race-report.component';
+import { HorseSocketService} from "./horse-socket.service";
 
 
 @NgModule({
@@ -38,7 +39,7 @@ import { PreRaceReportComponent } from './pre-race-report/pre-race-report.compon
     HttpClientModule,
     FormsModule
   ],
-  providers: [GamesService, AuthenticationService, UsersService, SoundsService, ImagesService],
+  providers: [GamesService, AuthenticationService, UsersService, SoundsService, ImagesService,HorseSocketService],
   bootstrap: [AppComponent]
 })
 export class AppModule {

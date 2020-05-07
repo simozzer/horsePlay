@@ -37,8 +37,8 @@ export class BufferLoader {
       };
     };
 
-    request.onerror = function () {
-      alert("BufferLoader: XHR error");
+    request.onerror = function (e) {
+      console.log("BufferLoader: XHR error": + e);
     };
 
     request.send();

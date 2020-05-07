@@ -2206,7 +2206,8 @@ export class HorseNameGenerator{
 
   static getHorseName() {
     let index = (Math.random() * _horseNames.length) | 0;
-    let answer = _horseNames[index];
+    let otherIndex = (Math.random() * _horseNames.length) | 0;
+    let answer = _horseNames[index] + ' ' +  _horseNames[otherIndex];
     _horseNames.splice(index, 1);
     return answer;
   };
@@ -2255,3 +2256,4 @@ export class RaceHorse {
     }
   }
 }
+

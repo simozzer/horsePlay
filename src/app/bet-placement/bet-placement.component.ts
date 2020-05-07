@@ -278,7 +278,7 @@ export class BetPlacementComponent implements OnInit {
     });
 
     oddsStats.forEach((stat, index) => {
-      stat.odds = 2.0 + index * 0.5;
+      stat.odds = 1.0 + index * 0.5;
       if (index > 2) {
         stat.odds = stat.odds * (2 + index - 2);
       }

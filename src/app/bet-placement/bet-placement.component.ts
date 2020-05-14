@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import {GamesService, GamesStates} from "../games.service";
-import {ActivatedRoute, Router} from "@angular/router";
-import {HORSETYPES} from "../race-horse";
-import {forkJoin} from "rxjs";
+import {GamesService, GamesStates} from '../games.service';
+import {ActivatedRoute, Router} from '@angular/router';
+import {HORSETYPES} from '../race-horse';
+import {forkJoin} from 'rxjs';
 
 
 
@@ -13,13 +13,13 @@ import {forkJoin} from "rxjs";
 })
 export class BetPlacementComponent implements OnInit {
 
-  gameId : number;
-  raceId : number;
+  gameId: number;
+  raceId: number;
   player: any;
   players: any;
   horses: any;
-  raceData : any;
-  playerBets : any;
+  raceData: any;
+  playerBets: any;
   allPlayersReady = false;
   playerReady = false;
   initialFunds = 0;
@@ -27,7 +27,7 @@ export class BetPlacementComponent implements OnInit {
   betsTotal = 0;
   waitingFor: any;
   _invalidBetAmount;
-  _oddsStats:any;
+  _oddsStats: any;
 
   constructor(private gamesService: GamesService,
               private route: ActivatedRoute,
@@ -51,10 +51,10 @@ export class BetPlacementComponent implements OnInit {
             let horseForm:any = await this.getHorseForm(horse.ID);
             for (const f of horseForm) {
               switch (f.GOING) {
-                case 0: f.going = "firm"; break;
-                case 1: f.going = "good"; break;
-                case 2: f.going = "soft"; break;
-                default : f.going =  "?";
+                case 0: f.going = 'firm'; break;
+                case 1: f.going = 'good'; break;
+                case 2: f.going = 'soft'; break;
+                default : f.going =  '?';
               }
             }
             horse.FORM = horseForm;
@@ -63,16 +63,16 @@ export class BetPlacementComponent implements OnInit {
           this.generateOdds(this.horses);
           this.getPlayerBets();
           }, err => {
-              window.alert("error setting up: " + err);
+              window.alert('error setting up: ' + err);
           });
     this.gamesService.getPlayerFunds(this.gameId,this.player.ID)
       .subscribe( (data) => {
         let rec = data;
-        this.initialFunds = rec["FUNDS"];
+        this.initialFunds = rec['FUNDS'];
         this.remainingFunds = this.initialFunds;
 
       }, err => {
-        window.alert("Error getting player funds:" + err);
+        window.alert('Error getting player funds:' + err);
       })
   }
 
@@ -89,10 +89,10 @@ export class BetPlacementComponent implements OnInit {
   get going(){
     if (this.raceData) {
       switch(this.raceData.GOING) {
-        case 0: return "firm";
-        case 1: return "good";
-        case 2: return "soft";
-        default : return "?";
+        case 0: return 'firm';
+        case 1: return 'good';
+        case 2: return 'soft';
+        default : return '?';
       }
     }
   }
@@ -109,13 +109,13 @@ export class BetPlacementComponent implements OnInit {
         this.betsTotal = betsAmt;
         this.remainingFunds = this.initialFunds - this.betsTotal;
       }, error => {
-        window.alert("Failed to get player bets: " + error);
+        window.alert('Failed to get player bets: ' + error);
       })
   }
 
   get invalidBetAmount() {
     this._invalidBetAmount = false;
-    let input = (<HTMLInputElement>(document.getElementById("betAmount")));
+    let input = (<HTMLInputElement>(document.getElementById('betAmount')));
     if (input) {
       let val = +input.value;
        if ((val <0) || (val> this.remainingFunds)) {
@@ -154,29 +154,11 @@ export class BetPlacementComponent implements OnInit {
 
       this.gamesService.getPlayerCountWithState(this.gameId,expectedState)
         .subscribe(data => {
-          if (data && data["COUNT"] && (data["COUNT"] === this.players.length)) {
+          if (data && data['COUNT'] && (data['COUNT'] === this.players.length)) {
             this.allPlayersReady = true;
             this.waitingFor = [];
             this.router.navigateByUrl(`preRace/${this.gameId}/${this.raceId}`);
           } else {
-            /*
-            debugger;
-            if (data && data['playerStates']) {
-              const playerStates = data['playerStates'];
-              let fail = false;
-              for (let p of playerStates) {
-                if (p.state < expectedState) {
-                  fail = true;
-                }
-              }
-              if (!fail) {
-                this.allPlayersReady = true;
-                this.waitingFor = [];
-                this.router.navigateByUrl(`preRace/${this.gameId}/${this.raceId}`);
-              }
-
-            }
-             */
             this.waitingFor = data['playerStates'];
             window.setTimeout(doCheck, 2000, this);
           }
@@ -255,7 +237,7 @@ export class BetPlacementComponent implements OnInit {
         break;
 
       default:
-        window.alert("unhandled race length");
+        window.alert('unhandled race length');
         break;
     }
   }
@@ -331,10 +313,10 @@ export class BetPlacementComponent implements OnInit {
           this.getPlayerBets();
 
         } else {
-          window.alert("failed to place bet");
+          window.alert('failed to place bet');
         }
       }, error => {
-        window.alert("Error placing bet: " + error);
+        window.alert('Error placing bet: ' + error);
       })
   }
 }

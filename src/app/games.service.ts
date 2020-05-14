@@ -107,7 +107,7 @@ export class GamesService {
   }
 
 
-  updatePlayerInGame(gameId, playerObject) {
+  addPlayerToGame(gameId, playerObject) {
     return this.http.post( `${this.hostUrl}game/${gameId}/players`,playerObject)
       .pipe(map((response: Response) => {
         return response;

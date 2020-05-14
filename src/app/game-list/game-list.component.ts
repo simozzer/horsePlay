@@ -1,9 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {GamesService} from '../games.service';
 import {UsersService} from '../users.service';
-import {AuthenticationService} from '../authentication.service';
 import {HORSES_PER_PLAYER, RaceHorse, HorseNameGenerator, INITIAL_PLAYER_FUNDS} from '../race-horse';
-import {map} from 'rxjs/operators';
 
 @Component({
   selector: 'app-game-list',
@@ -16,8 +14,7 @@ export class GameListComponent implements OnInit {
   player;
 
   constructor(private gamesService: GamesService,
-              private usersService: UsersService,
-              private authService: AuthenticationService) {
+              private usersService: UsersService) {
     this.games = [];
   }
 
@@ -68,12 +65,12 @@ export class GameListComponent implements OnInit {
   addGame(name, playerId) {
     return this.gamesService.addGame(name, playerId)
       .subscribe(async data => {
-          await this.join(data[0].ID).catch(err => {
+          await this.join(data.ID).catch(err => {
             return false;
           }).then( () => {
             this.getGames();
           });
-          return data[0];
+          return data;
         }, error => {
           return false;
         }
@@ -110,7 +107,7 @@ export class GameListComponent implements OnInit {
 
     return new Promise((resolve, reject) => {
 
-      this.gamesService.updatePlayerInGame(gameId, {id: this.player.ID})
+      this.gamesService.addPlayerToGame(gameId, {id: this.player.ID})
         .subscribe(data => {
             // ADD HORSES FOR PLAYER
             const horses = [];

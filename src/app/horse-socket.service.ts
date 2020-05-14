@@ -11,7 +11,7 @@ export class HorseSocketService {
   observers = [];
 
   constructor() {
-    this.url = 'ws://127.0.0.1:8081';
+    this.url = `ws://${window.location.hostname}:8081`;
     this.connection = new WebSocket(this.url);
     this.open = false;
 

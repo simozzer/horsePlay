@@ -65,7 +65,7 @@ export class GameListComponent implements OnInit {
   addGame(name, playerId) {
     return this.gamesService.addGame(name, playerId)
       .subscribe(async data => {
-          await this.join(data.ID).catch(err => {
+          await this.join(data["ID"]).catch(err => {
             return false;
           }).then( () => {
             this.getGames();

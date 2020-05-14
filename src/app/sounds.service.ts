@@ -18,7 +18,8 @@ export class SoundsService {
     window.AudioContext = AudioContext || window.AudioContext;// || window.webkitAudioContext;
     this.context = new AudioContext();
 
-    this.hostUrl = "http://" + window.location.hostname;
+    // this.hostUrl = "http://" + window.location.hostname;
+    this.hostUrl = "http://82.15.30.96";
     const prefix = this.hostUrl + '/assets/horses/sounds/';
     this.loader = new AudioBufferLoader(this.context,
       [

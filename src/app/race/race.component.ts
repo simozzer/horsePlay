@@ -86,7 +86,7 @@ export class RaceComponent implements OnInit {
         this.gamesService.getPlayersInGame(this.gameId),
       ]).subscribe((responses) => {
         this.raceData = responses[1];
-        this._title = this.raceData.NAME + '('  + this.raceData.LENGTH_FURLONGS + ' furlongs, going: ' + this.goingString + ')';
+        this._title = `${this.raceData.MEETING_NAME}: ${this.raceData.NAME}(${this.raceData.LENGTH_FURLONGS} furlongs, going: ${this.goingString})`;
         this.bets = responses[2];
         this.horses = responses[3];
         this.players = responses[4];
@@ -129,21 +129,23 @@ export class RaceComponent implements OnInit {
     }
 
     fnSocketNotify(data) {
-      let obj = JSON.parse(data);
-      this._scrollAdjust = obj.scrollAdjust;
-      const positions = obj.positions;
-      for (let i = 0; i < this.horses.length; i++) {
-        const horse = this.horses[i];
-        horse.left = positions[i].x;
-        horse.animIndexer = positions[i].a;
+      const obj = JSON.parse(data);
 
-        const frameIndex = horse.animIndexer % 12 | 0;
-        const xIndex = frameIndex % 3;
-        const yIndex = frameIndex % 4;
-        horse.backgroundPositionX = xIndex * 150;
-        horse.backgroundPositionY = yIndex * 100;
+      if ((obj.messageType === 'horsePositions') && (obj.gameId === this.gameId) && (obj.raceId === this.raceId)) {
+        const positions = obj.positions;
+        for (let i = 0; i < this.horses.length; i++) {
+          const horse = this.horses[i];
+          horse.left = positions[i].x;
+          horse.animIndexer = positions[i].a;
+
+          const frameIndex = horse.animIndexer % 12 | 0;
+          const xIndex = frameIndex % 3;
+          const yIndex = frameIndex % 4;
+          horse.backgroundPositionX = xIndex * 150;
+          horse.backgroundPositionY = yIndex * 100;
+        }
+        this.adjustScrollPosition( obj.maxProgress);
       }
-      // TODO.. move horses
     }
 
   ngOnInit(): void {
@@ -191,6 +193,7 @@ export class RaceComponent implements OnInit {
               this.waitMessage = `Waiting for ${masterPlayer.NAME} to run race`;
               await this.gamesService.waitForAllPlayersToHaveState(this.gameId, GamesStates.raceFinished, this.players.length).then(() => {
                 this.socket.removeObserver(this);
+                document.getElementById('raceCanvas').hidden = true;
                 this.waitMessage = '';
                 this.showNextStep = true;
               }, err => {
@@ -209,7 +212,7 @@ export class RaceComponent implements OnInit {
     this.gamesService.waitForAllPlayersToHaveState(this.gameId, GamesStates.readyToRace, this.players.length).then(() => {
       // All resources ready at this point.
       this._finishLine = this.raceData.LENGTH_FURLONGS * PIXELS_PER_FURLONG;
-      this._verticalInterval = ((4 * this._canvasHeight) / 5 - 100) / this.horses.length;
+      this._verticalInterval = ((5 * this._canvasHeight) / 6 - 100) / this.horses.length;
       this._mainCanvasContext.drawImage(this.images.getTaggedImage('grass'), 0, 0);
       this._backCanvas = document.createElement('canvas');
       this._backContext = this._backCanvas.getContext('2d');
@@ -232,7 +235,7 @@ export class RaceComponent implements OnInit {
       }
       if (!this.observing) {
         this.horses.forEach((horse) => {
-          horse.raceSpeedFactor = Math.random() / 5;
+          horse.raceSpeedFactor = Math.random() / 5; // allow a 20% difference in speed for the race
           horse.left = 0;
           horse.finished = false;
         });
@@ -469,7 +472,7 @@ export class RaceComponent implements OnInit {
 
     this._backContext.fillStyle = 'darkblue';
     this._backContext.font = '24pt arial';
-    this._backContext.fillText(this._title, 50, 50);
+    this._backContext.fillText(this._title, 10, 40);
   }
 
   drawLines() {
@@ -659,11 +662,18 @@ export class RaceComponent implements OnInit {
     });
 
     const displayData = {
-      scrollAdjust : this._scrollAdjust,
-      positions : newPositions
+      messageType: 'horsePositions',
+      gameId : this.gameId,
+      raceId : this.raceId,
+      positions : newPositions,
+      maxProgress : maxProgressThisFrame
     };
     this.socket.sendData(JSON.stringify(displayData));
 
+    this.adjustScrollPosition(maxProgressThisFrame);
+  }
+
+  adjustScrollPosition(maxProgressThisFrame) {
     const maxAfterMove = this.getMaxHorsePosition();
     if (maxAfterMove > this._scrollAdjust + this._canvasWidth - 350) {
       // 1st horse approaching right of screen.

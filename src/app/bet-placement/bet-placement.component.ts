@@ -36,45 +36,50 @@ export class BetPlacementComponent implements OnInit {
 
 
   ngOnInit(): void {
+    this.gamesService.busy();
     this.gameId = parseInt(this.route.snapshot.paramMap.get('gameId'),10);
     this.raceId = parseInt(this.route.snapshot.paramMap.get('raceId'),10);
-    this.player = JSON.parse(localStorage.getItem('currentUser',));
+    this.player = JSON.parse(localStorage.getItem('currentUser'));
 
-    this.getAllPlayers();
-
-    forkJoin([this.gamesService.getHorsesForRace(this.gameId, this.raceId),
-      this.gamesService.getRaceInfo(this.raceId,this.gameId)])
+    forkJoin([this.gamesService.getPlayersInGame(this.gameId),
+      this.gamesService.getHorsesForRace(this.gameId, this.raceId),
+      this.gamesService.getRaceInfo(this.raceId,this.gameId),
+      this.gamesService.getPlayerFunds(this.gameId,this.player.ID)])
         .subscribe( async data => {
-          this.horses = data[0];
-          this.raceData = data[1];
+          this.players = data[0];
+          this.horses = data[1];
+          this.raceData = data[2];
           for (const horse of this.horses) {
-            let horseForm:any = await this.getHorseForm(horse.ID);
+            let horseForm: any = await this.getHorseForm(horse.ID);
             for (const f of horseForm) {
               switch (f.GOING) {
-                case 0: f.going = 'firm'; break;
-                case 1: f.going = 'good'; break;
-                case 2: f.going = 'soft'; break;
-                default : f.going =  '?';
+                case 0:
+                  f.going = 'firm';
+                  break;
+                case 1:
+                  f.going = 'good';
+                  break;
+                case 2:
+                  f.going = 'soft';
+                  break;
+                default :
+                  f.going = '?';
               }
             }
+            this.generateOdds(this.horses);
             horse.FORM = horseForm;
-
+            this.initialFunds = data[3]['FUNDS'];
+            this.remainingFunds = this.initialFunds;
+            this.getPlayerBets();
           }
-          this.generateOdds(this.horses);
-          this.getPlayerBets();
-          }, err => {
-              window.alert('error setting up: ' + err);
+          },
+            err => {
+            this.gamesService.notBusy();
+            window.alert('error setting up: ' + err);
           });
-    this.gamesService.getPlayerFunds(this.gameId,this.player.ID)
-      .subscribe( (data) => {
-        let rec = data;
-        this.initialFunds = rec['FUNDS'];
-        this.remainingFunds = this.initialFunds;
 
-      }, err => {
-        window.alert('Error getting player funds:' + err);
-      })
   }
+
 
   async getHorseForm(horseId)  {
     return new Promise((resolve, reject) => {
@@ -86,6 +91,8 @@ export class BetPlacementComponent implements OnInit {
         });
     });
   }
+
+
   get going(){
     if (this.raceData) {
       switch(this.raceData.GOING) {
@@ -108,10 +115,13 @@ export class BetPlacementComponent implements OnInit {
         }
         this.betsTotal = betsAmt;
         this.remainingFunds = this.initialFunds - this.betsTotal;
+        this.gamesService.notBusy();
       }, error => {
+        this.gamesService.notBusy();
         window.alert('Failed to get player bets: ' + error);
       })
   }
+
 
   get invalidBetAmount() {
     this._invalidBetAmount = false;
@@ -127,9 +137,11 @@ export class BetPlacementComponent implements OnInit {
     return this._invalidBetAmount;
   }
 
+
   updateEnabledState() {
     this.invalidBetAmount;
   }
+
 
   getAllPlayers() {
     this.gamesService.getPlayersInGame((this.gameId))
@@ -170,8 +182,6 @@ export class BetPlacementComponent implements OnInit {
     if (!this.allPlayersReady) {
       window.setTimeout(doCheck, 0, this);
     }
-
-
   }
 
   getHorseWinChanceScore(horse) {
@@ -242,6 +252,7 @@ export class BetPlacementComponent implements OnInit {
     }
   }
 
+
   generateOdds(horses) {
 
     let oddsStats = [];
@@ -270,6 +281,7 @@ export class BetPlacementComponent implements OnInit {
     this._oddsStats = oddsStats;
   }
 
+
   getOdds(horseName) {
     return this._oddsStats.find((o) => {
       const h = o.horse;
@@ -278,6 +290,7 @@ export class BetPlacementComponent implements OnInit {
       }
     });
   }
+
 
   handleReadyToRace() {
     this.playerReady = true;
@@ -305,18 +318,22 @@ export class BetPlacementComponent implements OnInit {
       AMOUNT : parseInt(amount,10) | 0,
       TYPE : 0,
       ODDS : horseOdds.odds
-    }
+    };
 
+    this.gamesService.busy();
     this.gamesService.placeBet(betObj)
       .subscribe( result => {
         if (result) {
+          this.gamesService.notBusy();
           this.getPlayerBets();
 
         } else {
+          this.gamesService.notBusy();
           window.alert('failed to place bet');
         }
       }, error => {
+        this.gamesService.notBusy();
         window.alert('Error placing bet: ' + error);
-      })
+      });
   }
 }

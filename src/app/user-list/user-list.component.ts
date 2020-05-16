@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { UsersService} from "../users.service";
-import { Router } from '@angular/router';
+import { UsersService} from '../users.service';
+import {GamesService} from '../games.service';
 
 
 @Component({
@@ -12,36 +12,42 @@ export class UserListComponent implements OnInit {
 
   users;
 
-  constructor(private usersService : UsersService,
-              private router : Router) { }
+  constructor(private usersService: UsersService,
+              private gamesService: GamesService) { }
 
   ngOnInit(): void {
-    this.getUsers()
+    this.getUsers();
   }
 
   getUsers() {
+    this.gamesService.busy();
     this.usersService.getUsers()
       .subscribe(data => {
           this.users = data;
-        }, error =>
-          window.alert("error getting users: " + error)
-      )
+          this.gamesService.notBusy();
+        }, err => {
+        this.gamesService.notBusy();
+        window.alert('error getting users: ' + err)
+      });
   }
 
   addNewUser() {
-    let username = (<HTMLInputElement>(document.getElementById('username'))).value;
-    let password = (<HTMLInputElement>(document.getElementById('password'))).value;
-    let confirmPassword = (<HTMLInputElement>(document.getElementById('confirmPassword'))).value;
+    const username = ((document.getElementById('username')) as HTMLInputElement).value;
+    const password = ((document.getElementById('password')) as HTMLInputElement).value;
+    const confirmPassword = ((document.getElementById('confirmPassword')) as HTMLInputElement).value;
     if ((username && password && confirmPassword) && (password === confirmPassword)) {
-      let matchingUsers = this.users.filter((user) => {
+      const matchingUsers = this.users.filter((user) => {
         if (user.NAME.toUpperCase() === username.toUpperCase()) {
           return user;
         }
       });
 
       if (matchingUsers.length === 0) {
-        this.usersService.addUser(username,password, false).subscribe((data) => {
+        this.usersService.addUser(username, password, false).subscribe((data) => {
           this.getUsers();
+        } , err => {
+          this.gamesService.notBusy();
+          window.alert('Error adding user: ' + err);
         });
       }
     }

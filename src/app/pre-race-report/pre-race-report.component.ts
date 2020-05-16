@@ -25,6 +25,7 @@ export class PreRaceReportComponent implements OnInit {
 
 
   ngOnInit(): void {
+    this.gamesService.busy();
     this.gameId = parseInt(this.route.snapshot.paramMap.get('gameId'),10);
     this.raceId = parseInt(this.route.snapshot.paramMap.get('raceId'),10);
     this.player = JSON.parse(localStorage.getItem('currentUser',));
@@ -44,8 +45,10 @@ export class PreRaceReportComponent implements OnInit {
         } else {
           this.updateShowNextLink();
         }
+        this.gamesService.notBusy();
       }, error => {
-        window.alert("error: " + error);
+        this.gamesService.notBusy();
+        window.alert('error: ' + error);
       });
 
   }

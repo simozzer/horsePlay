@@ -62,11 +62,18 @@ table {
   margin-bottom:1em;
 }
 
+
 th {
   border-bottom: 4px solid darkslategrey;
   font: 12pt arial black;
   padding-top:2px ;
+  border-left: 1px solid blue;
+  border-right: 1px solid blue;
+  border-bottom: 1px solid blue;
+  border-radius: 4px;
 }
+
+
 td {
   padding-bottom: 0px;
   color: lightgreen;
@@ -77,4 +84,18 @@ td {
 td>input[type="button"] {
   border: 2px solid darkslategrey;
   font: initial;
+}
+
+#busyblocker{
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  background-color:#000;
+  opacity: .75
+}
+
+#busyblocker.hide {
+  display:none;
 }

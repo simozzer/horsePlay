@@ -49,7 +49,7 @@ export class GamesService {
 
 
   getHorsesForRace(gameId, raceId) {
-    return this.http.get(this.hostUrl + "game/" + gameId + "/horsesInRace/" + raceId)
+    return this.http.get(this.hostUrl + 'game/' + gameId + "/horsesInRace/" + raceId)
       .pipe(map((response :Response) => response));
   }
 
@@ -326,6 +326,14 @@ export class GamesService {
     });
   }
 
+
+  busy(){
+    document.getElementById('busyblocker').classList.remove('hide');
+  }
+
+  notBusy() {
+    document.getElementById('busyblocker').classList.add('hide');
+  }
 
 }
 

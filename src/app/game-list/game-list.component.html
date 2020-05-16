@@ -1,6 +1,17 @@
 <div class="gamesList">
   <h3>Select a game from the list, or click 'New Game'</h3>
     <table>
+      <tr>
+        <th>
+          Game
+        </th>
+        <th>
+          Players
+        </th>
+        <th>
+          Actions
+        </th>
+      </tr>
       <tr *ngFor="let game of games">
         <td>
           <div *ngIf="game.playerInGame; else plainText">
@@ -24,7 +35,4 @@
     </table>
   <br/>
   <input type="button" (click)="addNewGame()" value="New Game"/>
-
-
-
 </div>

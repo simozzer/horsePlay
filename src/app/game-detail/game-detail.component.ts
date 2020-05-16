@@ -29,9 +29,9 @@ export class GameDetailComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.gamesService.busy();
     this.getGame();
   }
-
 
 
 
@@ -59,8 +59,11 @@ export class GameDetailComponent implements OnInit {
           this.game.players = await this.getPlayersInGame();
           await this.getMeetings();
           this.sortPlayers();
-        }, error =>
+          this.gamesService.notBusy();
+        }, error => {
+          this.gamesService.notBusy();
           window.alert("error getting game: " + error)
+        }
       )
   }
 

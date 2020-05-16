@@ -30,71 +30,90 @@ export class HorseSelectionComponent implements OnInit {
               private soundsService: SoundsService) {
   }
 
-
-  ngOnInit(): void {
-    this.gameId = parseInt(this.route.snapshot.paramMap.get('gameId'), 10);
-    this.meetingId = parseInt(this.route.snapshot.paramMap.get('meetingId'), 10);
-    this.player = JSON.parse(localStorage.getItem('currentUser',));
-
-    this.gamesService.getGame(this.gameId)
-      .subscribe((data) => {
-        this.gameData = data;
-      }, (err) => {
-        window.alert('Failed to get game data: ' + err);
-      });
-
-    this.gamesService.getMeetings(this.gameId)
-      .subscribe(async (data) => {
-        this.meetings = data;
+  async getData(): Promise<any> {
+    return new Promise( (resolve, reject) => {
+      forkJoin([
+        this.gamesService.getGame(this.gameId),
+        this.gamesService.getMeetings(this.gameId),
+        this.gamesService.getRacesInMeeting(this.meetingId)
+      ]).subscribe( data => {
+        this.gameData = data[0];
+        this.meetings = data[1];
         this.meeting = this.meetings.find((m) => {
-          if (m.ID === this.meetingId) {
+        if (m.ID === this.meetingId) {
             return m;
           }
-        });
+         });
         this.meetingName = this.meeting.NAME;
-      }, error => {
-        window.alert('error getting game: ' + error);
+        this.races = data[2];
+        resolve(data);
+      }, err => {
+        console.log(err);
+        reject(err);
       });
+    });
+  }
 
-    this.gamesService.getHorsesForPlayer(this.gameId, this.player.ID)
-      .subscribe(async (data) => {
+  async getPlayerHorsesForMeeting(): Promise<any> {
+    return new Promise( (resolve, reject) => {
+      this.gamesService.getPlayerHorsesForMeeting(this.gameId, this.meetingId, this.player.ID)
+        .subscribe( data => resolve(data), err => reject(err));
+    });
+  }
+
+  async getHorseForm(horse): Promise<any> {
+    return new Promise( (resolve,reject) => {
+      this.gamesService.getHorseForm(this.gameId, horse.ID)
+        .subscribe(async (data) => {
+          const form: any = data;
+          for (let f of form) {
+            f.going = this.getGoingString(f.GOING);
+          }
+          resolve(form);
+        }, err => {
+          reject(err);
+        });
+    });
+  }
+
+   ngOnInit(): void {
+    this.gamesService.busy();
+    this.gameId = parseInt(this.route.snapshot.paramMap.get('gameId'), 10);
+    this.meetingId = parseInt(this.route.snapshot.paramMap.get('meetingId'), 10);
+    this.player = JSON.parse(localStorage.getItem('currentUser'),null);
+
+
+    this.getData().catch( err => {
+      this.gamesService.notBusy();
+      window.alert('Error getting data: ' + err);
+      this.checkReadyForNextStep(0);
+    }).then( () => {
+      this.gamesService.getHorsesForPlayer(this.gameId, this.player.ID)
+        .subscribe(async (data) => {
 
           this.horses = data;
-
           for (let i = 0; i < this.horses.length; i++) {
             const horse = this.horses[i];
 
-            this.gamesService.getHorseForm(this.gameId, horse.ID)
-              .subscribe(async (data) => {
-                let form:any = data;
-                for (let f of form) {
-                  f.going = this.getGoingString(f.GOING);
-                }
-                horse.FORM = form;
-              }, error => {
-                window.alert('error getting horse form: ' + error);
-              });
-          }
-          ;
-
-          this.gamesService.getPlayerHorsesForMeeting(this.gameId, this.meetingId, this.player.ID)
-            .subscribe(async (data) => {
-               this.restoreSelections(data);
-            }, (err) => {
-              window.alert('Error getting player horses for meeting: ' + err);
+            await this.getHorseForm(horse).catch(err => {
+              // this.gamesService.notBusy();
+              window.alert('error getting horse form: ' + err);
+            }).then((form) => {
+              horse.FORM = form;
             });
-        }, error =>
-          window.alert('error getting horses for player: ' + error)
-      );
+          };
+          const selections = await this.getPlayerHorsesForMeeting();
+          this.restoreSelections(selections);
+          this.gamesService.notBusy();
+          this.checkReadyForNextStep(0);
+        }, error => {
+          this.gamesService.notBusy();
+          window.alert('error getting horses for player: ' + error);
+        });
+    });
 
-    this.gamesService.getRacesInMeeting(this.meetingId)
-      .subscribe(async (data) => {
-        this.races = data;
-      }, error => {
-        window.alert('error getting game: ' + error);
-      });
+    // nested
 
-    this.checkReadyForNextStep();
   }
 
 
@@ -128,7 +147,7 @@ export class HorseSelectionComponent implements OnInit {
     }
   }
 
-  checkReadyForNextStep() {
+  checkReadyForNextStep(timeout?: number) {
     if (this.readyForBets) {
       return;
     }
@@ -140,15 +159,15 @@ export class HorseSelectionComponent implements OnInit {
             this.readyForBets = true;
           } else {
             this.waitingFor = response;
-            this.checkReadyForNextStep();
+            this.checkReadyForNextStep(2000);
           }
         } else {
-          this.checkReadyForNextStep();
+          this.checkReadyForNextStep(2000);
         }
       }, (err) => {
         console.log(err);
       });
-    }, 2000, [this]);
+    }, timeout, [this]);
 
   }
 
@@ -159,7 +178,7 @@ export class HorseSelectionComponent implements OnInit {
 
         let selectionBoxes = Array.from(document.getElementsByClassName('horseSelector'));
         let selectedValues = selectionBoxes.map((selectionBox, index) => {
-
+          selectionBox["disabled"] = true;
           let horseName = (<HTMLSelectElement>selectionBox).value;
           let horse = this.gamesService.getHorseByName(this.horses, horseName);
           return {raceId: this.races[index].ID, horseId: horse.ID};
@@ -171,9 +190,15 @@ export class HorseSelectionComponent implements OnInit {
         forkJoin(aSubscriptions)
           .subscribe(async (data) => {
               this.showSubmit = false;
-              this.checkReadyForNextStep();
-            }, error =>
-              window.alert('error getting game: ' + error)
+              this.checkReadyForNextStep(0);
+            }, error => {
+              window.alert('error getting game: ' + error);
+
+              // reenable the input.
+              for (let s of selectionBoxes) {
+                s["disabled"] = false;
+              }
+            }
           );
       }, error => {
         window.alert('error clearing player horses:' + error)
@@ -197,8 +222,12 @@ export class HorseSelectionComponent implements OnInit {
 
         if (raceIndex >= 0) {
           const selElem = (<HTMLSelectElement>selectionElems[raceIndex]);
-          selElem.value = selection.NAME;
-          selElem.disabled = true;
+          if (selElem) {
+            selElem.value = selection.NAME;
+            selElem.disabled = true;
+          } else {
+            console.log('Could not restore selection: ' + selection.NAME);
+          }
         } else {
           console.log('Selection not found: ' + JSON.stringify(selection));
           bHideSubmit = false;

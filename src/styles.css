@@ -58,14 +58,14 @@ table {
   border-radius: 10px;
   background-color: black;
   color: whitesmoke;
-  margin-top:1em;
-  margin-bottom:1em;
+  margin-top:0.3em;
+  margin-bottom:0.3em;
+  font: 10pt arial;
 }
 
 
 th {
   border-bottom: 4px solid darkslategrey;
-  font: 12pt arial black;
   padding-top:2px ;
   border-left: 1px solid blue;
   border-right: 1px solid blue;
@@ -81,6 +81,7 @@ td {
   vertical-align: middle;
   margin-bottom: 0;
 }
+
 td>input[type="button"] {
   border: 2px solid darkslategrey;
   font: initial;

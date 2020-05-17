@@ -2,7 +2,6 @@ import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {GamesService} from '../games.service';
 import {forkJoin} from 'rxjs';
-import {SoundsService} from '../sounds.service';
 
 @Component({
   selector: 'app-horse-selection',
@@ -24,19 +23,34 @@ export class HorseSelectionComponent implements OnInit {
   gameData: any;
   waitingFor: any;
   showSubmit = false;
+  players: any;
 
   constructor(private route: ActivatedRoute,
-              private gamesService: GamesService,
-              private soundsService: SoundsService) {
+              private gamesService: GamesService) {
   }
+
+
+  async getHorsesForRobot(botId):Promise<any> {
+    return new Promise ( (resolve, reject) => {
+      this.gamesService.getHorsesForPlayer(this.gameId, botId)
+        .subscribe( data => {
+          resolve(data);
+        }, err => {
+          console.log('failed to get horses for bot: '+ err);
+          reject(err);
+      });
+    });
+  }
+
 
   async getData(): Promise<any> {
     return new Promise( (resolve, reject) => {
       forkJoin([
         this.gamesService.getGame(this.gameId),
         this.gamesService.getMeetings(this.gameId),
-        this.gamesService.getRacesInMeeting(this.meetingId)
-      ]).subscribe( data => {
+        this.gamesService.getRacesInMeeting(this.meetingId),
+        this.gamesService.getPlayersInGame(this.gameId)
+      ]).subscribe( async data => {
         this.gameData = data[0];
         this.meetings = data[1];
         this.meeting = this.meetings.find((m) => {
@@ -46,6 +60,40 @@ export class HorseSelectionComponent implements OnInit {
          });
         this.meetingName = this.meeting.NAME;
         this.races = data[2];
+        this.players = data[3];
+        const robots = this.players.filter((x) => {
+          if (!x.HUMAN) {
+            return x;
+          }
+        });
+
+        if (this.gameData.MASTER_PLAYER_ID === this.player.ID) {
+          if (robots.length) {
+
+            const aSubscriptions = [];
+
+            for(const robot of robots) {
+              const selections = await this.getPlayerHorsesForMeeting(robot.PLAYER_ID);
+              if ((!selections) || (selections.length === 0)) {
+                await this.clearHorsesForPlayer(robot.PLAYER_ID);
+                const robotHorses = await this.getHorsesForRobot(robot.PLAYER_ID);
+                // select a unique horse for each race
+                for (const race of this.races) {
+                  const rnd = (Math.random() * robotHorses.length) | 0;
+                  const randomHorse = robotHorses.splice(rnd, 1)[0];
+                  console.log(randomHorse.NAME);
+                  aSubscriptions.push(this.gamesService.addHorseToRace(this.gameId, race.ID, randomHorse.ID, robot.PLAYER_ID));
+                }
+              }
+            }
+
+            forkJoin(aSubscriptions).subscribe( (data) => {
+              console.log("saved selectioons");
+            }, err => {
+              window.alert("error saving robot horse selection");
+            });
+          }
+        }
         resolve(data);
       }, err => {
         console.log(err);
@@ -54,12 +102,13 @@ export class HorseSelectionComponent implements OnInit {
     });
   }
 
-  async getPlayerHorsesForMeeting(): Promise<any> {
+  async getPlayerHorsesForMeeting(playerId): Promise<any> {
     return new Promise( (resolve, reject) => {
-      this.gamesService.getPlayerHorsesForMeeting(this.gameId, this.meetingId, this.player.ID)
+      this.gamesService.getPlayerHorsesForMeeting(this.gameId, this.meetingId, playerId)
         .subscribe( data => resolve(data), err => reject(err));
     });
   }
+
 
   async getHorseForm(horse): Promise<any> {
     return new Promise( (resolve,reject) => {
@@ -76,7 +125,9 @@ export class HorseSelectionComponent implements OnInit {
     });
   }
 
+
    ngOnInit(): void {
+    this.showSubmit = false;
     this.gamesService.busy();
     this.gameId = parseInt(this.route.snapshot.paramMap.get('gameId'), 10);
     this.meetingId = parseInt(this.route.snapshot.paramMap.get('meetingId'), 10);
@@ -102,7 +153,7 @@ export class HorseSelectionComponent implements OnInit {
               horse.FORM = form;
             });
           };
-          const selections = await this.getPlayerHorsesForMeeting();
+          const selections = await this.getPlayerHorsesForMeeting(this.player.ID);
           this.restoreSelections(selections);
           this.gamesService.notBusy();
           this.checkReadyForNextStep(0);
@@ -171,6 +222,18 @@ export class HorseSelectionComponent implements OnInit {
 
   }
 
+  async clearHorsesForPlayer(playerId) {
+    return new Promise( (resolve, reject) => {
+      this.gamesService.clearHorsesForPlayer(this.gameId, playerId, this.meetingId)
+        .subscribe((success) => {
+          resolve(success)
+        }, err => {
+          reject(err);
+        });
+    });
+  }
+
+
   async setSelection() {
 
     this.gamesService.clearHorsesForPlayer(this.gameId, this.player.ID, this.meetingId)
@@ -207,7 +270,7 @@ export class HorseSelectionComponent implements OnInit {
 
 
   restoreSelections(sels) {
-    let bHideSumbit = false;
+    let bHideSubmit = false;
 
     const selectionElems = Array.from(document.getElementsByClassName('horseSelector'));
     if (sels && sels.length) {
@@ -234,7 +297,7 @@ export class HorseSelectionComponent implements OnInit {
         }
       }
     }
-    this.showSubmit = !bHideSumbit;
+    this.showSubmit = !bHideSubmit;
   }
 
 }

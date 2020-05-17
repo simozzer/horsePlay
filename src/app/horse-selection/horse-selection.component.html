@@ -23,6 +23,10 @@
   </tr>
 </table>
 
+  <div *ngIf="!(readyForBets && showSubmit)">
+    <h4>Please select a different horse for each race</h4>
+  </div>
+
 <table>
   <tr>
     <th colspan =4>
@@ -48,7 +52,12 @@
   </td>
 </tr>
 </table>
-<input *ngIf="showSubmit" type="button" value="Set Selection" [disabled]="this.invalid" (click)="this.setSelection()"/>
+
+<div *ngIf="showSubmit">
+  <input type="button" value="Set Selection" [disabled]="this.invalid" (click)="this.setSelection()"/>
+</div>
+
+
 
 <div *ngIf="readyForBets; else notReady">
   <a routerLink="/betting/{{gameId}}/{{races[0].ID}}">

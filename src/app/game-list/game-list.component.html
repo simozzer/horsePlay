@@ -11,10 +11,13 @@
         <th>
           Actions
         </th>
+        <th>
+          Status
+        </th>
       </tr>
       <tr *ngFor="let game of games">
         <td>
-          <div *ngIf="game.playerInGame; else plainText">
+          <div *ngIf="game.playerInGame && game.STATE > 0; else plainText">
             <a routerLink="/game/{{game.ID}}">{{ game.NAME }}</a>
           </div>
           <ng-template #plainText>
@@ -31,6 +34,24 @@
           <input type="button" (click)="join(game.ID)" [disabled]="game.playerInGame" value="Join"/>
           <input type="button" (click)="leave(game.ID)" [disabled]="(!(game.playerInGame) || (player.ID === game.OWNER_ID))" value="Leave"/>
           <input type="button" (click)="deleteGame(game.NAME)" value="Delete" [disabled]="(player.ID !== game.OWNER_ID)"/>
+        </td>
+        <td>
+          <div *ngIf="player.ID === game.OWNER_ID; else notOwned">
+            <div *ngIf="game.STATE === 0; else started">
+              <input type="button" (click)="startGame(game)" value="Start Game" [disabled]="(player.ID !== game.OWNER_ID)"/>
+            </div>
+            <ng-template #started>
+              Started
+            </ng-template>
+          </div>
+          <ng-template #notOwned>
+            <div *ngIf="game.STATE === 0; else gameWait">
+              Waiting for game to start
+            </div>
+            <ng-template #gameWait>
+              Started
+            </ng-template>
+          </ng-template>
         </td>
     </table>
   <br/>

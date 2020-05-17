@@ -20,6 +20,7 @@ export class BetPlacementComponent implements OnInit {
   horses: any;
   raceData: any;
   playerBets: any;
+  gameData: any;
   allPlayersReady = false;
   playerReady = false;
   initialFunds = 0;
@@ -44,7 +45,8 @@ export class BetPlacementComponent implements OnInit {
     forkJoin([this.gamesService.getPlayersInGame(this.gameId),
       this.gamesService.getHorsesForRace(this.gameId, this.raceId),
       this.gamesService.getRaceInfo(this.raceId,this.gameId),
-      this.gamesService.getPlayerFunds(this.gameId,this.player.ID)])
+      this.gamesService.getPlayerFunds(this.gameId,this.player.ID),
+      this.gamesService.getGame(this.gameId)])
         .subscribe( async data => {
           this.players = data[0];
           this.horses = data[1];
@@ -68,10 +70,27 @@ export class BetPlacementComponent implements OnInit {
             }
             this.generateOdds(this.horses);
             horse.FORM = horseForm;
-            this.initialFunds = data[3]['FUNDS'];
-            this.remainingFunds = this.initialFunds;
-            this.getPlayerBets();
           }
+          this.initialFunds = data[3]['FUNDS'];
+          this.remainingFunds = this.initialFunds;
+
+          this.gameData = data[4];
+
+          if (this.player.ID === this.gameData.MASTER_PLAYER_ID) {
+            // advance any robots to the next step
+            for(const pl of this.players) {
+              if (!pl.HUMAN) {
+                this.gamesService.setPlayerState(this.gameId,pl.PLAYER_ID,GamesStates.viewingPreRaceSummary).subscribe(data => {
+                  console.log("saved played state");
+                }, err => {
+                  window.alert("Error setting robot state: " + err);
+                });
+              }
+            }
+          }
+
+          this.getPlayerBets();
+
           },
             err => {
             this.gamesService.notBusy();
@@ -158,30 +177,34 @@ export class BetPlacementComponent implements OnInit {
       return;
     }
 
-    const expectedState = GamesStates.viewingPreRaceSummary;
-    const doCheck =(interval) => {
-      if (!this.players) {
-        return;
+    if (this.router.isActive('/betting',false) === true) {
+      const expectedState = GamesStates.viewingPreRaceSummary;
+      const doCheck =(interval) => {
+        if (!this.players) {
+          return;
+        }
+
+        this.gamesService.getPlayerCountWithState(this.gameId,expectedState)
+          .subscribe(data => {
+            if (data && data['COUNT'] && (data['COUNT'] === this.players.length)) {
+              this.allPlayersReady = true;
+              this.waitingFor = [];
+              this.router.navigateByUrl(`preRace/${this.gameId}/${this.raceId}`);
+            } else {
+              this.waitingFor = data['playerStates'];
+              window.setTimeout(doCheck, 2000, this);
+            }
+          }, error => {
+            window.alert('error fetching player count for state: ' + error);
+          });
+      };
+
+      if (!this.allPlayersReady) {
+        window.setTimeout(doCheck, 0, this);
       }
-
-      this.gamesService.getPlayerCountWithState(this.gameId,expectedState)
-        .subscribe(data => {
-          if (data && data['COUNT'] && (data['COUNT'] === this.players.length)) {
-            this.allPlayersReady = true;
-            this.waitingFor = [];
-            this.router.navigateByUrl(`preRace/${this.gameId}/${this.raceId}`);
-          } else {
-            this.waitingFor = data['playerStates'];
-            window.setTimeout(doCheck, 2000, this);
-          }
-        }, error => {
-          window.alert('error fetching player count for state: ' + error);
-        });
-    };
-
-    if (!this.allPlayersReady) {
-      window.setTimeout(doCheck, 0, this);
     }
+
+
   }
 
   getHorseWinChanceScore(horse) {

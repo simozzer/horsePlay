@@ -98,6 +98,14 @@ export class GamesService {
       }));
   }
 
+  setGameState(gameObj) {
+    const options = {};
+    return this.http.put( `${this.hostUrl}gameState`, gameObj, options)
+      .pipe(map((response: Response) => {
+        return response;
+      }));
+  }
+
 
   getPlayersInGame(id) {
     return this.http.get(this.hostUrl + "game/" + id + '/players',{})
@@ -220,9 +228,14 @@ export class GamesService {
       }));
   }
 
-  setPlayerState(gameId,playerId, state) {
-    const url = `${this.hostUrl}plyrState/${playerId}/game/${gameId}/state/${state}`;
-    return this.http.post( url,{value:state})
+  setPlayerState(gameId, playerId, state) {
+    const url = `${this.hostUrl}playerState`;
+    const obj = {
+      gameId: gameId,
+      playerId : playerId,
+      stateVal : state
+    };
+    return this.http.post( url, obj)
       .pipe(map((response: Response) => {
         return response;
       }));

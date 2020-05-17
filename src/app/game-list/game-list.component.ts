@@ -21,9 +21,10 @@ export class GameListComponent implements OnInit {
   async ngOnInit() {
     this.gamesService.busy();
     this.player = JSON.parse(localStorage.getItem('currentUser', ));
-    await this.getGames();
+    await this.getGames(true);
 
   }
+
 
   async getPlayersInGame(game) {
     return new Promise(async (resolve, reject) => {
@@ -34,9 +35,11 @@ export class GameListComponent implements OnInit {
     });
   }
 
-  async getGames() {
+  async getGames(updateBusyState: boolean) {
     return new Promise((resolve, reject) => {
-      this.gamesService.busy();
+      if (updateBusyState === true) {
+        this.gamesService.busy();
+      }
       this.gamesService.getGames()
         .subscribe(async (data) => {
             this.games = data;
@@ -45,10 +48,14 @@ export class GameListComponent implements OnInit {
               game.players = players;
               game.playerInGame = this.getInGame(game);
             }, this);
-            this.gamesService.notBusy();
+            if (updateBusyState === true) {
+              this.gamesService.notBusy();
+            }
             resolve(this.games);
           }, error => {
-            this.gamesService.notBusy();
+            if (updateBusyState === true) {
+              this.gamesService.notBusy();
+            }
             reject(error);
           });
     });
@@ -74,7 +81,7 @@ export class GameListComponent implements OnInit {
             this.gamesService.notBusy();
             return false;
           }).then( async () => {
-            await this.getGames();
+            await this.getGames(false);
           });
           this.gamesService.notBusy();
           return data;
@@ -100,13 +107,12 @@ export class GameListComponent implements OnInit {
     }
   }
 
-
   deleteGame(name) {
     this.gamesService.busy();
     if (window.confirm(`Are you sure you want to delete the game "${name}"`)) {
       return this.gamesService.deleteGame(name)
         .subscribe(async data => {
-            await this.getGames();
+            await this.getGames(false);
             this.gamesService.notBusy();
             return data;
           }, error => {
@@ -115,6 +121,49 @@ export class GameListComponent implements OnInit {
           }
         );
     }
+  }
+
+  async joinRobot(gameId, robotId) {
+    return new Promise((resolve, reject) => {
+      this.gamesService.addPlayerToGame(gameId, {id: robotId})
+        .subscribe(data => {
+            // ADD HORSES FOR PLAYER
+            const horses = [];
+            for (let i = 0; i < HORSES_PER_PLAYER; i++) {
+              const horseName = HorseNameGenerator.getHorseName();
+              const horse = new RaceHorse(horseName);
+              horses.push(horse);
+            }
+            this.gamesService.savePlayerHorses(gameId, robotId, horses).subscribe(
+              data => {
+                this.gamesService.adjustPlayerFunds(gameId, robotId, INITIAL_PLAYER_FUNDS)
+                  .subscribe( async data => {
+                    // ready to select horses
+                    this.gamesService.setPlayerState(gameId, robotId, 2)
+                      .subscribe( data => {
+                        resolve(true);
+                      }, err => {
+                        reject(err);
+                      });
+
+                  }, err => {
+                    reject('Failed to adjust robot funds: ' + err);
+                  });
+
+              },
+              error => {
+                reject('error saving robot horses: ' + error);
+              }
+            );
+
+          }, error => {
+            reject(error);
+          }
+        );
+
+    });
+
+
   }
 
   async join(gameId: string) {
@@ -136,7 +185,7 @@ export class GameListComponent implements OnInit {
               data => {
                 this.gamesService.adjustPlayerFunds(gameId, this.player.ID, INITIAL_PLAYER_FUNDS)
                   .subscribe( async data => {
-                    await this.getGames();
+                    await this.getGames(false);
                     this.gamesService.notBusy();
                     resolve(true);
                   }, err => {
@@ -170,7 +219,7 @@ export class GameListComponent implements OnInit {
       this.gamesService.busy();
       this.gamesService.removePlayerFromGame(gameId, this.player.ID)
         .subscribe(async data => {
-            await this.getGames();
+            await this.getGames(false);
             this.gamesService.notBusy();
           }, error => {
             window.alert('Error: ' + error);
@@ -178,7 +227,42 @@ export class GameListComponent implements OnInit {
           }
         );
     }
+  }
 
+  async getRobots(): Promise<any> {
+    return new Promise( (resolve, reject) => {
+      this.usersService.getRobots()
+        .subscribe( data => {
+          resolve(data);
+        }, err => {
+          reject(err);
+      })
+    });
+  }
+
+  async startGame(gameObj) {
+    this.gamesService.busy();
+
+    const humanCount = gameObj.players.length;
+    if (humanCount < 6) {
+      window.alert(`This game only has ${gameObj.players.length} human players. ${6 - gameObj.players.length} robots will be created`);
+      const robots = await this.getRobots().then(r => r);
+      const robotCount = 6 - gameObj.players.length;
+      for(let i=0; i < robotCount; i++) {
+        const robot = robots[i];
+        await this.joinRobot(gameObj.ID,robot.ID);
+      }
+    }
+
+    gameObj.STATE = 1;
+    this.gamesService.setGameState(gameObj)
+      .subscribe( async data => {
+        await this.getGames(false);
+        this.gamesService.notBusy();
+      }, err => {
+        this.gamesService.notBusy();
+        window.alert('error setting game state: ' + err);
+      });
   }
 
 

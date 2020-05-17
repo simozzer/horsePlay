@@ -15,11 +15,6 @@ body div {
   text-align: center;
 }
 
-
-table {
-  margin-top: 20px;
-}
-
 input[type="button"]:disabled {
   display: none;
 }

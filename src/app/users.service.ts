@@ -16,6 +16,10 @@ export class UsersService {
       .pipe(map((response: Response) => response));
   }
 
+  getRobots(){
+    return this.http.get(this.hostUrl + "robots")
+      .pipe(map((response: Response) => response));
+  }
 
   addUser(name, password, isAdmin) {
     return this.http.post(this.hostUrl + "users",{username:name,password:password,isAdmin:isAdmin})

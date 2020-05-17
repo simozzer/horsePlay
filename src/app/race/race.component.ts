@@ -133,6 +133,7 @@ export class RaceComponent implements OnInit {
 
       if ((obj.messageType === 'horsePositions') && (obj.gameId === this.gameId) && (obj.raceId === this.raceId)) {
         const positions = obj.positions;
+
         for (let i = 0; i < this.horses.length; i++) {
           const horse = this.horses[i];
           horse.left = positions[i].x;
@@ -154,9 +155,11 @@ export class RaceComponent implements OnInit {
     this.gameId = parseInt(this.route.snapshot.paramMap.get('gameId'), 10);
     this.player = JSON.parse(localStorage.getItem('currentUser', ));
     this.raceId = parseInt(this.route.snapshot.paramMap.get('raceId'), 10);
-    this.gamesService.getGame(this.gameId)
+    forkJoin([this.gamesService.getGame(this.gameId),
+    this.gamesService.getPlayersInGame(this.gameId)])
       .subscribe(async data => {
-        this.gameData = data;
+        this.gameData = data[0];
+        this.players = data[1];
         const count = await this.getPlayerCountWIthState(GamesStates.raceFinished);
         if (count > 0) {
           // players are still in finished race state
@@ -167,6 +170,19 @@ export class RaceComponent implements OnInit {
           this.showRace = (this.gameData.MASTER_PLAYER_ID === this.player.ID);
           if (this.showRace) {
             // we're the master screen
+
+
+              // advance any robots to the next step
+              for(const pl of this.players) {
+                if (!pl.HUMAN) {
+                  this.gamesService.setPlayerState(this.gameId,pl.PLAYER_ID, GamesStates.readyToRace).subscribe(data => {
+                    console.log("saved robot state");
+                  }, err => {
+                    window.alert("Error setting robot state: " + err);
+                  });
+                }
+              }
+
             this.gamesService.setPlayerState(this.gameId, this.player.ID, GamesStates.readyToRace).subscribe((data) => {
               this.initializeRace();
             });
@@ -471,8 +487,8 @@ export class RaceComponent implements OnInit {
     }
 
     this._backContext.fillStyle = 'darkblue';
-    this._backContext.font = '24pt arial';
-    this._backContext.fillText(this._title, 10, 40);
+    this._backContext.font = '16pt arial';
+    this._backContext.fillText(this._title, 10, 55);
   }
 
   drawLines() {
@@ -510,9 +526,13 @@ export class RaceComponent implements OnInit {
   }
 
   drawHorses() {
+
+    this._canvasHeight = this._mainCanvas.clientHeight;
+    this._verticalInterval = ((5 * this._canvasHeight) / 6 - 100) / this.horses.length;
+
     this.horses.forEach((horse, index) => {
       const left = horse.left - this._scrollAdjust;
-      const top = horse.top;
+      const top = (1 + index) * this._verticalInterval;
       this._backContext.drawImage(
         this.images.getImage(index % 12),
         horse.backgroundPositionX,
@@ -657,7 +677,7 @@ export class RaceComponent implements OnInit {
         getHorseSpeedFactorAtPosition(horse, horse.left);
       const left = horse.left + moveX;
       moveValues.push(moveX);
-      newPositions.push({x: left | 0, a: horse.animIndexer | 0});
+      newPositions.push(left);
       horse.left = left;
     });
 
@@ -666,7 +686,10 @@ export class RaceComponent implements OnInit {
       gameId : this.gameId,
       raceId : this.raceId,
       positions : newPositions,
-      maxProgress : maxProgressThisFrame
+      // tslint:disable-next-line:no-bitwise
+      maxProgress : (maxProgressThisFrame | 0),
+      // tslint:disable-next-line:no-bitwise
+      animIndex : this.horses[0].animIndexer | 0
     };
     this.socket.sendData(JSON.stringify(displayData));
 

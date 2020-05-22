@@ -1,27 +1,22 @@
 a {
-  padding-right:12px;
+  padding-right:10px;
+  padding-left:10px;
   text-decoration: underline;
+  display: inline-block;
+  font: 8pt "Arial Black";
 }
 
-.gameTitle {
-  display: inline-block;
-  clear: left;
-  float: left;
-  padding-right: 8px;
-  font: 18pt sans-serif;
-  font-weight: 800;
-}
 
 .appHeader {
-  height: 2.3em;
   display: block;
   overflow: hidden;
 }
 
 .playerName {
-  font: 18pt sans-serif;
+  font: 10pt sans-serif;
   font-weight: 800;
   display: inline-block;
+  float:left;
 }
 
 .myRoutes {
@@ -48,11 +43,6 @@ td>ul {
   list-style: none;
 }
 
-a {
-  text-decoration: underline;
-  display:block;
-  cursor:pointer;
-}
 
 table {
   margin-left:auto;

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import {GamesService} from '../games.service';
 import {UsersService} from '../users.service';
 import {HORSES_PER_PLAYER, RaceHorse, HorseNameGenerator, INITIAL_PLAYER_FUNDS} from '../race-horse';
+import {HorseSocketService} from "../horse-socket.service";
 
 @Component({
   selector: 'app-game-list',
@@ -14,7 +15,8 @@ export class GameListComponent implements OnInit {
   player;
 
   constructor(private gamesService: GamesService,
-              private usersService: UsersService) {
+              private usersService: UsersService,
+              private socket: HorseSocketService) {
     this.games = [];
   }
 
@@ -22,9 +24,24 @@ export class GameListComponent implements OnInit {
     this.gamesService.busy();
     this.player = JSON.parse(localStorage.getItem('currentUser', ));
     await this.getGames(true);
+    this.socket.addObserver(this);
 
   }
 
+  async fnSocketNotify(data) {
+    try {
+      const obj = JSON.parse(data);
+      if (obj.messageType && (obj.messageType === "games")) {
+        // games have changes
+        await this.getGames(false);;
+      }
+    } catch(e) {
+      console.log('Error in wsnotify');
+    }
+
+
+
+  }
 
   async getPlayersInGame(game) {
     return new Promise(async (resolve, reject) => {
@@ -34,6 +51,7 @@ export class GameListComponent implements OnInit {
         });
     });
   }
+
 
   async getGames(updateBusyState: boolean) {
     return new Promise((resolve, reject) => {
@@ -48,6 +66,7 @@ export class GameListComponent implements OnInit {
               game.players = players;
               game.playerInGame = this.getInGame(game);
             }, this);
+
             if (updateBusyState === true) {
               this.gamesService.notBusy();
             }
@@ -82,6 +101,10 @@ export class GameListComponent implements OnInit {
             return false;
           }).then( async () => {
             await this.getGames(false);
+            const notifyData = {
+              messageType: 'games'
+            };
+            await this.socket.sendData(JSON.stringify(notifyData));
           });
           this.gamesService.notBusy();
           return data;
@@ -114,6 +137,10 @@ export class GameListComponent implements OnInit {
         .subscribe(async data => {
             await this.getGames(false);
             this.gamesService.notBusy();
+            const notifyData = {
+              messageType: 'games'
+            };
+            await this.socket.sendData(JSON.stringify(notifyData));
             return data;
           }, error => {
             this.gamesService.notBusy();
@@ -121,6 +148,13 @@ export class GameListComponent implements OnInit {
           }
         );
     }
+  }
+
+  async setPlayerState(gameId, playerId, state) {
+    return new Promise( async (resolve, reject) => {
+      this.gamesService.setPlayerState(gameId, playerId, state).
+      subscribe( d => resolve(d), err => reject(err));
+    });
   }
 
   async joinRobot(gameId, robotId) {
@@ -168,25 +202,30 @@ export class GameListComponent implements OnInit {
 
   async join(gameId: string) {
 
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       this.gamesService.busy();
 
+      await this.setPlayerState(gameId, this.player.ID,0);
+
       this.gamesService.addPlayerToGame(gameId, {id: this.player.ID})
-        .subscribe(data => {
+        .subscribe(async data => {
             // ADD HORSES FOR PLAYER
             const horses = [];
             for (let i = 0; i < HORSES_PER_PLAYER; i++) {
-              const i = Math.round(Math.random() * 50);
-              const horseName = HorseNameGenerator.getHorseName() + i;
+              const horseName = HorseNameGenerator.getHorseName();
               const horse = new RaceHorse(horseName);
               horses.push(horse);
             }
             this.gamesService.savePlayerHorses(gameId, this.player.ID, horses).subscribe(
-              data => {
+              async data => {
                 this.gamesService.adjustPlayerFunds(gameId, this.player.ID, INITIAL_PLAYER_FUNDS)
-                  .subscribe( async data => {
+                  .subscribe( async () => {
                     await this.getGames(false);
                     this.gamesService.notBusy();
+                    const notifyData = {
+                      messageType: 'games'
+                    };
+                    await this.socket.sendData(JSON.stringify(notifyData));
                     resolve(true);
                   }, err => {
                     this.gamesService.notBusy();
@@ -200,7 +239,7 @@ export class GameListComponent implements OnInit {
               }
             );
             this.gamesService.busy();
-            this.gamesService.setPlayerState(gameId, this.player.ID, 2); // ready to select horses
+            await this.gamesService.setPlayerState(gameId, this.player.ID, 2); // ready to select horses
             this.gamesService.notBusy();
 
           }, error => {
@@ -220,6 +259,10 @@ export class GameListComponent implements OnInit {
       this.gamesService.removePlayerFromGame(gameId, this.player.ID)
         .subscribe(async data => {
             await this.getGames(false);
+            const notifyData = {
+              messageType: 'games'
+            };
+            await this.socket.sendData(JSON.stringify(notifyData));
             this.gamesService.notBusy();
           }, error => {
             window.alert('Error: ' + error);
@@ -258,6 +301,10 @@ export class GameListComponent implements OnInit {
     this.gamesService.setGameState(gameObj)
       .subscribe( async data => {
         await this.getGames(false);
+        const notifyData = {
+          messageType: 'games'
+        };
+        await this.socket.sendData(JSON.stringify(notifyData));
         this.gamesService.notBusy();
       }, err => {
         this.gamesService.notBusy();

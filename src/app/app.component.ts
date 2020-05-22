@@ -15,6 +15,7 @@ export class AppComponent implements OnInit {
   currentUser: User;
   _loggedIn: Boolean = false;
   player: any;
+  showHeader: Boolean = true;
 
   constructor(  private router: Router,
                 private authenticationService: AuthenticationService) {
@@ -25,6 +26,7 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
   }
+
 
   logout() {
     this.authenticationService.logout();

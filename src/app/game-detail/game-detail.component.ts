@@ -80,13 +80,13 @@ export class GameDetailComponent implements OnInit {
   private sortPlayers() {
     if (this.game && this.game.players && this.game.players.length && (this.game.players.length > 0)) {
       this.game.players.sort((player1, player2) => {
-        if (player1.funds > player2.funds) {
+        if (player1.FUNDS < player2.FUNDS) {
           return 1;
-        } else if (player1.funds < player2.funds) {
+        } else if (player1.FUNDS > player2.FUNDS) {
           return -1
-        } else if (player1.name > player2.name) {
+        } else if (player1.NAME > player2.NAME) {
           return 1;
-        } else if (player1.name < player2.name) {
+        } else if (player1.NAME < player2.NAME) {
           return -1
         } else {
           return 0;

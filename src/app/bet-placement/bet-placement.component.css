@@ -1,56 +1,12 @@
 .placeBetContainer {
-  display:inline-block;
+  display: inline-block;
   text-align: center;
-  font: 14pt sans-serif;
 }
 
 #main {
   background-image: url('http://82.15.30.96/assets/horses/images/bookies.jpg');
   background-size: cover;
 }
-
-h1 {
-  font: 20pt sans;
-  font-weight: 800;
-  background: red;
-  display: inline-block;
-}
-
-h3 {
-  text-align: center;
-  background-color: darkorange;
-  font-size: 16pt;
-  opacity: 0.9;
-}
-
-h5 {
-  text-align: center;
-  background-color: white;
-  display:inline-block;
-  font: 13pt sans bold;
-  font-weight: 800;
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 4px;
-  margin-bottom: 4px;
-  opacity:0.7;
-  clear:both;
-  padding-left:4px;
-  padding-right:4px;
-  text-align: center;
-}
-
-h6 {
-  margin:0;
-  padding:0;
-  display:inline-block;
-  font-size: 14px;
-  color: white;
-  background-color: red;
-  clear:both;
-}
-
-
 
 td>ul {
   margin: 0px;
@@ -66,20 +22,6 @@ td li {
 }
 
 
-h4 {
-  text-align: center;
-  font-size: 19pt;
-  margin-top: 0;
-  margin-bottom: 0;
-  text-transform: uppercase;
-}
-
-
-
-h5 {
-  text-align: center;
-}
-
 label {
   padding-left: 10px;
   padding-right: 10px;
@@ -89,18 +31,8 @@ label {
   vertical-align: middle;
 }
 
-.betPlacementSection h4 {
-  vertical-align: middle;
-  height: 100%;
-  margin-bottom: initial;
-  padding-top: 4px;
-  padding-bottom: 4px;
-}
-
-.placeBetContainer input[type="button"] {
-  border: 1px solid red;
-  margin-left: 12px;
-  clear:both;
+#betAmount {
+  width : 5em;
 }
 
 

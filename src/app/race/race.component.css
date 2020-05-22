@@ -4,10 +4,6 @@
 }
 
 
-h2 {
-  text-align: center;
-}
-
 a {
   text-decoration: underline;
   cursor: pointer;
@@ -15,4 +11,8 @@ a {
   font: 20pt sans bold;
   text-transform: uppercase;
   background-color: lightblue;
+}
+
+div.appHeader {
+  display:none !important;
 }

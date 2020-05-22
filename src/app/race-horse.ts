@@ -2236,20 +2236,20 @@ export class RaceHorse {
       case HORSETYPES.SHORT_RACE:
         // energy falls after 5 - 8 furlongs
         this.ENERGY_FALL_DISTANCE = 5 + (Math.random() * 3);
-        this.SPEED_FACTOR = 1.2 + this.SPEED_FACTOR + Math.random() / 5;
+        this.SPEED_FACTOR = 1.2 + this.SPEED_FACTOR + (Math.random() / 5);
         this.SLOWER_SPEED_FACTOR = this.SPEED_FACTOR * 0.5 + Math.random() / 10;
         break;
       case HORSETYPES.MEDIUM_RACE:
         // energy fails are 7 -15 furlongs
-        this.ENERGY_FALL_DISTANCE = 7 + (Math.random() * 3);
-        this.SPEED_FACTOR = 1 + this.SPEED_FACTOR + Math.random() / 4;
+        this.ENERGY_FALL_DISTANCE = 6 + (Math.random() * 3);
+        this.SPEED_FACTOR = 1 + this.SPEED_FACTOR + (Math.random() / 4);
         this.SLOWER_SPEED_FACTOR = this.SPEED_FACTOR * 0.6 + Math.random() / 10;
         break;
       case HORSETYPES.LONG_RACE:
         // energy fails are 12+ furlongs
-        this.ENERGY_FALL_DISTANCE = 12 + (Math.random() * 5);
-        this.SPEED_FACTOR = 0.9 + this.SPEED_FACTOR + Math.random() / 10;
-        this.SLOWER_SPEED_FACTOR = this.SPEED_FACTOR * 0.7 + Math.random() / 10;
+        this.ENERGY_FALL_DISTANCE = 10 + (Math.random() * 5);
+        this.SPEED_FACTOR = 0.85 + this.SPEED_FACTOR + (Math.random() / 10);
+        this.SLOWER_SPEED_FACTOR = this.SPEED_FACTOR * 0.65 + Math.random() / 10;
         break;
       default:
         break;

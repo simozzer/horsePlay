@@ -67,7 +67,21 @@ export class PreRaceReportComponent implements OnInit {
           if (data['COUNT'] && (data['COUNT'] === this.players.length)) {
             this.showNextLink = true;
           } else {
-            window.setTimeout(doCheck, 2000, [this]);
+
+            let validState = true;
+            for(let p of data['playerStates']) {
+              if (p.state < GamesStates.viewingPreRaceSummary) {
+                validState = false;
+              }
+            }
+
+            if (validState) {
+              this.showNextLink = true;
+            } else {
+              window.setTimeout(doCheck, 2000, [this]);
+            }
+
+
           }
         }, error => {
           window.alert('error fetching player count with state: ' + error);

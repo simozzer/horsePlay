@@ -1,9 +1,6 @@
 
-  <div class="appHeader">
-    <div class="gameTitle">{{title}}
-      <div *ngIf="player" class="playerName">User: {{player.NAME}}</div>
-    </div>
-
+  <div *ngIf="showHeader" class="appHeader">
+    <div *ngIf="player" class="playerName">User: {{player.NAME}}</div>
     <div class="myRoutes">
       <a *ngIf="loggedIn" class="nav-item nav-link" (click)="logout()" >Logout</a>
       <a *ngIf="loggedIn" routerLink="/games" >Games</a>

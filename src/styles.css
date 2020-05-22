@@ -4,11 +4,11 @@ app-root {
   overflow: hidden;
   position: fixed;
   width: 100%;
+  transition: width 3s;
 }
 
 body {
   height: 100%;
-  background-color: aliceblue;
 }
 
 
@@ -42,13 +42,76 @@ input[type="button"] {
 }
 
 
-h3 {
+h1 {
   text-align: center;
   background-color: darkorange;
+  font-size: 20pt;
+  padding-bottom: 0px;
+  margin-bottom: 0px;
+  display: inline-block;
+  color: #114471;
+}
+
+
+h2 {
+  text-align: center;
+  background-color: darkorange;
+  font-size: 18pt;
+  padding-bottom: 0px;
+  margin-bottom: 0px;
+  display: inline-block;
+  color: #114471;
+}
+
+
+h3 {
+  text-align: center;
+  background-color: #b9d8d7;
   font-size: 16pt;
   padding-bottom: 0px;
   margin-bottom: 0px;
+  margin-left: auto;
+  margin-right: auto;
+  display: inline-block;
+  color: #114471;
+  display: inline-block;
+  padding-left: 4px;
+  padding-right: 4px;
 }
+
+h4 {
+  text-align: center;
+  background-color: darkorange;
+  font-size: 14pt;
+  padding-bottom: 0px;
+  margin-bottom: 0px;
+  display: inline-block;
+  color: #114471;
+}
+
+
+h5 {
+  text-align: center;
+  background-color: darkorange;
+  font-size: 12pt;
+  padding-bottom: 0px;
+  margin-bottom: 0px;
+  display: inline-block;
+  color: #114471;
+}
+
+
+h6 {
+  text-align: center;
+  background-color: darkorange;
+  font-size: 10pt;
+  padding-bottom: 0px;
+  margin-bottom: 0px;
+  display: inline-block;
+  color: #114471;
+}
+
+
 
 
 table {
@@ -85,6 +148,26 @@ td {
 td>input[type="button"] {
   border: 2px solid darkslategrey;
   font: initial;
+  display: inline-block;
+  clear: none;
+  float: left;
+}
+
+table.userAction {
+  background-color: #0a90a2;
+}
+
+.userAction td {
+  background-color: blue;
+}
+.userInfo td {
+  background-color: purple;
+  color: yellow;
+}
+
+table.userInfo {
+  background-color: #9d42d0;
+  color: yellow;
 }
 
 #busyblocker{

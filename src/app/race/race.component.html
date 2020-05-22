@@ -15,6 +15,9 @@
       <th>
         Owner
       </th>
+      <th>
+        Odds
+      </th>
     </tr>
     <tr *ngFor="let f of _finishers">
       <td>
@@ -22,6 +25,9 @@
       </td>
       <td>
         {{f.PLAYER_NAME}}
+      </td>
+      <td>
+        {{getOdds(f)}}
       </td>
     </tr>
   </table>
@@ -68,6 +74,9 @@
       Odds
     </th>
     <th>
+      Type
+    </th>
+    <th>
       Won
     </th>
     <tr *ngFor="let win of _winningBets">
@@ -82,6 +91,9 @@
       </td>
       <td>
         {{win.ODDS}}
+      </td>
+      <td>
+        {{getBetTypeName(win.TYPE)}}
       </td>
       <td>
         {{win.WIN}}
@@ -110,6 +122,9 @@
         Odds
       </th>
       <th>
+        Type
+      </th>
+      <th>
         Lost
       </th>
       <tr *ngFor="let b of _loosingBets">
@@ -124,6 +139,9 @@
         </td>
         <td>
           {{b.ODDS}}
+        </td>
+        <td>
+          {{getBetTypeName(b.TYPE)}}
         </td>
         <td>
           {{b.AMOUNT}}

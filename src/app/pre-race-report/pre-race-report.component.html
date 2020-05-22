@@ -1,9 +1,9 @@
 <div id="main">
 <div *ngIf="raceData">
 <h3>Pre race betting summary: {{raceData.NAME}}</h3>
-<h5>Length: {{raceData.LENGTH_FURLONGS}}</h5>
-<h5>Prize: {{raceData.PRIZE}}</h5>
-  <h5>Going: {{going}}</h5>
+<h3>Length: {{raceData.LENGTH_FURLONGS}} </h3>
+<h3>Prize: {{raceData.PRIZE}} </h3>
+  <h3>Going: {{going}}</h3>
 </div>
 
 <div *ngIf="bets  && bets.length; else noBets">

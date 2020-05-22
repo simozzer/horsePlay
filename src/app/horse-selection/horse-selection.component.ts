@@ -36,10 +36,22 @@ export class HorseSelectionComponent implements OnInit {
         .subscribe( data => {
           resolve(data);
         }, err => {
-          console.log('failed to get horses for bot: '+ err);
+          console.log('failed to get horses for bot: ' + err);
           reject(err);
       });
     });
+  }
+
+  async makeGlue(horse) {
+    if (window.confirm(`Are you sure you want to turn ${horse.NAME} intro glue? This will cost you 50 points.`)) {
+      window.alert("Of course we're not going to kill your horse. Sicko!");
+    }
+  }
+
+  async dope(horse) {
+    if (window.confirm(`Are you sure you want to dope ${horse.NAME}. This would be cheating.`)) {
+      window.alert("Cheating is not yet tolerated, sorry.");
+    }
   }
 
 

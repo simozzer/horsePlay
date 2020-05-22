@@ -71,6 +71,17 @@ export class RaceComponent implements OnInit {
               private sounds: SoundsService,
               private socket: HorseSocketService) {}
 
+    handleResize(){
+      this._mainCanvas.width = window.innerWidth;
+      this._mainCanvas.height = window.innerHeight - document.getElementsByClassName("appHeader")[0].clientHeight - 20;
+      this._canvasWidth = this._mainCanvas.clientWidth;
+      this._canvasHeight = this._mainCanvas.clientHeight;
+      this._mainCanvas.width = this._canvasWidth;
+      this._mainCanvas.height = this._canvasHeight;
+      this._backCanvas.width = this._mainCanvas.width;
+      this._backCanvas.height = this._mainCanvas.height;
+    }
+
     initializeRace() {
       this._mainCanvas = (document.getElementById('raceCanvas') as HTMLCanvasElement);
       this._mainCanvasContext = this._mainCanvas.getContext('2d');
@@ -78,6 +89,7 @@ export class RaceComponent implements OnInit {
       this._canvasHeight = this._mainCanvas.clientHeight;
       this._mainCanvas.width = this._canvasWidth;
       this._mainCanvas.height = this._canvasHeight;
+      window.onresize = this.handleResize.bind(this);
 
       forkJoin([this.images.loadImages(),
         this.gamesService.getRaceInfo(this.raceId, this.gameId),
@@ -136,8 +148,8 @@ export class RaceComponent implements OnInit {
 
         for (let i = 0; i < this.horses.length; i++) {
           const horse = this.horses[i];
-          horse.left = positions[i].x;
-          horse.animIndexer = positions[i].a;
+          horse.left = positions[i];
+          horse.animIndexer = obj.animIndex;
 
           const frameIndex = horse.animIndexer % 12 | 0;
           const xIndex = frameIndex % 3;
@@ -161,8 +173,9 @@ export class RaceComponent implements OnInit {
         this.gameData = data[0];
         this.players = data[1];
         const count = await this.getPlayerCountWIthState(GamesStates.raceFinished);
-        if (count > 0) {
+        if (count === this.players.length) {
           // players are still in finished race state
+          debugger;
           this.waitMessage = `It appears that this race is finished`;
           document.getElementById('raceCanvas').hidden = true;
           this.showNextStep = true;
@@ -207,11 +220,21 @@ export class RaceComponent implements OnInit {
                 return p.PLAYER_ID === this.gameData.MASTER_PLAYER_ID;
               });
               this.waitMessage = `Waiting for ${masterPlayer.NAME} to run race`;
-              await this.gamesService.waitForAllPlayersToHaveState(this.gameId, GamesStates.raceFinished, this.players.length).then(() => {
+              await this.gamesService.waitForAllPlayersToHaveState(this.gameId, GamesStates.raceFinished, this.players.length).then(async () => {
                 this.socket.removeObserver(this);
                 document.getElementById('raceCanvas').hidden = true;
-                this.waitMessage = '';
-                this.showNextStep = true;
+
+                if (!this.observing) {
+                  await this.updatePlayerStates(GamesStates.selectingHorses).then(() => {
+                    this.waitMessage = '';
+                    this.showNextStep = true;
+                  }).catch((err) => {
+                    window.alert("error updating playing states: " + err);
+                  });
+                } else {
+                  this.waitMessage = '';
+                  this.showNextStep = true;
+                }
               }, err => {
                 window.alert('error waiting for players with state: ' + err);
               });
@@ -251,7 +274,7 @@ export class RaceComponent implements OnInit {
       }
       if (!this.observing) {
         this.horses.forEach((horse) => {
-          horse.raceSpeedFactor = Math.random() / 5; // allow a 20% difference in speed for the race
+          horse.raceSpeedFactor = Math.random() / 10; // allow a 10% difference in speed for the race
           horse.left = 0;
           horse.finished = false;
         });
@@ -262,7 +285,22 @@ export class RaceComponent implements OnInit {
         window.requestAnimationFrame(this.handleDrawRequest.bind(this));
       });
     });
+  }
 
+
+  // Helper function used to display pre-race odds after race completion.
+  getOdds(horse) {
+    const odds = JSON.parse(localStorage.getItem("odds"));
+    if ((odds.gameId === this.gameId) && (odds.raceId === this.raceId)) {
+      const odd = odds.odds.find((item) => {
+        if (item.horse.ID === horse.ID) {
+          return item;
+        }
+      })  ;
+      if (odd) {
+        return odd.odds;
+      }
+    }
   }
 
   async processBets() {
@@ -274,22 +312,45 @@ export class RaceComponent implements OnInit {
         const betAdjustments = [];
         this._winningBets = [];
         this._loosingBets = [];
+        debugger;
         this.bets.forEach((b) => {
-          if (this._finishers[0].ID === b.HORSE_ID) {
-            // 1st place
-            const winAmount = b.AMOUNT * b.ODDS;
-            b.WIN = winAmount;
-            this._winningBets.push(b);
-            if (!this.observing) {
-              betAdjustments.push(this.gamesService.adjustPlayerFunds(this.gameId, b.PLAYER_ID, winAmount));
+          if (b.TYPE === 0 ) {
+            // to win
+            if (this._finishers[0].ID === b.HORSE_ID) {
+              // 1st place
+              const winAmount = b.AMOUNT * b.ODDS;
+              b.WIN = winAmount;
+              this._winningBets.push(b);
+              if (!this.observing) {
+                betAdjustments.push(this.gamesService.adjustPlayerFunds(this.gameId, b.PLAYER_ID, winAmount));
+              }
+            } else {
+              // not 1st place
+              this._loosingBets.push(b);
+              if (!this.observing) {
+                betAdjustments.push(this.gamesService.adjustPlayerFunds(this.gameId, b.PLAYER_ID, -b.AMOUNT));
+              }
             }
-          } else {
-            // not 1st place
-            this._loosingBets.push(b);
-            if (!this.observing) {
-              betAdjustments.push(this.gamesService.adjustPlayerFunds(this.gameId, b.PLAYER_ID, -b.AMOUNT));
+          } else if (b.TYPE === 1) {
+            // to place
+            if ((this._finishers[0].ID === b.HORSE_ID) ||  (this._finishers[1].ID === b.HORSE_ID)  ||
+              (this._finishers[2].ID === b.HORSE_ID)) {
+              // 1st place
+              const winAmount = b.AMOUNT * b.ODDS;
+              b.WIN = winAmount;
+              this._winningBets.push(b);
+              if (!this.observing) {
+                betAdjustments.push(this.gamesService.adjustPlayerFunds(this.gameId, b.PLAYER_ID, winAmount));
+              }
+            } else {
+              // not 1st place
+              this._loosingBets.push(b);
+              if (!this.observing) {
+                betAdjustments.push(this.gamesService.adjustPlayerFunds(this.gameId, b.PLAYER_ID, -b.AMOUNT));
+              }
             }
           }
+
         });
 
         forkJoin(betAdjustments).subscribe(data => {
@@ -488,7 +549,7 @@ export class RaceComponent implements OnInit {
 
     this._backContext.fillStyle = 'darkblue';
     this._backContext.font = '16pt arial';
-    this._backContext.fillText(this._title, 10, 55);
+    this._backContext.fillText(this._title, 10, this._canvasHeight - 24);
   }
 
   drawLines() {
@@ -644,7 +705,6 @@ export class RaceComponent implements OnInit {
               console.log('unhandled going type: ' + horse.GOING_TYPE);
             }
           break;
-
         case 2:
           switch (horse.GOING_TYPE) {
             case 0:
@@ -677,7 +737,7 @@ export class RaceComponent implements OnInit {
         getHorseSpeedFactorAtPosition(horse, horse.left);
       const left = horse.left + moveX;
       moveValues.push(moveX);
-      newPositions.push(left);
+      newPositions.push(left | 0);
       horse.left = left;
     });
 
@@ -813,5 +873,15 @@ export class RaceComponent implements OnInit {
     });
   }
 
+
+
+  getBetTypeName(betType) {
+    switch(betType) {
+      case 0: return "To win";
+      case 1: return "To place (top 3)";
+      default:
+        return "Unknown betType: " + betType;
+    }
+  }
 
 }

@@ -34,25 +34,23 @@ export class BetPlacementComponent implements OnInit {
               private route: ActivatedRoute,
               private router: Router) {}
 
-
-
   ngOnInit(): void {
     this.gamesService.busy();
-    this.gameId = parseInt(this.route.snapshot.paramMap.get('gameId'),10);
-    this.raceId = parseInt(this.route.snapshot.paramMap.get('raceId'),10);
+    this.gameId = parseInt(this.route.snapshot.paramMap.get('gameId'), 10);
+    this.raceId = parseInt(this.route.snapshot.paramMap.get('raceId'), 10);
     this.player = JSON.parse(localStorage.getItem('currentUser'));
 
     forkJoin([this.gamesService.getPlayersInGame(this.gameId),
       this.gamesService.getHorsesForRace(this.gameId, this.raceId),
-      this.gamesService.getRaceInfo(this.raceId,this.gameId),
-      this.gamesService.getPlayerFunds(this.gameId,this.player.ID),
+      this.gamesService.getRaceInfo(this.raceId, this.gameId),
+      this.gamesService.getPlayerFunds(this.gameId, this.player.ID),
       this.gamesService.getGame(this.gameId)])
         .subscribe( async data => {
           this.players = data[0];
           this.horses = data[1];
           this.raceData = data[2];
           for (const horse of this.horses) {
-            let horseForm: any = await this.getHorseForm(horse.ID);
+            const horseForm: any = await this.getHorseForm(horse.ID);
             for (const f of horseForm) {
               switch (f.GOING) {
                 case 0:
@@ -68,9 +66,14 @@ export class BetPlacementComponent implements OnInit {
                   f.going = '?';
               }
             }
-            this.generateOdds(this.horses);
             horse.FORM = horseForm;
           }
+          this.generateOdds(this.horses);
+          localStorage.setItem('odds', JSON.stringify({
+            gameId : this.gameId,
+            raceId : this.raceId,
+            odds : this._oddsStats
+          }));
           this.initialFunds = data[3]['FUNDS'];
           this.remainingFunds = this.initialFunds;
 
@@ -78,12 +81,12 @@ export class BetPlacementComponent implements OnInit {
 
           if (this.player.ID === this.gameData.MASTER_PLAYER_ID) {
             // advance any robots to the next step
-            for(const pl of this.players) {
+            for (const pl of this.players) {
               if (!pl.HUMAN) {
-                this.gamesService.setPlayerState(this.gameId,pl.PLAYER_ID,GamesStates.viewingPreRaceSummary).subscribe(data => {
-                  console.log("saved played state");
+                this.gamesService.setPlayerState(this.gameId, pl.PLAYER_ID, GamesStates.viewingPreRaceSummary).subscribe(data => {
+                  console.log('saved played state');
                 }, err => {
-                  window.alert("Error setting robot state: " + err);
+                  window.alert('Error setting robot state: ' + err);
                 });
               }
             }
@@ -102,7 +105,7 @@ export class BetPlacementComponent implements OnInit {
 
   async getHorseForm(horseId)  {
     return new Promise((resolve, reject) => {
-      this.gamesService.getHorseForm(this.gameId,horseId)
+      this.gamesService.getHorseForm(this.gameId, horseId)
         .subscribe( data => {
           resolve(data);
         }, error => {
@@ -114,7 +117,7 @@ export class BetPlacementComponent implements OnInit {
 
   get going(){
     if (this.raceData) {
-      switch(this.raceData.GOING) {
+      switch (this.raceData.GOING) {
         case 0: return 'firm';
         case 1: return 'good';
         case 2: return 'soft';
@@ -125,11 +128,11 @@ export class BetPlacementComponent implements OnInit {
 
 
   getPlayerBets() {
-    this.gamesService.getBetsForPlayer(this.gameId,this.raceId,this.player.ID)
+    this.gamesService.getBetsForPlayer(this.gameId, this.raceId, this.player.ID)
       .subscribe( data => {
         this.playerBets = data;
         let betsAmt = 0;
-        for(let b of this.playerBets) {
+        for (const b of this.playerBets) {
           betsAmt += b.AMOUNT;
         }
         this.betsTotal = betsAmt;
@@ -138,16 +141,16 @@ export class BetPlacementComponent implements OnInit {
       }, error => {
         this.gamesService.notBusy();
         window.alert('Failed to get player bets: ' + error);
-      })
+      });
   }
 
 
   get invalidBetAmount() {
     this._invalidBetAmount = false;
-    let input = (<HTMLInputElement>(document.getElementById('betAmount')));
+    const input = ((document.getElementById('betAmount')) as HTMLInputElement);
     if (input) {
-      let val = +input.value;
-       if ((val <0) || (val> this.remainingFunds)) {
+      const val = +input.value;
+      if ((val < 0) || (val > this.remainingFunds)) {
          this._invalidBetAmount = true;
         }
     } else if (this.remainingFunds < 0) {
@@ -177,22 +180,34 @@ export class BetPlacementComponent implements OnInit {
       return;
     }
 
-    if (this.router.isActive('/betting',false) === true) {
+    if (this.router.isActive('/betting', false) === true) {
       const expectedState = GamesStates.viewingPreRaceSummary;
-      const doCheck =(interval) => {
+      const doCheck = (interval) => {
         if (!this.players) {
           return;
         }
 
-        this.gamesService.getPlayerCountWithState(this.gameId,expectedState)
+        this.gamesService.getPlayerCountWithState(this.gameId, expectedState)
           .subscribe(data => {
             if (data && data['COUNT'] && (data['COUNT'] === this.players.length)) {
               this.allPlayersReady = true;
               this.waitingFor = [];
               this.router.navigateByUrl(`preRace/${this.gameId}/${this.raceId}`);
             } else {
-              this.waitingFor = data['playerStates'];
-              window.setTimeout(doCheck, 2000, this);
+              let validState = true;
+              for(let p of data['playerStates']) {
+                if (p.state < expectedState) {
+                  validState = false;
+                }
+              }
+              if (validState) {
+                this.allPlayersReady = true;
+                this.waitingFor = [];
+                this.router.navigateByUrl(`preRace/${this.gameId}/${this.raceId}`);
+              } else {
+                this.waitingFor = data['playerStates'];
+                window.setTimeout(doCheck, 2000, this);
+              }
             }
           }, error => {
             window.alert('error fetching player count for state: ' + error);
@@ -275,13 +290,73 @@ export class BetPlacementComponent implements OnInit {
     }
   }
 
+  // adjust the chance of a win based on the going
+  adjustHorseWinChanceScoreForGoing(horse, val) {
+    switch(horse.GOING_TYPE) {
+      case 0:
+        switch (this.raceData.GOING) {
+          case 0:
+            return val;
+          case 1:
+            return val * 0.8;
+          case 2:
+            return val * 0.75;
+          default:
+            throw new Error('Could not adjust horse chance win score');
+
+        }
+      case 1:
+        switch (this.raceData.GOING) {
+          case 0:
+            return val * 0.8;
+          case 1:
+            return val;
+          case 2:
+            return val * 0.8;
+          default:
+            throw new Error('Could not adjust horse chance win score');
+
+        }
+      case 2:
+        switch (this.raceData.GOING) {
+          case 0:
+            return val * 0.75;
+          case 1:
+            return val * 0.8;
+          case 2:
+            return val;
+          default:
+            throw new Error('Could not adjust horse chance win score');
+
+        }
+        break;
+      default:
+        throw new Error('Could not adjust horse chance win score');
+    }
+  }
+
+  adjustHorseWinChanceSoreUsingFormAndGoing(horse, val) {
+   const getPositionsForLengthAndGoing = () => {
+   };
+
+    const getPositionsForLength = () => {
+    };
+
+    const getPositionsForGoing = () => {
+    };
+
+
+  }
+
 
   generateOdds(horses) {
 
-    let oddsStats = [];
+    const oddsStats = [];
     horses.forEach((horse) => {
       let val = this.getHorseWinChanceScore(horse);
-      oddsStats.push({ horse: horse, score: val, form: horse.FORM});
+      val = this.adjustHorseWinChanceScoreForGoing(horse, val);
+      val = this.adjustHorseWinChanceSoreUsingFormAndGoing(horse, val);
+      oddsStats.push({ horse, score: val, form: horse.FORM});
     });
     oddsStats.sort((a, b) => {
       if (a.score === b.score) {
@@ -304,6 +379,14 @@ export class BetPlacementComponent implements OnInit {
     this._oddsStats = oddsStats;
   }
 
+  getBetTypeName(betType) {
+    switch(betType) {
+      case 0: return "To win";
+      case 1: return "To place (top 3)";
+      default:
+        return "Unknown betType: " + betType;
+    }
+  }
 
   getOdds(horseName) {
     return this._oddsStats.find((o) => {
@@ -326,21 +409,29 @@ export class BetPlacementComponent implements OnInit {
 
   }
 
+
   placeBet(){
-    const horseSelector = (<HTMLSelectElement> document.getElementById('horseSelector'));
-    let selIndex = horseSelector.selectedIndex;
-    let horseName = (<HTMLOptionElement>horseSelector.childNodes[selIndex]).value;
-    let horseOdds = this.getOdds(horseName);
-    let horseId = horseOdds.horse.ID;
-    let amount = (<HTMLInputElement>document.getElementById('betAmount')).value;
+    debugger;
+    const horseSelector = (document.getElementById('horseSelector') as HTMLSelectElement);
+    const selIndex = horseSelector.selectedIndex;
+    const horseName = (horseSelector.childNodes[selIndex] as HTMLOptionElement).value;
+    const horseOdds = this.getOdds(horseName);
+    const horseId = horseOdds.horse.ID;
+    const amount = (document.getElementById('betAmount') as HTMLInputElement).value;
+    const betTypeSelector = (document.getElementById('betTypeSelector') as HTMLSelectElement);
+    const betTypeIndex = betTypeSelector.selectedIndex;
+    let betOdds = horseOdds.odds;
+    if (betTypeIndex === 1) {
+      betOdds = horseOdds.odds / 4;
+    }
     const betObj = {
       PLAYER_ID : this.player.ID,
       GAME_ID : this.gameId,
       RACE_ID : this.raceId,
       HORSE_ID : horseId,
-      AMOUNT : parseInt(amount,10) | 0,
-      TYPE : 0,
-      ODDS : horseOdds.odds
+      AMOUNT : parseInt(amount, 10) | 0,
+      TYPE : betTypeIndex,
+      ODDS : betOdds
     };
 
     this.gamesService.busy();

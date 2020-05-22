@@ -2,11 +2,14 @@
   <h3>Registered Users</h3>
   <table>
     <tr *ngFor="let user of users">
-      <td>
+      <td *ngIf="user.HUMAN === 1">
         {{user.NAME}}
       </td>
   </table>
   <br/>
+  <h1>If you see your name in the above list, and know your password please join the game by logging in using the link below</h1>
+  <h2>If you need to create a user please fill in the fields below to create a user.</h2>
+  <h3>N.B!!! Passwords are encrypted on the database but not via the web - DO NOT USE A PASSWORD YOU USE ELSEWHERE!!!!1</h3>
 
   <form>
     <div>

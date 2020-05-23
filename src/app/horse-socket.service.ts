@@ -17,7 +17,7 @@ export class HorseSocketService {
 
     this.connection.onopen = () => {
       this.open = true;
-      this.connection.send("hey");
+      this.connection.send('{"messageType:":0}');
     };
 
     this.connection.onerror = error => {

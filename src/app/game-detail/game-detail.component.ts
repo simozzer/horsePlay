@@ -24,7 +24,7 @@ export class GameDetailComponent implements OnInit {
     private route: ActivatedRoute,
     private gamesService: GamesService
   ){
-    this.player = JSON.parse(localStorage.getItem('currentUser',));
+    this.player = JSON.parse(localStorage.getItem('currentHorseUser',));
     this.gameId = parseInt(this.route.snapshot.paramMap.get('gameId'),10);
   }
 

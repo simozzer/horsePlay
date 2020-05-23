@@ -143,7 +143,7 @@ export class HorseSelectionComponent implements OnInit {
     this.gamesService.busy();
     this.gameId = parseInt(this.route.snapshot.paramMap.get('gameId'), 10);
     this.meetingId = parseInt(this.route.snapshot.paramMap.get('meetingId'), 10);
-    this.player = JSON.parse(localStorage.getItem('currentUser'),null);
+    this.player = JSON.parse(localStorage.getItem('currentHorseUser'),null);
 
 
     this.getData().catch( err => {

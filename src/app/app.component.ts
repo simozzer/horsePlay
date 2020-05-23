@@ -21,7 +21,7 @@ export class AppComponent implements OnInit {
                 private authenticationService: AuthenticationService) {
     this.authenticationService.currentUser.subscribe(x => this.currentUser = x);
     this.title = 'Horse Racing';
-    this.player = JSON.parse(localStorage.getItem('currentUser',));
+    this.player = JSON.parse(localStorage.getItem('currentHorseUser',));
   }
 
   ngOnInit(): void {

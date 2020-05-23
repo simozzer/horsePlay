@@ -22,7 +22,7 @@ export class GameListComponent implements OnInit {
 
   async ngOnInit() {
     this.gamesService.busy();
-    this.player = JSON.parse(localStorage.getItem('currentUser', ));
+    this.player = JSON.parse(localStorage.getItem('currentHorseUser', ));
     await this.getGames(true);
     this.socket.addObserver(this);
 

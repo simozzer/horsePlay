@@ -59,6 +59,7 @@ export class RaceComponent implements OnInit {
   _winningBets;
   _loosingBets;
   _prizes;
+  _countDown = -1;
   runningRace = true;
   showNextStep = false;
   waitMessage: string;
@@ -165,7 +166,7 @@ export class RaceComponent implements OnInit {
     this.observing = false;
     this.waitMessage = '';
     this.gameId = parseInt(this.route.snapshot.paramMap.get('gameId'), 10);
-    this.player = JSON.parse(localStorage.getItem('currentUser', ));
+    this.player = JSON.parse(localStorage.getItem('currentHorseUser', ));
     this.raceId = parseInt(this.route.snapshot.paramMap.get('raceId'), 10);
     forkJoin([this.gamesService.getGame(this.gameId),
     this.gamesService.getPlayersInGame(this.gameId)])
@@ -175,7 +176,6 @@ export class RaceComponent implements OnInit {
         const count = await this.getPlayerCountWIthState(GamesStates.raceFinished);
         if (count === this.players.length) {
           // players are still in finished race state
-          debugger;
           this.waitMessage = `It appears that this race is finished`;
           document.getElementById('raceCanvas').hidden = true;
           this.showNextStep = true;
@@ -312,7 +312,6 @@ export class RaceComponent implements OnInit {
         const betAdjustments = [];
         this._winningBets = [];
         this._loosingBets = [];
-        debugger;
         this.bets.forEach((b) => {
           if (b.TYPE === 0 ) {
             // to win
@@ -401,7 +400,6 @@ export class RaceComponent implements OnInit {
   }
 
   async processWinnings() {
-
     return new Promise((resolve) => {
       const prizes = this.raceData.PRIZE;
       const won = [];
@@ -435,7 +433,7 @@ export class RaceComponent implements OnInit {
               window.alert('Error adding winnings: ' + err);
             });
         } else {
-          resolve(true);
+          resolve(this._prizes);
         }
 
       }
@@ -525,7 +523,22 @@ export class RaceComponent implements OnInit {
     if (!this._raceFinished && this._scrollAdjust < 15000) {
       window.requestAnimationFrame(this.handleDrawRequest.bind(this));
     } else {
-      this.processRaceResults();
+      if (this._raceFinished) {
+        if (this._countDown < 0 ) {
+          this._countDown = 50;
+          window.requestAnimationFrame(this.handleDrawRequest.bind(this));
+          //this.processRaceResults();
+        } else {
+          this._countDown --;
+          if (this._countDown === 0) {
+            this.processRaceResults();
+          } else {
+            window.requestAnimationFrame(this.handleDrawRequest.bind(this));
+          }
+        }
+      }
+
+
     }
   }
 

@@ -12,7 +12,7 @@ export class AuthenticationService {
   private hostUrl = "http://" + window.location.hostname + ":8080/";
 
   constructor(private http: HttpClient) {
-    this.currentUserSubject = new BehaviorSubject<User>(JSON.parse(localStorage.getItem('currentUser')));
+    this.currentUserSubject = new BehaviorSubject<User>(JSON.parse(localStorage.getItem('currentHorseUser')));
     this.currentUser = this.currentUserSubject.asObservable();
   }
 
@@ -29,7 +29,7 @@ export class AuthenticationService {
         if (response) {
           if (response.NAME) {
             // store user details and jwt token in local storage to keep user logged in between page refreshes
-            localStorage.setItem('currentUser', JSON.stringify(response));
+            localStorage.setItem('currentHorseUser', JSON.stringify(response));
 
             this.currentUserSubject.next(response);
             resolve(response);
@@ -47,7 +47,7 @@ export class AuthenticationService {
 
   logout() {
     // remove user from local storage to log user out
-    localStorage.removeItem('currentUser');
+    localStorage.removeItem('currentHorseUser');
     this.currentUserSubject.next(null);
   }
 }

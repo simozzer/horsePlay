@@ -38,13 +38,14 @@ export class BetPlacementComponent implements OnInit {
     this.gamesService.busy();
     this.gameId = parseInt(this.route.snapshot.paramMap.get('gameId'), 10);
     this.raceId = parseInt(this.route.snapshot.paramMap.get('raceId'), 10);
-    this.player = JSON.parse(localStorage.getItem('currentUser'));
-
+    this.player = JSON.parse(localStorage.getItem('currentHorseUser'));
+    ;
     forkJoin([this.gamesService.getPlayersInGame(this.gameId),
       this.gamesService.getHorsesForRace(this.gameId, this.raceId),
       this.gamesService.getRaceInfo(this.raceId, this.gameId),
       this.gamesService.getPlayerFunds(this.gameId, this.player.ID),
-      this.gamesService.getGame(this.gameId)])
+      this.gamesService.getGame(this.gameId),
+      this.gamesService.setPlayerState(this.gameId, this.player.ID, GamesStates.placingBets)])
         .subscribe( async data => {
           this.players = data[0];
           this.horses = data[1];
@@ -82,7 +83,7 @@ export class BetPlacementComponent implements OnInit {
           if (this.player.ID === this.gameData.MASTER_PLAYER_ID) {
             // advance any robots to the next step
             for (const pl of this.players) {
-              if (!pl.HUMAN) {
+              if (pl.HUMAN !== 1) {
                 this.gamesService.setPlayerState(this.gameId, pl.PLAYER_ID, GamesStates.viewingPreRaceSummary).subscribe(data => {
                   console.log('saved played state');
                 }, err => {
@@ -336,15 +337,94 @@ export class BetPlacementComponent implements OnInit {
   }
 
   adjustHorseWinChanceSoreUsingFormAndGoing(horse, val) {
-   const getPositionsForLengthAndGoing = () => {
+
+    const getHasFinishedLength = () => {
+      const res = horse.FORM.find( (formItem) => {
+        if ((formItem.LENGTH_FURLONGS === this.raceData.LENGTH_FURLONGS)
+          && (formItem.POSITION <= 3)) {
+          return formItem;
+        }
+      });
+      if (res) {
+        return true;
+      }
    };
 
-    const getPositionsForLength = () => {
+    const getHasWonLength = () => {
+      const res = horse.FORM.find( (formItem) => {
+        if ((formItem.LENGTH_FURLONGS === this.raceData.LENGTH_FURLONGS)
+          && (formItem.POSITION === 1)) {
+          return formItem;
+        }
+      });
+      if (res) {
+        return true;
+      }
     };
 
-    const getPositionsForGoing = () => {
+    const getHasWonLengthAndGoing = () => {
+      const res = horse.FORM.find( (formItem) => {
+        if ((formItem.LENGTH_FURLONGS === this.raceData.LENGTH_FURLONGS)
+          && (formItem.POSITION === 1) && (formItem.GOING === this.raceData)) {
+          return formItem;
+        }
+      });
+      if (res) {
+        return true;
+      }
     };
 
+    const getHasFinishedLengthAndGoing = () => {
+      const res = horse.FORM.find( (formItem) => {
+        if ((formItem.LENGTH_FURLONGS === this.raceData.LENGTH_FURLONGS)
+          && (formItem.POSITION === 1) && (formItem.GOING === this.raceData)) {
+          return formItem;
+        }
+      });
+      if (res) {
+        return true;
+      }
+    };
+
+    const getHasFinishedGoing = () => {
+      const res = horse.FORM.find( (formItem) => {
+        if ((formItem.GOING === this.raceData.GOING)
+          && (formItem.POSITION <= 3)) {
+          return formItem;
+        }
+      });
+      if (res) {
+        return true;
+      }
+    };
+
+    const getHasWonGoing = () => {
+      const res = horse.FORM.find( (formItem) => {
+        if ((formItem.GOING === this.raceData.GOING)
+          && (formItem.POSITION === 1)) {
+          return formItem;
+        }
+      });
+      if (res) {
+        return true;
+      }
+    };
+
+    if (getHasWonLengthAndGoing()) {
+      return val + 0.2;
+    } else if (getHasFinishedGoing()) {
+      return val + 0.15;
+    } else if (getHasWonLength()) {
+      return val + 0.1;
+    } else if (getHasFinishedLength()) {
+      return val + 0.75;
+    } else if (getHasWonGoing()) {
+      return val  + 0.5;
+    } else if (getHasFinishedGoing()) {
+      return val + 0.25;
+    } else {
+      return val;
+    }
 
   }
 
@@ -400,6 +480,9 @@ export class BetPlacementComponent implements OnInit {
 
   handleReadyToRace() {
     this.playerReady = true;
+    this.checkAllPlayersReady();
+
+    /*
     this.gamesService.setPlayerState(this.gameId, this.player.ID, GamesStates.viewingPreRaceSummary)
       .subscribe((state) => {
         this.checkAllPlayersReady();
@@ -407,11 +490,12 @@ export class BetPlacementComponent implements OnInit {
         window.alert('error setting player state: ' + err);
       });
 
+     */
+
   }
 
 
   placeBet(){
-    debugger;
     const horseSelector = (document.getElementById('horseSelector') as HTMLSelectElement);
     const selIndex = horseSelector.selectedIndex;
     const horseName = (horseSelector.childNodes[selIndex] as HTMLOptionElement).value;

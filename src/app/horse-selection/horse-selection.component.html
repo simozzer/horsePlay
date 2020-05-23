@@ -2,14 +2,14 @@
   <h2>Select your horses for races at {{meeting.NAME}}. Going {{going}}</h2>
 <table>
   <tr>
-    <th colspan=3>
+    <th colspan=2>
       Your Horses
     </th>
   </tr>
   <tr>
     <th>NAME</th>
     <th>FORM</th>
-    <th>ACTIONS</th>
+   <!-- <th>ACTIONS</th> -->
   </tr>
   <tr *ngFor="let horse of horses">
     <td>{{horse.NAME}}</td>
@@ -22,11 +22,13 @@
       </ul>
     </td>
 
+    <!--
     <td>
       <input type="button" value="Make Glue" (click)="makeGlue(horse)">
       <input type="button" value="Dope" (click)="dope(horse)">
 
     </td>
+    -->
   </tr>
 </table>
 

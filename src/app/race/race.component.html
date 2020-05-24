@@ -1,3 +1,12 @@
+<div *ngIf="waitingFor">
+  <h1>Waiting for</h1>
+  <ul>
+    <li *ngFor="let unready of waitingFor">
+      {{unready.NAME}}
+      <input type="button" *ngIf="!observing" value="Force" class="forcePlay" (click)="forceProgress(unready)"/>
+    </li>
+  </ul>
+</div>
 <div id="raceArea">
 <canvas id="raceCanvas">
 </canvas>
@@ -33,7 +42,7 @@
   </table>
 
 
-    <table>
+    <table *ngIf="_prizes && _prizes.length">
       <tr>
         <th colspan="2">Prizes</th>
       </tr>

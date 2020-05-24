@@ -1,5 +1,4 @@
 .placeBetContainer {
-  display: inline-block;
   text-align: center;
 }
 
@@ -36,4 +35,16 @@ label {
 }
 
 
+h1 {
+  background-color: red;
+}
+
+h5 {
+  clear:both;
+}
+
+h4 {
+  clear:both;
+  display: list-item;
+}
 

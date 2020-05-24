@@ -64,6 +64,7 @@ export class RaceComponent implements OnInit {
   showNextStep = false;
   waitMessage: string;
   observing = false;
+  waitingFor;
 
   constructor(private gamesService: GamesService,
               private route: ActivatedRoute,
@@ -184,7 +185,6 @@ export class RaceComponent implements OnInit {
           if (this.showRace) {
             // we're the master screen
 
-
               // advance any robots to the next step
               for(const pl of this.players) {
                 if (!pl.HUMAN) {
@@ -248,7 +248,20 @@ export class RaceComponent implements OnInit {
 
 
   setup() {
-    this.gamesService.waitForAllPlayersToHaveState(this.gameId, GamesStates.readyToRace, this.players.length).then(() => {
+    const fnNotDone = (data) => {
+      console.log(JSON.stringify(data));
+      if (data && data['playerStates']) {
+        this.waitingFor = [];
+        for (const p of data['playerStates']) {
+          if (p.STATE !== GamesStates.readyToRace) {
+            this.waitingFor.push(p);
+          }
+        }
+      }
+    }
+
+    this.gamesService.waitForAllPlayersToHaveState(this.gameId, GamesStates.readyToRace, this.players.length, fnNotDone).then(() => {
+      this.waitingFor = null;
       // All resources ready at this point.
       this._finishLine = this.raceData.LENGTH_FURLONGS * PIXELS_PER_FURLONG;
       this._verticalInterval = ((5 * this._canvasHeight) / 6 - 100) / this.horses.length;
@@ -525,7 +538,7 @@ export class RaceComponent implements OnInit {
     } else {
       if (this._raceFinished) {
         if (this._countDown < 0 ) {
-          this._countDown = 50;
+          this._countDown = 150;
           window.requestAnimationFrame(this.handleDrawRequest.bind(this));
           //this.processRaceResults();
         } else {
@@ -894,6 +907,21 @@ export class RaceComponent implements OnInit {
       case 1: return "To place (top 3)";
       default:
         return "Unknown betType: " + betType;
+    }
+  }
+
+
+  async forceProgress(aPlayer) {
+
+    if (window.confirm(`Are you sure you want to force progress for "${aPlayer.NAME}"?`) === true) {
+      this.gamesService.busy();
+      this.gamesService.setPlayerState(this.gameId, aPlayer.PLAYER_ID, GamesStates.readyToRace)
+        .subscribe(() => {
+          this.gamesService.notBusy();
+        }, err => {
+          this.gamesService.notBusy();
+          window.alert("Failed to set player state: " + err);;
+        });
     }
   }
 

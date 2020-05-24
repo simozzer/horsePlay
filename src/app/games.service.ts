@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 import {forkJoin} from "rxjs";
 import {fn} from "@angular/compiler/src/output/output_ast";
+import {type} from "os";
 
 @Injectable({
   providedIn: 'root'
@@ -44,6 +45,11 @@ export class GamesService {
 
   savePlayerHorses(gameId, playerId, horses){
     return this.http.post(this.hostUrl + "game/" + gameId + '/horsesFor/' + playerId, horses)
+      .pipe(map((response :Response) => response));
+  }
+
+  savePlayerHorse(gameId, playerId, horse){
+    return this.http.post(this.hostUrl + "game/" + gameId + '/horseFor/' + playerId, horse)
       .pipe(map((response :Response) => response));
   }
 
@@ -217,6 +223,13 @@ export class GamesService {
       }));
   }
 
+  deleteHorse(horseId) {
+    return this.http.delete(`${this.hostUrl}horses/${horseId}`)
+      .pipe(map((response: Response) => {
+        return response;
+      }));
+  }
+
   clearHorsesForPlayer(gameId, playerId, meetingId) {
     return this.http.post( `${this.hostUrl}delHorse`,{
       gameId : gameId,
@@ -249,16 +262,18 @@ export class GamesService {
       }));
   }
 
-  async waitForAllPlayersToHaveState(gameId, state, expectedCount) {
+  async waitForAllPlayersToHaveState(gameId, state, expectedCount, fnWait?) {
 
     return new Promise((resolve, reject) => {
       const doCheck =() => {
         this.getPlayerCountWithState(gameId,state)
           .subscribe(data => {
             if (data && data["COUNT"] && (data["COUNT"] === expectedCount)) {
-
               resolve(true);
             } else {
+              if (fnWait && (typeof fnWait === "function")) {
+                fnWait(data);
+              }
               window.setTimeout(doCheck, 2000, this);
             }
           }, error => {

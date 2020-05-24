@@ -2,6 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {GamesService} from '../games.service';
 import {forkJoin} from 'rxjs';
+import {HorseNameGenerator, RaceHorse} from "../race-horse";
 
 @Component({
   selector: 'app-horse-selection',
@@ -24,6 +25,7 @@ export class HorseSelectionComponent implements OnInit {
   waitingFor: any;
   showSubmit = false;
   players: any;
+  isGameMaster = false;
 
   constructor(private route: ActivatedRoute,
               private gamesService: GamesService) {
@@ -42,10 +44,33 @@ export class HorseSelectionComponent implements OnInit {
     });
   }
 
-  async makeGlue(horse) {
-    if (window.confirm(`Are you sure you want to turn ${horse.NAME} intro glue? This will cost you 50 points.`)) {
-      window.alert("Of course we're not going to kill your horse. Sicko!");
-    }
+  async makeGlue (horse) {
+    return new Promise( async (resolve, reject) => {
+      // TODO.. only allow if we have the funds?
+      if (window.confirm(`Are you sure you want to turn ${horse.NAME} intro glue? This will cost you 50 points.`)) {
+        this.gamesService.deleteHorse(horse.ID)
+          .subscribe(data => {
+            const horseName = HorseNameGenerator.getHorseName()
+            const newHorse = new RaceHorse(horseName);
+            this.gamesService.savePlayerHorse(this.gameId,this.player.ID, newHorse)
+              .subscribe(()=> {
+                this.gamesService.adjustPlayerFunds(this.gameId, this.player.ID, - 50)
+                  .subscribe(async () => {
+                    await this.getAllPlayerHorses();
+                    resolve(true);
+                  }, err => {
+                    reject(err);
+                  });
+
+              }, err => {
+                reject(err);
+              })
+          }, error => {
+            reject(error);
+          });
+      }
+    });
+
   }
 
   async dope(horse) {
@@ -80,6 +105,7 @@ export class HorseSelectionComponent implements OnInit {
         });
 
         if (this.gameData.MASTER_PLAYER_ID === this.player.ID) {
+          this.isGameMaster = true;
           if (robots.length) {
 
             const aSubscriptions = [];
@@ -100,7 +126,7 @@ export class HorseSelectionComponent implements OnInit {
             }
 
             forkJoin(aSubscriptions).subscribe( (data) => {
-              console.log("saved selectioons");
+              console.log("saved selections");
             }, err => {
               window.alert("error saving robot horse selection");
             });
@@ -138,6 +164,25 @@ export class HorseSelectionComponent implements OnInit {
   }
 
 
+  async getAllPlayerHorses() {
+    return new Promise((resolve, reject) => {
+      this.gamesService.getHorsesForPlayer(this.gameId, this.player.ID)
+        .subscribe(async (data) => {
+          this.horses = data;
+          for (let i = 0; i < this.horses.length; i++) {
+            const horse = this.horses[i];
+            await this.getHorseForm(horse).catch(err => {
+              // this.gamesService.notBusy();
+              reject(err);
+            }).then((form) => {
+              horse.FORM = form;
+            });
+          }
+          resolve(this.horses);
+        });
+    });
+  }
+
    ngOnInit(): void {
     this.showSubmit = false;
     this.gamesService.busy();
@@ -150,35 +195,22 @@ export class HorseSelectionComponent implements OnInit {
       this.gamesService.notBusy();
       window.alert('Error getting data: ' + err);
       this.checkReadyForNextStep(0);
-    }).then( () => {
-      this.gamesService.getHorsesForPlayer(this.gameId, this.player.ID)
-        .subscribe(async (data) => {
-
-          this.horses = data;
-          for (let i = 0; i < this.horses.length; i++) {
-            const horse = this.horses[i];
-
-            await this.getHorseForm(horse).catch(err => {
-              // this.gamesService.notBusy();
-              window.alert('error getting horse form: ' + err);
-            }).then((form) => {
-              horse.FORM = form;
-            });
-          };
-          const selections = await this.getPlayerHorsesForMeeting(this.player.ID);
-          this.restoreSelections(selections);
-          this.gamesService.notBusy();
-          this.checkReadyForNextStep(0);
+    }).then( async () => {
+          await this.updatePlayerSelections();
         }, error => {
           this.gamesService.notBusy();
           window.alert('error getting horses for player: ' + error);
         });
-    });
+    };
 
-    // nested
 
+  async updatePlayerSelections(){
+    await this.getAllPlayerHorses();
+    const selections = await this.getPlayerHorsesForMeeting(this.player.ID);
+    this.restoreSelections(selections);
+    this.gamesService.notBusy();
+    this.checkReadyForNextStep(0);
   }
-
 
   handleHorseSelected() {
     let selectionBoxes = Array.from(document.getElementsByClassName('horseSelector'));
@@ -310,6 +342,44 @@ export class HorseSelectionComponent implements OnInit {
       }
     }
     this.showSubmit = !bHideSubmit;
+  }
+
+  async doForceSelection(aPlayer) {
+    if (window.confirm(`Are you sure you want to select horses for ${aPlayer.PLAYER_NAME}?`) === true) {
+
+
+      this.gamesService.busy();
+      const aSubscriptions = [];
+      const selections = await this.getPlayerHorsesForMeeting(aPlayer.PLAYER_ID);
+      if ((!selections) || (selections.length === 0)) {
+        await this.clearHorsesForPlayer(aPlayer.PLAYER_ID);
+        const robotHorses = await this.getHorsesForRobot(aPlayer.PLAYER_ID);
+        // select a unique horse for each race
+        for (const race of this.races) {
+          const rnd = (Math.random() * robotHorses.length) | 0;
+          const randomHorse = robotHorses.splice(rnd, 1)[0];
+          console.log(randomHorse.NAME);
+          aSubscriptions.push(this.gamesService.addHorseToRace(this.gameId, race.ID, randomHorse.ID, aPlayer.PLAYER_ID));
+        }
+
+        return new Promise( (resolve,reject) => {
+          forkJoin(aSubscriptions)
+            .subscribe( async data => {
+              await this.updatePlayerSelections();
+              this.gamesService.notBusy();
+              window.alert('OK');
+              resolve(data);
+            }, err => {
+              this.gamesService.notBusy();
+              reject(err);
+            });
+        });
+      }
+      else {
+        this.gamesService.notBusy();
+        return true;
+      }
+    }
   }
 
 }

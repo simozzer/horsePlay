@@ -18,6 +18,8 @@ export class PreRaceReportComponent implements OnInit {
   showNextLink = false;
   player;
   players;
+  waitingFor: any[];
+  isController = false;
 
   constructor(private gamesService: GamesService,
               private route: ActivatedRoute,
@@ -40,6 +42,8 @@ export class PreRaceReportComponent implements OnInit {
         this.raceData = data[1];
         this.gameData = data[2];
         this.players = data[3];
+
+        this.isController = (this.gameData.MASTER_PLAYER_ID === this.player.ID);
 
         this.updateShowNextLink();
 
@@ -76,11 +80,12 @@ export class PreRaceReportComponent implements OnInit {
           if (data['COUNT'] && (data['COUNT'] === this.players.length)) {
             this.showNextLink = true;
           } else {
-
+            this.waitingFor = [];
             let validState = true;
             for(let p of data['playerStates']) {
-              if (p.STATE < GamesStates.viewingPreRaceSummary) {
+              if (p.STATE !== GamesStates.viewingPreRaceSummary) {
                 validState = false;
+                this.waitingFor.push(p);
               }
             }
 
@@ -123,5 +128,19 @@ export class PreRaceReportComponent implements OnInit {
     }
   }
 
+  forceProgress(aPlayer) {
+    if (window.confirm(`Are you sure you want to force progress for ${aPlayer.NAME}?`) === true) {
+      this.gamesService.busy();
+      debugger;
+      this.gamesService.setPlayerState(this.gameId, aPlayer.PLAYER_ID, GamesStates.viewingPreRaceSummary)
+        .subscribe(() => {
+          this.gamesService.notBusy();
+        }, err => {
+          this.gamesService.notBusy();
+          window.alert("Failed to set player state: " + err);;
+        });
+
+    }
+  }
 
 }

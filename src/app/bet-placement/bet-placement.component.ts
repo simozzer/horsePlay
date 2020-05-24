@@ -39,7 +39,7 @@ export class BetPlacementComponent implements OnInit {
     this.gameId = parseInt(this.route.snapshot.paramMap.get('gameId'), 10);
     this.raceId = parseInt(this.route.snapshot.paramMap.get('raceId'), 10);
     this.player = JSON.parse(localStorage.getItem('currentHorseUser'));
-    ;
+
     forkJoin([this.gamesService.getPlayersInGame(this.gameId),
       this.gamesService.getHorsesForRace(this.gameId, this.raceId),
       this.gamesService.getRaceInfo(this.raceId, this.gameId),
@@ -162,6 +162,7 @@ export class BetPlacementComponent implements OnInit {
 
 
   updateEnabledState() {
+    // update state of bet validity
     this.invalidBetAmount;
   }
 
@@ -196,7 +197,7 @@ export class BetPlacementComponent implements OnInit {
               this.router.navigateByUrl(`preRace/${this.gameId}/${this.raceId}`);
             } else {
               let validState = true;
-              for(let p of data['playerStates']) {
+              for (const p of data['playerStates']) {
                 if (p.state < expectedState) {
                   validState = false;
                 }
@@ -293,7 +294,7 @@ export class BetPlacementComponent implements OnInit {
 
   // adjust the chance of a win based on the going
   adjustHorseWinChanceScoreForGoing(horse, val) {
-    switch(horse.GOING_TYPE) {
+    switch (horse.GOING_TYPE) {
       case 0:
         switch (this.raceData.GOING) {
           case 0:
@@ -460,11 +461,11 @@ export class BetPlacementComponent implements OnInit {
   }
 
   getBetTypeName(betType) {
-    switch(betType) {
-      case 0: return "To win";
-      case 1: return "To place (top 3)";
+    switch (betType) {
+      case 0: return 'To win';
+      case 1: return 'To place (top 3)';
       default:
-        return "Unknown betType: " + betType;
+        return 'Unknown betType: ' + betType;
     }
   }
 
@@ -533,5 +534,16 @@ export class BetPlacementComponent implements OnInit {
         this.gamesService.notBusy();
         window.alert('Error placing bet: ' + error);
       });
+  }
+
+  betKeyPress() {
+    this.updateEnabledState();
+    const event: any = window['event'];
+    if (event  && (event['keyCode'] === 13)) {
+      if (!(this._invalidBetAmount)) {
+        this.placeBet();
+      }
+    }
+
   }
 }

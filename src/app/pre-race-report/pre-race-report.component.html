@@ -49,6 +49,16 @@
     <h3>No Bets Have Been Placed</h3>
   </ng-template>
 <br/>
-<a *ngIf="showNextLink" routerLink="/race/{{gameId}}/{{raceId}}">Click here to enter race</a>
+<a *ngIf="showNextLink; else waitList" routerLink="/race/{{gameId}}/{{raceId}}">Click here to enter race</a>
+
+  <ng-template #waitList>
+    <h4>Waiting for:</h4>
+    <ul>
+      <li *ngFor ="let unready of waitingFor">
+        {{unready.NAME}}
+        <input type="button" *ngIf="isController" value="Force" class="forcePlay" (click)="forceProgress(unready)"/>
+      </li>
+    </ul>
+  </ng-template>
 
 </div>

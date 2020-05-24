@@ -26,3 +26,26 @@ div#main {
 input[type="button"]:disabled {
   display: none;
 }
+
+td>input[type="button"] {
+  font: 10pt arial;
+}
+
+
+li.waitFor {
+  background-color: white;
+  text-align: center;
+  color:blue;
+  margin-left:auto;
+  margin-right:auto;
+  width:100%;
+}
+
+
+li.waitFor>input{
+  clear:none;
+  display:inline;
+  background-color: rosybrown;
+  color:red;
+  font: 8pt "Arial Black";
+}

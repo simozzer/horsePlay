@@ -39,7 +39,7 @@ import { HorseSocketService} from "./horse-socket.service";
     HttpClientModule,
     FormsModule
   ],
-  providers: [GamesService, AuthenticationService, UsersService, SoundsService, ImagesService,HorseSocketService],
+  providers: [GamesService, AuthenticationService, UsersService, SoundsService, ImagesService, HorseSocketService],
   bootstrap: [AppComponent]
 })
 export class AppModule {

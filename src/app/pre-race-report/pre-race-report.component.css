@@ -9,10 +9,20 @@ a {
   font: 18pt sans black;
   text-transform: uppercase;
   font-weight: bold;
+  margin-top:10px;
 }
 
 #main{
   background-image: url("http://82.15.30.96/assets/horses/images/betsPlaced.jpg");
   background-size: cover;
   padding-top:2em;
+}
+
+
+input.forcePlay {
+  clear:none;
+  display:inline;
+  background-color: rosybrown;
+  color:red;
+  font: 8pt "Arial Black";
 }

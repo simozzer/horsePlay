@@ -3,7 +3,7 @@
 <div *ngIf="raceData">
   <h3>{{raceData.NAME}}. Length: {{raceData.LENGTH_FURLONGS}}, Prize: {{raceData.PRIZE}},  Going: {{going}} </h3>
 </div>
-<div class="leftArea">
+
 
     <table class="horsesInRace">
       <tr>
@@ -45,9 +45,8 @@
       </tr>
     </table>
 
-</div>
 
-<div class="rightArea">
+
 <div class="playerBets" *ngIf="(playerBets && playerBets.length); else noBet">
   <table class="userInfo">
     <tr>
@@ -86,6 +85,7 @@
   <ng-template #noBet>
     <h1>YOU HAVE PLACED NO BETS</h1>
   </ng-template>
+
 <div class="fundsSummary">
   <table>
     <tr>
@@ -99,8 +99,10 @@
     </tr>
   </table>
 </div>
-  <div class="betPlacementSection">
 
+  <div class="betPlacementSection">
+    <h4>Place as many bets as you like and then click "Ready".</h4>
+    <h5>To cancel a bet place the same bet with zero value.</h5>
     <table class="placeBetContainer userAction">
       <tr>
         <th colspan="3">Place Your Bets</th>
@@ -130,7 +132,7 @@
           </select>
         </td>
         <td>
-          <input type="number" id="betAmount" (change)="updateEnabledState()" (keyup)="updateEnabledState()"/>
+          <input type="number" id="betAmount" (change)="updateEnabledState()" (keyup)="betKeyPress()"/>
         </td>
         <td>
           <input type="button" (click)="placeBet()" value="Place" [disabled]="invalidBetAmount"/>
@@ -138,7 +140,7 @@
       </tr>
     </table>
   </div>
-</div>
+
 <input type="button" value="Ready" (click)="handleReadyToRace()"/>
 <br>
 <div *ngIf="playerReady">

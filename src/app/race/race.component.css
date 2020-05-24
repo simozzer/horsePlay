@@ -16,3 +16,13 @@ a {
 div.appHeader {
   display:none !important;
 }
+
+
+
+input.forcePlay {
+  clear:none;
+  display:inline;
+  background-color: rosybrown;
+  color:red;
+  font: 8pt "Arial Black";
+}

@@ -34,6 +34,7 @@
           <input type="button" (click)="join(game.ID)" [disabled]="((game.playerInGame) || (game.STATE > 0))" value="Join"/>
           <input type="button" (click)="leave(game.ID)" [disabled]="(!(game.playerInGame) || (player.ID === game.OWNER_ID))" value="Leave"/>
           <input type="button" (click)="deleteGame(game.NAME)" value="Delete" [disabled]="(player.ID !== game.OWNER_ID)"/>
+          <input type="button" (click)="addPlayerToGame(game)" value="Add Player" [disabled]="(player.ID !== game.OWNER_ID)"/>
         </td>
         <td>
           <div *ngIf="player.ID === game.OWNER_ID; else notOwned">

@@ -51,7 +51,13 @@ export class UserListComponent implements OnInit {
         });
       }
     }
+  }
 
+  get credentialsInvalid() {
+    const username = ((document.getElementById('username')) as HTMLInputElement).value;
+    const password = ((document.getElementById('password')) as HTMLInputElement).value;
+    const confirmPassword = ((document.getElementById('confirmPassword')) as HTMLInputElement).value;
+    return ((username === '') || (password === '') || (password !== confirmPassword));
   }
 
 }

@@ -25,7 +25,7 @@
         confirm password
       </h4>
       <input type="password" id="confirmPassword"/>
-      <input type="button" (click)="addNewUser()" value="Create User"/>
+      <input type="button" (click)="addNewUser()" value="Create User" [disabled]="credentialsInvalid"/>
     </div>
   </form>
 

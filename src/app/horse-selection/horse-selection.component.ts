@@ -356,8 +356,9 @@ export class HorseSelectionComponent implements OnInit {
         const robotHorses = await this.getHorsesForRobot(aPlayer.PLAYER_ID);
         // select a unique horse for each race
         for (const race of this.races) {
-          const rnd = (Math.random() * robotHorses.length) | 0;
-          const randomHorse = robotHorses.splice(rnd, 1)[0];
+          const selHorse = await this.getHorseForRace(aPlayer, race, robotHorses);
+          const ndx = robotHorses.indexOf(selHorse);
+          const randomHorse = robotHorses.splice(ndx, 1)[0];
           console.log(randomHorse.NAME);
           aSubscriptions.push(this.gamesService.addHorseToRace(this.gameId, race.ID, randomHorse.ID, aPlayer.PLAYER_ID));
         }
@@ -382,4 +383,92 @@ export class HorseSelectionComponent implements OnInit {
     }
   }
 
+
+
+  async getHorseForRace(aPlayer, aRace, allPlayerHorses) {
+
+    for(const horse of allPlayerHorses) {
+      horse.FORM = await this.getHorseForm(horse);
+    }
+
+    const fnGetWinnerForLengthAndGoing = () => {
+      return allPlayerHorses.find( (aHorse) => {
+        return aHorse.FORM.find((form) => {
+          if ((form.LENGTH_FURLONGS === aRace.LENGTH_FURLONGS) && (form.GOING === this.meeting.GOING) && (form.POSITION === 1)) {
+            return true;
+          }
+        });
+      });
+    };
+
+    const fnGetWinnerForLength = () => {
+      return allPlayerHorses.find( (aHorse) => {
+        return aHorse.FORM.find((form) => {
+          if ((form.LENGTH_FURLONGS === aRace.LENGTH_FURLONGS)  && (form.POSITION === 1)) {
+              return true;
+          }
+        });
+      });
+    };
+
+
+    const fnGetPlaceForLengthAndGoing = () => {
+      return allPlayerHorses.find( (aHorse) => {
+        return aHorse.FORM.find((form) => {
+          if ((form.LENGTH_FURLONGS === aRace.LENGTH_FURLONGS) && (form.GOING === this.meeting.GOING) && (form.POSITION  <= 3)) {
+            return true;
+          }
+        });
+      });
+    };
+
+    const fnGetPlaceForLength = () => {
+      return allPlayerHorses.find( (aHorse) => {
+        return aHorse.FORM.find((form) => {
+          if ((form.LENGTH_FURLONGS === aRace.LENGTH_FURLONGS)  && (form.POSITION <= 3)) {
+            return true;
+          }
+        });
+      });
+    };
+
+    const fnGetUnusedHorse = () => {
+      return allPlayerHorses.find( (aHorse) => {
+        if (aHorse.FORM.length === 0) {
+          return true;
+        }
+      });
+    };
+
+    const fnGetRandomHorse = () => {
+      const rnd = (Math.random() * allPlayerHorses.length) | 0;
+      return allPlayerHorses[rnd];
+    };
+
+    let horse = fnGetWinnerForLengthAndGoing();
+    if (!horse) {
+      horse = fnGetWinnerForLength();
+    }
+
+    if (!horse) {
+      horse = fnGetPlaceForLengthAndGoing();
+    }
+
+    if (!horse) {
+      horse = fnGetPlaceForLength();
+    }
+
+    if (!horse) {
+      horse = fnGetUnusedHorse();
+    }
+
+    if (!horse) {
+      horse = fnGetRandomHorse();
+    }
+
+    return horse;
+
+  }
+
 }
+

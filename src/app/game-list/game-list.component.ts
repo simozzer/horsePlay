@@ -200,14 +200,15 @@ export class GameListComponent implements OnInit {
 
   }
 
-  async join(gameId: string) {
+
+  async doAddPlayerToGame(gameId, playerId) {
 
     return new Promise(async (resolve, reject) => {
       this.gamesService.busy();
 
-      await this.setPlayerState(gameId, this.player.ID,0);
+      await this.setPlayerState(gameId, playerId,0);
 
-      this.gamesService.addPlayerToGame(gameId, {id: this.player.ID})
+      this.gamesService.addPlayerToGame(gameId, {id: playerId})
         .subscribe(async data => {
             // ADD HORSES FOR PLAYER
             const horses = [];
@@ -216,9 +217,9 @@ export class GameListComponent implements OnInit {
               const horse = new RaceHorse(horseName);
               horses.push(horse);
             }
-            this.gamesService.savePlayerHorses(gameId, this.player.ID, horses).subscribe(
+            this.gamesService.savePlayerHorses(gameId, playerId, horses).subscribe(
               async data => {
-                this.gamesService.adjustPlayerFunds(gameId, this.player.ID, INITIAL_PLAYER_FUNDS)
+                this.gamesService.adjustPlayerFunds(gameId, playerId, INITIAL_PLAYER_FUNDS)
                   .subscribe( async () => {
                     await this.getGames(false);
                     this.gamesService.notBusy();
@@ -239,7 +240,7 @@ export class GameListComponent implements OnInit {
               }
             );
             this.gamesService.busy();
-            await this.gamesService.setPlayerState(gameId, this.player.ID, 2); // ready to select horses
+            await this.gamesService.setPlayerState(gameId, playerId, 2); // ready to select horses
             this.gamesService.notBusy();
 
           }, error => {
@@ -250,7 +251,9 @@ export class GameListComponent implements OnInit {
 
     });
 
-
+  }
+  async join(gameId: string) {
+    await this.doAddPlayerToGame(gameId, this.player.ID);
   }
 
   leave(gameId: string) {
@@ -283,6 +286,17 @@ export class GameListComponent implements OnInit {
     });
   }
 
+  async getUsers(): Promise<any> {
+    return new Promise( (resolve, reject) => {
+      this.usersService.getUsers()
+        .subscribe( data => {
+          resolve(data);
+        }, err => {
+          reject(err);
+        })
+    });
+  }
+
   async startGame(gameObj) {
     this.gamesService.busy();
 
@@ -312,5 +326,49 @@ export class GameListComponent implements OnInit {
       });
   }
 
+
+  async addPlayerToGame(game) {
+
+
+    const allUsers = await this.getUsers().then((users) => {
+      return users.filter((user) => {
+        if (user.HUMAN === 1) {
+          return user;
+        };
+      });
+    });
+
+    const gamePlayers = await this.getPlayersInGame(game);
+    // get list of players not in game & display it.
+
+    // ask user to enter a name
+
+    const availablePlayers = allUsers.filter( (aUser) => {
+      const userId = aUser.ID;
+      const found = gamePlayers.find( (gp) => {
+        return (gp.PLAYER_ID === userId);
+      });
+      return !found;
+    });
+
+    const playerNames = availablePlayers.map((item) => {
+      return item.NAME;
+    });
+
+    const newPlayerName = window.prompt("Please choose a player to add to the game from: " + playerNames);
+    if ((newPlayerName) && (playerNames.indexOf(newPlayerName) >= 0)) {
+      let player = availablePlayers.find((p) => {
+        return (p.NAME === newPlayerName);
+      });
+      if (player) {
+        await this.doAddPlayerToGame(game.ID, player.ID);
+        window.alert(newPlayerName + ' added');
+      }
+    }
+
+
+
+    // if we're halfway through a meeting then assign the horses for the races
+  }
 
 }

@@ -48,6 +48,8 @@ export class GameListComponent implements OnInit {
       this.gamesService.getPlayersInGame(game.ID)
         .subscribe( (data) => {
           resolve(data);
+        }, err => {
+          reject(err);
         });
     });
   }
@@ -345,8 +347,8 @@ export class GameListComponent implements OnInit {
 
     const availablePlayers = allUsers.filter( (aUser) => {
       const userId = aUser.ID;
-      const found = gamePlayers.find( (gp) => {
-        return (gp.PLAYER_ID === userId);
+      const found = gamePlayers['find']( (gp) => {
+        return (gp['PLAYER_ID'] === userId);
       });
       return !found;
     });

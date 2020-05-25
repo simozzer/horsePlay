@@ -341,7 +341,8 @@ export class BetPlacementComponent implements OnInit {
 
     const getHasFinishedLength = () => {
       const res = horse.FORM.find( (formItem) => {
-        if ((formItem.LENGTH_FURLONGS === this.raceData.LENGTH_FURLONGS)
+        if ((formItem.LENGTH_FURLONGS >= (this.raceData.LENGTH_FURLONGS - 1))
+          && (formItem.LENGTH_FURLONGS <= (this.raceData.LENGTH_FURLONGS + 1))
           && (formItem.POSITION <= 3)) {
           return formItem;
         }
@@ -353,7 +354,8 @@ export class BetPlacementComponent implements OnInit {
 
     const getHasWonLength = () => {
       const res = horse.FORM.find( (formItem) => {
-        if ((formItem.LENGTH_FURLONGS === this.raceData.LENGTH_FURLONGS)
+        if ((formItem.LENGTH_FURLONGS >= (this.raceData.LENGTH_FURLONGS - 1))
+          && (formItem.LENGTH_FURLONGS <= (this.raceData.LENGTH_FURLONGS + 1))
           && (formItem.POSITION === 1)) {
           return formItem;
         }
@@ -365,7 +367,8 @@ export class BetPlacementComponent implements OnInit {
 
     const getHasWonLengthAndGoing = () => {
       const res = horse.FORM.find( (formItem) => {
-        if ((formItem.LENGTH_FURLONGS === this.raceData.LENGTH_FURLONGS)
+        if ((formItem.LENGTH_FURLONGS >= (this.raceData.LENGTH_FURLONGS - 1))
+          && (formItem.LENGTH_FURLONGS <= (this.raceData.LENGTH_FURLONGS + 1))
           && (formItem.POSITION === 1) && (formItem.GOING === this.raceData)) {
           return formItem;
         }
@@ -377,8 +380,9 @@ export class BetPlacementComponent implements OnInit {
 
     const getHasFinishedLengthAndGoing = () => {
       const res = horse.FORM.find( (formItem) => {
-        if ((formItem.LENGTH_FURLONGS === this.raceData.LENGTH_FURLONGS)
-          && (formItem.POSITION === 1) && (formItem.GOING === this.raceData)) {
+        if ((formItem.LENGTH_FURLONGS >= (this.raceData.LENGTH_FURLONGS - 1))
+          && (formItem.LENGTH_FURLONGS <= (this.raceData.LENGTH_FURLONGS + 1))
+          && (formItem.POSITION <= 3) && (formItem.GOING === this.raceData)) {
           return formItem;
         }
       });
@@ -417,12 +421,14 @@ export class BetPlacementComponent implements OnInit {
       return val + 0.15;
     } else if (getHasWonLength()) {
       return val + 0.1;
+    } else if (getHasFinishedLengthAndGoing()) {
+      return val + 0.08;
     } else if (getHasFinishedLength()) {
-      return val + 0.75;
+      return val + 0.075;
     } else if (getHasWonGoing()) {
-      return val  + 0.5;
+      return val  + 0.05;
     } else if (getHasFinishedGoing()) {
-      return val + 0.25;
+      return val + 0.04;
     } else {
       return val;
     }
@@ -482,17 +488,6 @@ export class BetPlacementComponent implements OnInit {
   handleReadyToRace() {
     this.playerReady = true;
     this.checkAllPlayersReady();
-
-    /*
-    this.gamesService.setPlayerState(this.gameId, this.player.ID, GamesStates.viewingPreRaceSummary)
-      .subscribe((state) => {
-        this.checkAllPlayersReady();
-      }, err => {
-        window.alert('error setting player state: ' + err);
-      });
-
-     */
-
   }
 
 
@@ -544,6 +539,6 @@ export class BetPlacementComponent implements OnInit {
         this.placeBet();
       }
     }
-
   }
+
 }

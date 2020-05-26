@@ -135,7 +135,7 @@ export class RaceComponent implements OnInit {
       return new Promise((resolve, reject) => {
         this.gamesService.getPlayerCountWithState(this.gameId, state)
           .subscribe((data) => {
-            resolve(data.COUNT);
+            resolve(data['COUNT']);
           }, err => {
             reject(err);
           });

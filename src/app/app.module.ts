@@ -18,8 +18,7 @@ import { HorseSelectionComponent } from './horse-selection/horse-selection.compo
 import { RaceComponent } from './race/race.component';
 import { ImagesService } from "./images.service";
 import { PreRaceReportComponent } from './pre-race-report/pre-race-report.component';
-import { HorseSocketService} from "./horse-socket.service";
-import { RaceGoingPipePipe } from './race-going-pipe.pipe';
+import { HorseSocketService} from "./horse-socket.service";;
 
 
 @NgModule({
@@ -33,7 +32,6 @@ import { RaceGoingPipePipe } from './race-going-pipe.pipe';
     HorseSelectionComponent,
     RaceComponent,
     PreRaceReportComponent,
-    RaceGoingPipePipe
   ],
   imports: [
     BrowserModule,

@@ -487,8 +487,15 @@ export class BetPlacementComponent implements OnInit {
 
 
   handleReadyToRace() {
-    this.playerReady = true;
-    this.checkAllPlayersReady();
+    if (this.playerBets && (this.playerBets.length)) {
+      this.playerReady = true;
+      this.checkAllPlayersReady();
+    } else {
+      if (window.confirm('You have not placed any bets. Are your sure you want to proceed?') === true) {
+        this.playerReady = true;
+        this.checkAllPlayersReady();
+      }
+    }
   }
 
 

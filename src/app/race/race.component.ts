@@ -75,7 +75,7 @@ export class RaceComponent implements OnInit {
 
     handleResize(){
       this._mainCanvas.width = window.innerWidth;
-      this._mainCanvas.height = window.innerHeight - document.getElementsByClassName("appHeader")[0].clientHeight - 20;
+      this._mainCanvas.height = window.innerHeight - document.getElementsByClassName('appHeader')[0].clientHeight - 20;
       this._canvasWidth = this._mainCanvas.clientWidth;
       this._canvasHeight = this._mainCanvas.clientHeight;
       this._mainCanvas.width = this._canvasWidth;
@@ -100,7 +100,7 @@ export class RaceComponent implements OnInit {
         this.gamesService.getPlayersInGame(this.gameId),
       ]).subscribe((responses) => {
         this.raceData = responses[1];
-        this._title = `${this.raceData.MEETING_NAME}: ${this.raceData.NAME}(${this.raceData.LENGTH_FURLONGS} furlongs, going: ${this.goingString})`;
+        this._title = `${this.raceData.MEETING_NAME}: ${this.raceData.NAME}(${this.raceData.LENGTH_FURLONGS} furlongs, going: ${this.goingString}, prize:${this.raceData.PRIZE})`;
         this.bets = responses[2];
         this.horses = responses[3];
         this.players = responses[4];
@@ -135,7 +135,7 @@ export class RaceComponent implements OnInit {
       return new Promise((resolve, reject) => {
         this.gamesService.getPlayerCountWithState(this.gameId, state)
           .subscribe((data) => {
-            resolve(data['COUNT']);
+            resolve(data.COUNT);
           }, err => {
             reject(err);
           });
@@ -186,17 +186,17 @@ export class RaceComponent implements OnInit {
             // we're the master screen
 
               // advance any robots to the next step
-              for(const pl of this.players) {
+              for (const pl of this.players) {
                 if (!pl.HUMAN) {
-                  this.gamesService.setPlayerState(this.gameId,pl.PLAYER_ID, GamesStates.readyToRace).subscribe(data => {
-                    console.log("saved robot state");
+                  this.gamesService.setPlayerState(this.gameId, pl.PLAYER_ID, GamesStates.readyToRace).subscribe(data => {
+                    console.log('saved robot state');
                   }, err => {
-                    window.alert("Error setting robot state: " + err);
+                    window.alert('Error setting robot state: ' + err);
                   });
                 }
               }
 
-            this.gamesService.setPlayerState(this.gameId, this.player.ID, GamesStates.readyToRace).subscribe((data) => {
+              this.gamesService.setPlayerState(this.gameId, this.player.ID, GamesStates.readyToRace).subscribe((data) => {
               this.initializeRace();
             });
 
@@ -229,7 +229,7 @@ export class RaceComponent implements OnInit {
                     this.waitMessage = '';
                     this.showNextStep = true;
                   }).catch((err) => {
-                    window.alert("error updating playing states: " + err);
+                    window.alert('error updating playing states: ' + err);
                   });
                 } else {
                   this.waitMessage = '';
@@ -250,15 +250,15 @@ export class RaceComponent implements OnInit {
   setup() {
     const fnNotDone = (data) => {
       console.log(JSON.stringify(data));
-      if (data && data['playerStates']) {
+      if (data && data.playerStates) {
         this.waitingFor = [];
-        for (const p of data['playerStates']) {
+        for (const p of data.playerStates) {
           if (p.STATE !== GamesStates.readyToRace) {
             this.waitingFor.push(p);
           }
         }
       }
-    }
+    };
 
     this.gamesService.waitForAllPlayersToHaveState(this.gameId, GamesStates.readyToRace, this.players.length, fnNotDone).then(() => {
       this.waitingFor = null;
@@ -303,7 +303,7 @@ export class RaceComponent implements OnInit {
 
   // Helper function used to display pre-race odds after race completion.
   getOdds(horse) {
-    const odds = JSON.parse(localStorage.getItem("odds"));
+    const odds = JSON.parse(localStorage.getItem('odds'));
     if ((odds.gameId === this.gameId) && (odds.raceId === this.raceId)) {
       const odd = odds.odds.find((item) => {
         if (item.horse.ID === horse.ID) {
@@ -540,7 +540,7 @@ export class RaceComponent implements OnInit {
         if (this._countDown < 0 ) {
           this._countDown = 150;
           window.requestAnimationFrame(this.handleDrawRequest.bind(this));
-          //this.processRaceResults();
+          // this.processRaceResults();
         } else {
           this._countDown --;
           if (this._countDown === 0) {
@@ -750,6 +750,15 @@ export class RaceComponent implements OnInit {
           console.log('unhandled going: ' + this.raceData.going);
 
       }
+      if (horse.burtSpeedFr1amesRemaining > 0) {
+        horse.burtSpeedFr1amesRemaining --;
+        return speed + 0.2;
+      } else {
+        if (Math.random() > 0.997) {
+          // debugger;
+          horse.burtSpeedFr1amesRemaining = 50 + ((Math.random() * 130) | 0);
+        }
+      }
       return speed;
     };
 
@@ -902,11 +911,11 @@ export class RaceComponent implements OnInit {
 
 
   getBetTypeName(betType) {
-    switch(betType) {
-      case 0: return "To win";
-      case 1: return "To place (top 3)";
+    switch (betType) {
+      case 0: return 'To win';
+      case 1: return 'To place (top 3)';
       default:
-        return "Unknown betType: " + betType;
+        return 'Unknown betType: ' + betType;
     }
   }
 
@@ -920,7 +929,7 @@ export class RaceComponent implements OnInit {
           this.gamesService.notBusy();
         }, err => {
           this.gamesService.notBusy();
-          window.alert("Failed to set player state: " + err);;
+          window.alert('Failed to set player state: ' + err);
         });
     }
   }

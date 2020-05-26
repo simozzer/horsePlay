@@ -21,11 +21,9 @@ export class GameListComponent implements OnInit {
   }
 
   async ngOnInit() {
-    this.gamesService.busy();
     this.player = JSON.parse(localStorage.getItem('currentHorseUser', ));
     await this.getGames(true);
     this.socket.addObserver(this);
-
   }
 
   async fnSocketNotify(data) {
@@ -33,7 +31,7 @@ export class GameListComponent implements OnInit {
       const obj = JSON.parse(data);
       if (obj.messageType && (obj.messageType === "games")) {
         // games have changes
-        await this.getGames(false);;
+        await this.getGames(false);
       }
     } catch(e) {
       console.log('Error in wsnotify');
@@ -120,21 +118,19 @@ export class GameListComponent implements OnInit {
   addNewGame() {
     const newName = window.prompt('Please enter game name');
     if (newName !== '') {
-      this.gamesService.busy();
       const game = this.addGame(newName, this.player.ID);
       if (game) {
-        this.gamesService.notBusy();
         // window.alert('added: ' + game);
       } else {
-        this.gamesService.notBusy();
         window.alert('did not add');
       }
     }
   }
 
   deleteGame(name) {
-    this.gamesService.busy();
+
     if (window.confirm(`Are you sure you want to delete the game "${name}"`)) {
+      this.gamesService.busy();
       return this.gamesService.deleteGame(name)
         .subscribe(async data => {
             await this.getGames(false);
@@ -206,7 +202,6 @@ export class GameListComponent implements OnInit {
   async doAddPlayerToGame(gameId, playerId) {
 
     return new Promise(async (resolve, reject) => {
-      this.gamesService.busy();
 
       await this.setPlayerState(gameId, playerId,0);
 
@@ -224,33 +219,26 @@ export class GameListComponent implements OnInit {
                 this.gamesService.adjustPlayerFunds(gameId, playerId, INITIAL_PLAYER_FUNDS)
                   .subscribe( async () => {
                     await this.getGames(false);
-                    this.gamesService.notBusy();
                     const notifyData = {
                       messageType: 'games'
                     };
                     await this.socket.sendData(JSON.stringify(notifyData));
                     resolve(true);
                   }, err => {
-                    this.gamesService.notBusy();
                     reject('Failed to adjust player funds: ' + err);
                   });
 
               },
               error => {
-                this.gamesService.notBusy();
                 reject('error saving player horses: ' + error);
               }
             );
-            this.gamesService.busy();
             await this.gamesService.setPlayerState(gameId, playerId, 2); // ready to select horses
-            this.gamesService.notBusy();
 
           }, error => {
-            this.gamesService.notBusy();
             reject(error);
           }
         );
-
     });
 
   }
@@ -331,7 +319,6 @@ export class GameListComponent implements OnInit {
 
   async addPlayerToGame(game) {
 
-
     const allUsers = await this.getUsers().then((users) => {
       return users.filter((user) => {
         if (user.HUMAN === 1) {
@@ -341,10 +328,7 @@ export class GameListComponent implements OnInit {
     });
 
     const gamePlayers = await this.getPlayersInGame(game);
-    // get list of players not in game & display it.
-
-    // ask user to enter a name
-
+    // get list of players not in game.
     const availablePlayers = allUsers.filter( (aUser) => {
       const userId = aUser.ID;
       const found = gamePlayers['find']( (gp) => {
@@ -357,18 +341,24 @@ export class GameListComponent implements OnInit {
       return item.NAME;
     });
 
+    // ask user to enter a name
     const newPlayerName = window.prompt("Please choose a player to add to the game from: " + playerNames);
     if ((newPlayerName) && (playerNames.indexOf(newPlayerName) >= 0)) {
-      let player = availablePlayers.find((p) => {
+      const player = availablePlayers.find((p) => {
         return (p.NAME === newPlayerName);
       });
       if (player) {
-        await this.doAddPlayerToGame(game.ID, player.ID);
-        window.alert(newPlayerName + ' added');
+        this.gamesService.busy();
+        await this.doAddPlayerToGame(game.ID, player.ID)
+          .catch( e => {
+            this.gamesService.notBusy();
+            window.alert("Error adding player to game: " + e);
+          }).then( () => {
+            this.gamesService.notBusy();
+          });
+
       }
     }
-
-
 
     // if we're halfway through a meeting then assign the horses for the races
   }

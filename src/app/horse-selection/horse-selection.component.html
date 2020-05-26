@@ -9,7 +9,8 @@
   <tr>
     <th>NAME</th>
     <th>FORM</th>
-   <th>ACTIONS</th>
+    <th>SALE VALUE</th>
+    <th>ACTIONS</th>
   </tr>
   <tr *ngFor="let horse of horses">
     <td>{{horse.NAME}}</td>
@@ -21,13 +22,25 @@
         </li>
       </ul>
     </td>
+    <td>
+      {{getHorseValue(horse)}}
+    </td>
 
     <td>
-
-      <input *ngIf="horse.FORM && horse.FORM.length" type="button" value="Make Glue" (click)="makeGlue(horse)">
+      <input *ngIf="horse.FORM && horse.FORM.length" type="button" value="Make Glue" [disabled]="disableGlue ||( playerFunds<50) || (this.horses.length <= this.races.length)" (click)="makeGlue(horse)">
+      <input type="button" value="Sell" (click)="sellHorse(horse)" [disabled]="disableGlue || (this.horses.length <= this.races.length)" >
     </td>
 
   </tr>
+  <tr *ngIf="playerFunds > 200">
+    <td></td>
+    <td></td>
+    <td>-200</td>
+    <td>
+      <input type="button" value="Add new horse" (click)="addNewHorse()" [disabled]="(this.playerFunds < 200) || (this.horses.length >7)"/>
+    </td>
+  </tr>
+
 </table>
 
   <div *ngIf="!(readyForBets && showSubmit)">
@@ -47,7 +60,7 @@
     <th>Horse</th>
   </tr>
 <tr *ngFor="let race of races">
-  <td>{{race.NAME}}}</td>
+  <td>{{race.NAME}}</td>
   <td>{{race.LENGTH_FURLONGS}}</td>
   <td>{{race.PRIZE}}</td>
   <td>
@@ -59,6 +72,18 @@
   </td>
 </tr>
 </table>
+
+  <table>
+    <tr>
+      <th>
+        Available funds
+      </th>
+      <td>
+        {{playerFunds}}
+      </td>
+    </tr>
+  </table>
+
 
 <div *ngIf="showSubmit">
   <input type="button" value="Set Selection" [disabled]="this.invalid" (click)="this.setSelection()"/>

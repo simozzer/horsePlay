@@ -26,3 +26,25 @@ input.forcePlay {
   color:red;
   font: 8pt "Arial Black";
 }
+
+ul {
+  list-style-type: none;
+  background-color: white;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+  font: 9pt arial;
+}
+
+h4 {
+  background-color: #76b2b5;
+  font-size: 14pt;
+  padding-bottom: 0px;
+  margin-bottom: 0px;
+  margin-top: 0px;
+  display: block;
+  color: #114471;
+  margin-left: auto;
+  margin-right: auto;
+  clear: both;
+}

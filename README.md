@@ -1,5 +1,16 @@
 # horsePlay
-Player Management UI for simple horse racing game
+This is a project to build the user interface for a multi-player web-based game for horse racing.
+
+Before running this project you'll need to set up a MySql database:
+
+Once you've; don this you'll need to run 
+1) A service to communicate with the backend.
+2) A service to run the sockets
+3) This project.
+
+
+
+
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 9.1.1.
 

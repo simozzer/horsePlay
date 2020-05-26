@@ -131,7 +131,6 @@ export class PreRaceReportComponent implements OnInit {
   forceProgress(aPlayer) {
     if (window.confirm(`Are you sure you want to force progress for ${aPlayer.NAME}?`) === true) {
       this.gamesService.busy();
-      debugger;
       this.gamesService.setPlayerState(this.gameId, aPlayer.PLAYER_ID, GamesStates.viewingPreRaceSummary)
         .subscribe(() => {
           this.gamesService.notBusy();

@@ -428,9 +428,9 @@ export class BetPlacementComponent implements OnInit {
     } else if (getHasWonGoing()) {
       return val  + 0.05;
     } else if (getHasFinishedGoing()) {
-      return val + 0.04;
+      return val + 0.02;
     } else {
-      return val;
+      return val - 0.1;
     }
 
   }
@@ -465,6 +465,7 @@ export class BetPlacementComponent implements OnInit {
     });
     this._oddsStats = oddsStats;
   }
+
 
   getBetTypeName(betType) {
     switch (betType) {

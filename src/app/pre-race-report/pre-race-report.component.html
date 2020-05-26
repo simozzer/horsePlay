@@ -1,11 +1,35 @@
 <div id="main">
 <div *ngIf="raceData">
-<h3>Pre race betting summary: {{raceData.NAME}}</h3>
-<h3>Length: {{raceData.LENGTH_FURLONGS}} </h3>
-<h3>Prize: {{raceData.PRIZE}} </h3>
-  <h3>Going: {{going}}</h3>
-</div>
+  <h3>Pre race betting summary: {{raceData.NAME}}</h3>
 
+
+  <table>
+    <tr>
+      <th>
+       Length
+      </th>
+      <td>
+        {{raceData.LENGTH_FURLONGS}}
+      </td>
+    </tr>
+    <tr>
+      <th>
+        Prize
+      </th>
+      <td>
+        {{raceData.PRIZE}}
+      </td>
+    </tr>
+    <tr>
+      <th>
+        Going
+      </th>
+      <td>
+        {{going}}
+      </td>
+    </tr>
+  </table>
+</div>
 <div *ngIf="bets  && bets.length; else noBets">
   <table>
     <tr>
@@ -52,7 +76,7 @@
 <a *ngIf="showNextLink; else waitList" routerLink="/race/{{gameId}}/{{raceId}}">Click here to enter race</a>
 
   <ng-template #waitList>
-    <h4>Waiting for:</h4>
+    <h4>Waiting For The Following Players:</h4>
     <ul>
       <li *ngFor ="let unready of waitingFor">
         {{unready.NAME}}

@@ -65,7 +65,7 @@
   </table>
 
   <br/>
-  <div *ngIf="_winningBets && _winningBets.length">
+  <div *ngIf="_winningBets && _winningBets.length" class="betsWon">
   <table>
     <tr>
       <th colspan="5">Bets Won</th>
@@ -113,7 +113,7 @@
 
 
   <br/>
-  <div *ngIf="_loosingBets && _loosingBets.length">
+  <div *ngIf="_loosingBets && _loosingBets.length" class="betsLost">
     <table>
       <tr>
         <th colspan="5">Bets Lost</th>

@@ -23,13 +23,15 @@ div#main {
   background-size: cover;
 }
 
+td>input[type="button"] {
+  font: 10pt arial;
+}
+
+
 input[type="button"]:disabled {
   display: none;
 }
 
-td>input[type="button"] {
-  font: 10pt arial;
-}
 
 
 li.waitFor {

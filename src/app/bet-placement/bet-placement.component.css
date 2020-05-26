@@ -41,10 +41,29 @@ h1 {
 
 h5 {
   clear:both;
+  background-color: #76b2b5;
+  font-size: 12pt;
+  padding-bottom: 0px;
+  margin-bottom: 0px;
+  margin-top: 0px;
+  display: block;
+  color: #114471;
+  margin-left: auto;
+  margin-right: auto;
+  clear: both;
 }
 
 h4 {
-  clear:both;
-  display: list-item;
+  text-align: center;
+  background-color: #76b2b5;
+  font-size: 14pt;
+  padding-bottom: 0px;
+  margin-bottom: 0px;
+  margin-top: 0px;
+  display: block;
+  color: #114471;
+  margin-left: auto;
+  margin-right: auto;
+  clear: both;
 }
 

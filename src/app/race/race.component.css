@@ -26,3 +26,11 @@ input.forcePlay {
   color:red;
   font: 8pt "Arial Black";
 }
+
+.betsLost table th{
+  color: red;
+}
+
+.betsWon table th{
+  color : yellow;
+}

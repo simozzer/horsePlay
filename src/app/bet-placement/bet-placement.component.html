@@ -109,8 +109,11 @@
       </tr>
       <tr>
         <th><label for="horseSelector">Horse</label></th>
-        <th colspan="2"><label for="betAmount">Bet</label></th>
         <th>Type</th>
+        <th ><label for="betAmount">Amount</label></th>
+        <th>
+
+        </th>
       </tr>
       <tr>
         <td>
@@ -135,7 +138,7 @@
           <input type="number" id="betAmount" (change)="updateEnabledState()" (keyup)="betKeyPress()"/>
         </td>
         <td>
-          <input type="button" (click)="placeBet()" value="Place" [disabled]="invalidBetAmount"/>
+          <input type="button" (click)="placeBet()" value="Place Bet" [disabled]="invalidBetAmount"/>
         </td>
       </tr>
     </table>

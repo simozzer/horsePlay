@@ -14,3 +14,10 @@ a {
   background-size: cover;
   padding-top:2em;
 }
+
+
+.activeMeeting{
+  font-weight:800;
+  color:white;
+  background-color: black;
+}

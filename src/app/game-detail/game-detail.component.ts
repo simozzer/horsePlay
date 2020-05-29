@@ -40,6 +40,11 @@ export class GameDetailComponent implements OnInit {
       .subscribe(async data => {
           this.meetings = data;
           this.meeting = this.meetings[this.game.MEETING_INDEX];
+          for(const meet of this.meetings) {
+            await this.gamesService.getRaces(meet.ID).then((races)=>{
+              meet.RACES = races;
+            });
+          };
           this.meetingId = this.meeting.ID;
           await this.gamesService.getRaces(this.meetingId).then((races) => {
             const race = races[this.game.RACE_INDEX];

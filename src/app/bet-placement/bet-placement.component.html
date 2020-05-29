@@ -25,7 +25,7 @@
           Form
         </th>
       </tr>
-      <tr *ngFor="let odds of _oddsStats">
+      <tr *ngFor="let odds of oddsStatistics">
         <td>
           {{odds.horse.NAME}}
         </td>
@@ -118,7 +118,7 @@
       <tr>
         <td>
           <select id="horseSelector">
-            <option *ngFor="let odd of _oddsStats">
+            <option *ngFor="let odd of oddsStatistics">
               <!--<select *ngIf="odd.horse.PLAYER_ID !== player.ID"> -->
               <select>
                 {{odd.horse.NAME}}

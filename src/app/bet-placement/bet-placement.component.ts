@@ -27,8 +27,8 @@ export class BetPlacementComponent implements OnInit {
   remainingFunds = 0;
   betsTotal = 0;
   waitingFor: any;
-  _invalidBetAmount;
-  _oddsStats: any;
+  betAmountIncorrect;
+  oddsStatistics: any;
 
   constructor(private gamesService: GamesService,
               private route: ActivatedRoute,
@@ -73,7 +73,7 @@ export class BetPlacementComponent implements OnInit {
           localStorage.setItem('odds', JSON.stringify({
             gameId : this.gameId,
             raceId : this.raceId,
-            odds : this._oddsStats
+            odds : this.oddsStatistics
           }));
           this.initialFunds = data[3]['FUNDS'];
           this.remainingFunds = this.initialFunds;
@@ -147,17 +147,17 @@ export class BetPlacementComponent implements OnInit {
 
 
   get invalidBetAmount() {
-    this._invalidBetAmount = false;
+    this.betAmountIncorrect = false;
     const input = ((document.getElementById('betAmount')) as HTMLInputElement);
     if (input) {
       const val = +input.value;
       if ((val < 0) || (val > this.remainingFunds)) {
-         this._invalidBetAmount = true;
+         this.betAmountIncorrect = true;
         }
     } else if (this.remainingFunds < 0) {
-      this._invalidBetAmount = true;
+      this.betAmountIncorrect = true;
     }
-    return this._invalidBetAmount;
+    return this.betAmountIncorrect;
   }
 
 
@@ -463,7 +463,7 @@ export class BetPlacementComponent implements OnInit {
 
       stat.horse._raceOdds = stat.odds;
     });
-    this._oddsStats = oddsStats;
+    this.oddsStatistics = oddsStats;
   }
 
 
@@ -477,7 +477,7 @@ export class BetPlacementComponent implements OnInit {
   }
 
   getOdds(horseName) {
-    return this._oddsStats.find((o) => {
+    return this.oddsStatistics.find((o) => {
       const h = o.horse;
       if (h.NAME === horseName) {
         return o;
@@ -543,7 +543,7 @@ export class BetPlacementComponent implements OnInit {
     this.updateEnabledState();
     const event: any = window['event'];
     if (event  && (event['keyCode'] === 13)) {
-      if (!(this._invalidBetAmount)) {
+      if (!(this.betAmountIncorrect)) {
         this.placeBet();
       }
     }

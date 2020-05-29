@@ -136,7 +136,7 @@ export class HorseSelectionComponent implements OnInit {
             }
           }
         }
-        this.playerFunds = this.players.find((p) => p.PLAYER_ID = this.player.ID).FUNDS;
+        this.playerFunds = this.players.find((p) => p.PLAYER_ID === this.player.ID).FUNDS;
         resolve(data);
       }, err => {
         console.log(err);

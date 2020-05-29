@@ -383,13 +383,24 @@ export class HorseSelectionComponent implements OnInit {
 
 
   async doForceSelection(aPlayer) {
-    this.gamesService.busy();
-    if (window.confirm(`Are you sure you want to select horses for ${aPlayer.PLAYER_NAME}?`) === true) {
+    if (window.confirm(`Are you sure you want to select horses for ${aPlayer.PLAYER_NAME}? This will cost 10 and may not be the best selection.`) === true) {
+      this.gamesService.busy();
+      debugger;
       await this.autoPickHorses(aPlayer).catch(e => {
         this.gamesService.notBusy();
-        window.alert('error selecting horses: ' + e);
+        window.alert("Error selecting horses: " + e);
       }).then(() => {
-        this.gamesService.notBusy();
+        this.gamesService.adjustPlayerFunds(this.gameId, aPlayer.PLAYER_ID,-10)
+          .subscribe(async ()=> {
+            await this.getData();
+            await this.updatePlayerSelections();
+            this.gamesService.notBusy();
+          }, e => {
+            this.gamesService.notBusy();
+            window.alert('error' +
+              ' selecting horses: ' + e);
+          });
+
       });
     }
   }
@@ -488,17 +499,14 @@ export class HorseSelectionComponent implements OnInit {
         .subscribe( async () => {
           this.gamesService.adjustPlayerFunds(this.gameId, this.player.ID, this.getHorseValue(horse))
             .subscribe( async () => {
-              // TODO:: update horses
               await this.getData();
               this.gamesService.notBusy();
             }, async err => {
-              // TODO:: update horses
               await this.getData();
               this.gamesService.notBusy();
               window.alert('Error adjusting funds: ' + err);
             });
         }, async (err) => {
-          // TODO:: update horses
           await this.getData();
           this.gamesService.notBusy();
           window.alert('Error selling horse: ' + err);

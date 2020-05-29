@@ -84,7 +84,7 @@ export class BetPlacementComponent implements OnInit {
             // advance any robots to the next step
             for (const pl of this.players) {
               if (pl.HUMAN !== 1) {
-                this.gamesService.setPlayerState(this.gameId, pl.PLAYER_ID, GamesStates.viewingPreRaceSummary).subscribe(data => {
+                this.gamesService.setPlayerState(this.gameId, pl.PLAYER_ID, GamesStates.viewingPreRaceSummary).subscribe(() => {
                   console.log('saved played state');
                 }, err => {
                   window.alert('Error setting robot state: ' + err);

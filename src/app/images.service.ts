@@ -24,7 +24,7 @@ export class ImagesService {
   constructor() {
     this.horseImages = [];
     // this.baseUrl = 'http://' + window.location.hostname + ':80/assets/horses/images/';
-    this.baseUrl = `http://82.15.30.96/assets/horses/images/`;
+    this.baseUrl = `assets/images/`;
     this.taggedImages = [
       { name: 'grass', url: this.baseUrl + 'grass.jpeg' },
     ];

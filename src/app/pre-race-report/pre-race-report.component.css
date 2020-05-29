@@ -13,7 +13,7 @@ a {
 }
 
 #main{
-  background-image: url("http://82.15.30.96/assets/horses/images/betsPlaced.jpg");
+  background-image: url("/assets/images/betsPlaced.jpg");
   background-size: cover;
   padding-top:2em;
 }

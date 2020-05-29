@@ -10,7 +10,7 @@ a {
 }
 
 #main{
-  background-image: url('http://82.15.30.96/assets/horses/images/leaders.jpg');
+  background-image: url('/assets/images/leaders.jpg');
   background-size: cover;
   padding-top:2em;
 }

@@ -32,7 +32,7 @@
     </td>
 
   </tr>
-  <tr *ngIf="playerFunds > 200">
+  <tr *ngIf="(this.playerFunds > 200) || (this.horses.length < 8)">
     <td></td>
     <td></td>
     <td>-200</td>

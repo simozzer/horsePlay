@@ -18,3 +18,8 @@ body div {
 input[type="button"]:disabled {
   display: none;
 }
+
+.raceDetail {
+  text-align: center;
+  width:100%;
+}

@@ -42,6 +42,7 @@ export class GameDetailComponent implements OnInit {
           this.meeting = this.meetings[this.game.MEETING_INDEX];
           for(const meet of this.meetings) {
             await this.gamesService.getRaces(meet.ID).then((races)=>{
+              debugger;
               meet.RACES = races;
             });
           };

@@ -51,16 +51,10 @@
     </tr>
     <tr *ngFor="let m of meetings">
       <td [ngClass]="{'activeMeeting':m.NAME === meeting.NAME}">{{m.NAME}}</td>
-      <td colspan="3">
-        <tr *ngFor="let r of meeting.RACES">
-          <td>
-            {{r.NAME}}
-          </td>
-          <td>
-            {{r.LENGTH_FURLONGS}}
-          </td>
-          <td>
-            {{r.PRIZE}}
+      <td>
+        <tr *ngFor="let r of m.RACES">
+          <td class="raceDetail">
+            {{r.NAME}} ( {{r.LENGTH_FURLONGS}} Furlongs, Prize:{{r.PRIZE}} )
           </td>
         </tr>
       </td>

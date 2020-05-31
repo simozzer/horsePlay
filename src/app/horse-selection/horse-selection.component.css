@@ -42,6 +42,9 @@ li.waitFor {
   margin-right:auto;
   width:100%;
 }
+h3 {
+  display:block;
+}
 
 
 li.waitFor>input{

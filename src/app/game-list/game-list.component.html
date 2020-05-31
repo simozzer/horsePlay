@@ -18,7 +18,7 @@
       <tr *ngFor="let game of games">
         <td>
           <div *ngIf="game.playerInGame && game.STATE > 0; else plainText">
-            <a routerLink="/game/{{game.ID}}">Click here to enter {{ game.NAME }}</a>
+            <a routerLink="/game/{{game.ID}}">Click here to enter the game "{{ game.NAME }}"</a>
           </div>
           <ng-template #plainText>
             {{game.NAME}}

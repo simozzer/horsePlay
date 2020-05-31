@@ -352,6 +352,7 @@ export class HorseSelectionComponent implements OnInit {
     this.showSubmit = !bHideSubmit;
   }
 
+
   async autoPickHorses(aPlayer) {
     const aSubscriptions = [];
     const selections = await this.getPlayerHorsesForMeeting(aPlayer.PLAYER_ID);
@@ -404,6 +405,7 @@ export class HorseSelectionComponent implements OnInit {
       });
     }
   }
+
 
   async autoPickHorseForRace(aPlayer, aRace, allPlayerHorses) {
 
@@ -490,6 +492,7 @@ export class HorseSelectionComponent implements OnInit {
 
   }
 
+
   async sellHorse(horse) {
 
     if (window.confirm(`Are you sure you want to sell "${horse.NAME}" for ${this.getHorseValue(horse)}? THIS HORSE WILL NOT BE REPLACED, IF SOLD!`) === true) {
@@ -545,10 +548,16 @@ export class HorseSelectionComponent implements OnInit {
       await this.doAddNewHorse().catch(e => {
         this.gamesService.notBusy();
       }).then(async () => {
+        await this.getAllPlayerHorses();
         await this.updatePlayerSelections();
         this.gamesService.notBusy();
       });
     }
+  }
+
+
+  getUniqueWarning(race) {
+    return race.NAME;
   }
 }
 

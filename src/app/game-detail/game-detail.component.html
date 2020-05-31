@@ -30,11 +30,11 @@
 
   <ng-template #nextSteps>
     <div *ngIf="game.RACE_INDEX === 0; else showBets">
-      <a routerLink="/selection/{{game.ID}}/{{meetingId}}">Click to Select horses for meeting at {{meeting.NAME}}</a>
+      <a routerLink="/selection/{{game.ID}}/{{meetingId}}">Click HERE to Select horses for meeting at {{meeting.NAME}}</a>
     </div>
 
     <ng-template #showBets>
-      <a routerLink="/betting/{{game.ID}}/{{game.RACE_ID}}">Click to place bets for the {{game.RACE_NAME}} at {{meeting.NAME}}</a>
+      <a routerLink="/betting/{{game.ID}}/{{game.RACE_ID}}">Click HERE to place bets for the {{game.RACE_NAME}} at {{meeting.NAME}}</a>
     </ng-template>
   </ng-template>
 
@@ -58,7 +58,8 @@
           </td>
         </tr>
       </td>
-    </tr>
+    </tr>exit
+
   </table>
 
 </div>

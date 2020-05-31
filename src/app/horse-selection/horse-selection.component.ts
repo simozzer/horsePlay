@@ -492,21 +492,23 @@ export class HorseSelectionComponent implements OnInit {
 
   async sellHorse(horse) {
 
-    // TODO:: disallow if not enough horses
     if (window.confirm(`Are you sure you want to sell "${horse.NAME}" for ${this.getHorseValue(horse)}? THIS HORSE WILL NOT BE REPLACED, IF SOLD!`) === true) {
       this.gamesService.busy();
       this.gamesService.deleteHorse(horse.ID)
         .subscribe( async () => {
           this.gamesService.adjustPlayerFunds(this.gameId, this.player.ID, this.getHorseValue(horse))
             .subscribe( async () => {
+              await this.getAllPlayerHorses();
               await this.getData();
               this.gamesService.notBusy();
             }, async err => {
+              await this.getAllPlayerHorses();
               await this.getData();
               this.gamesService.notBusy();
               window.alert('Error adjusting funds: ' + err);
             });
         }, async (err) => {
+          await this.getAllPlayerHorses();
           await this.getData();
           this.gamesService.notBusy();
           window.alert('Error selling horse: ' + err);

@@ -166,17 +166,6 @@ export class BetPlacementComponent implements OnInit {
     this.invalidBetAmount;
   }
 
-
-  getAllPlayers() {
-    this.gamesService.getPlayersInGame((this.gameId))
-      .subscribe(data => {
-        this.players = data;
-      }, error => {
-        window.alert('Error fetching players in game: ' + error);
-        throw error;
-      });
-  }
-
   checkAllPlayersReady() {
     if (this.allPlayersReady) {
       return;
@@ -190,11 +179,11 @@ export class BetPlacementComponent implements OnInit {
         }
 
         this.gamesService.getPlayerCountWithState(this.gameId, expectedState)
-          .subscribe(data => {
+          .subscribe(async data => {
             if (data && data['COUNT'] && (data['COUNT'] === this.players.length)) {
               this.allPlayersReady = true;
               this.waitingFor = [];
-              this.router.navigateByUrl(`preRace/${this.gameId}/${this.raceId}`);
+              await this.router.navigateByUrl(`preRace/${this.gameId}/${this.raceId}`);
             } else {
               let validState = true;
               for (const p of data['playerStates']) {

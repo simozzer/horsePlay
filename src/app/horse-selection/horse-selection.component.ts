@@ -349,6 +349,7 @@ export class HorseSelectionComponent implements OnInit {
     } else {
       this.disableGlue = false;
     }
+    this.invalid = bHideSubmit;
     this.showSubmit = !bHideSubmit;
   }
 

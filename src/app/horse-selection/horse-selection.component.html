@@ -86,14 +86,14 @@
   </td>
   <td>
     <div *ngIf="invalid">
-      Selection invalid (or already made)
+      Selection invalid.
     </div>
 
   </td>
 </tr>
 </table>
 
-  <div *ngIf="((invalid) || (!(readyForBets && showSubmit)))">
+  <div *ngIf="((invalid) || (!(readyForBets)))">
     <h4>Please select a different horse for each race</h4>
   </div>
 

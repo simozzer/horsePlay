@@ -754,7 +754,7 @@ export class RaceComponent implements OnInit {
         horse.burtSpeedFr1amesRemaining --;
         return speed + 0.2;
       } else {
-        if (Math.random() > 0.997) {
+        if (Math.random() > 0.9955) {
           // debugger;
           horse.burtSpeedFr1amesRemaining = 50 + ((Math.random() * 130) | 0);
         }

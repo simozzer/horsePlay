@@ -294,10 +294,18 @@ export class RaceComponent implements OnInit {
       }
       this.updateDisplay();
       this.gamesService.waitForAllPlayersToHaveState(this.gameId, GamesStates.readyToRace, this.players.length).then(() => {
-        this.sounds.playSound(1);
-        window.requestAnimationFrame(this.handleDrawRequest.bind(this));
+
+
+        window.setTimeout( this.startRace.bind(this),2000);
+
       });
     });
+  }
+
+  startRace() {
+    this.sounds.playSound(1);
+    this._pauseCycles = 30;
+    window.requestAnimationFrame(this.handleDrawRequest.bind(this))
   }
 
 
@@ -755,8 +763,7 @@ export class RaceComponent implements OnInit {
         return speed + 0.2;
       } else {
         if (Math.random() > 0.9955) {
-          // debugger;
-          horse.burtSpeedFr1amesRemaining = 50 + ((Math.random() * 130) | 0);
+          horse.burtSpeedFr1amesRemaining = 50 + ((Math.random() * 150) | 0);
         }
       }
       return speed;

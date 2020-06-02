@@ -28,6 +28,7 @@ export class HorseSelectionComponent implements OnInit {
   isGameMaster = false;
   disableGlue = true;
   playerFunds = 0;
+  canSelect = false;
 
   constructor(private route: ActivatedRoute,
               private gamesService: GamesService) {
@@ -95,10 +96,7 @@ export class HorseSelectionComponent implements OnInit {
 
     // TODO :: average horse price is average player wealth / total number of horses
     const totalWealth = this.players.reduce((acc, val) => {
-      debugger;
       console.log(acc + val);
-
-
     });
   }
 
@@ -302,6 +300,7 @@ export class HorseSelectionComponent implements OnInit {
         forkJoin(aSubscriptions)
           .subscribe(async (data) => {
               this.showSubmit = false;
+              this.canSelect = false;
               this.checkReadyForNextStep(0);
             }, error => {
               window.alert('error getting game: ' + error);
@@ -319,15 +318,16 @@ export class HorseSelectionComponent implements OnInit {
 
 
   restoreSelections(sels) {
-    const bHideSubmit = false;
+    let bHideSubmit = true;
+    let bSelectionsMade = false;
+    let iSelectionsMade = 0;
 
     const selectionElems = Array.from(document.getElementsByClassName('horseSelector'));
     if (sels && sels.length) {
-      let bHideSubmit = true;
+
+
       for (const selection of sels) {
-
         const selRaceId = selection.RACE_ID;
-
         const raceIndex = this.races.findIndex((race) => {
           return (race.ID === selRaceId);
         });
@@ -337,6 +337,7 @@ export class HorseSelectionComponent implements OnInit {
           if (selElem) {
             selElem.value = selection.NAME;
             selElem.disabled = true;
+            iSelectionsMade++;
           } else {
             console.log('Could not restore selection: ' + selection.NAME);
           }
@@ -349,6 +350,9 @@ export class HorseSelectionComponent implements OnInit {
     } else {
       this.disableGlue = false;
     }
+
+    bSelectionsMade = (iSelectionsMade === selectionElems.length);
+    this.canSelect = !bSelectionsMade;
     this.invalid = bHideSubmit;
     this.showSubmit = !bHideSubmit;
   }
@@ -387,7 +391,6 @@ export class HorseSelectionComponent implements OnInit {
   async doForceSelection(aPlayer) {
     if (window.confirm(`Are you sure you want to select horses for ${aPlayer.PLAYER_NAME}? This will cost 10 and may not be the best selection.`) === true) {
       this.gamesService.busy();
-      debugger;
       await this.autoPickHorses(aPlayer).catch(e => {
         this.gamesService.notBusy();
         window.alert("Error selecting horses: " + e);

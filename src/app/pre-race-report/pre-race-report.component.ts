@@ -129,7 +129,7 @@ export class PreRaceReportComponent implements OnInit {
   }
 
   forceProgress(aPlayer) {
-    if (window.confirm(`Are you sure you want to force progress for ${aPlayer.NAME}?`) === true) {
+   // if (window.confirm(`Are you sure you want to force progress for ${aPlayer.NAME}?`) === true) {
       this.gamesService.busy();
       this.gamesService.setPlayerState(this.gameId, aPlayer.PLAYER_ID, GamesStates.viewingPreRaceSummary)
         .subscribe(() => {
@@ -138,8 +138,7 @@ export class PreRaceReportComponent implements OnInit {
           this.gamesService.notBusy();
           window.alert("Failed to set player state: " + err);;
         });
-
-    }
+    // }
   }
 
 }

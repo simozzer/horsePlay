@@ -82,9 +82,7 @@
     </tr>
   </table>
 </div>
-  <ng-template #noBet>
-    <h1>YOU HAVE PLACED NO BETS</h1>
-  </ng-template>
+
 
 <div class="fundsSummary">
   <table>
@@ -98,19 +96,26 @@
       <th>Total Bets Placed</th><td>{{this.betsTotal}}</td>
     </tr>
   </table>
+  <ng-template #noBet>
+    <h1>YOU HAVE PLACED NO BETS. YOU CAN DO SO BELOW.</h1>
+  </ng-template>
 </div>
+
+
 
   <div class="betPlacementSection">
     <h4>Place as many bets as you like and then click "Ready".</h4>
-    <h5>To cancel a bet place the same bet with zero value.</h5>
+    <h4>To cancel a bet place the same bet with zero value.</h4>
+    <h4>To adjust a bet place the same bet with a different value.</h4>
+    <h4>Betting is optional.</h4>
     <table class="placeBetContainer userAction">
       <tr>
         <th colspan="3">Place Your Bets</th>
       </tr>
       <tr>
-        <th><label for="horseSelector">Horse</label></th>
-        <th>Type</th>
-        <th ><label for="betAmount">Amount</label></th>
+        <th><label for="horseSelector">Select Horse</label></th>
+        <th>Choose Bet Type</th>
+        <th ><label for="betAmount">Enter Amount</label></th>
         <th>
 
         </th>
@@ -144,8 +149,9 @@
     </table>
   </div>
 
-<input type="button" value="Click HERE when you've finished betting (or when you can't or don't want to)" (click)="handleReadyToRace()"/>
+<input type="button" value="Click HERE when you've finished betting." (click)="handleReadyToRace()"/>
 <br>
+
 <div *ngIf="playerReady">
   <div *ngIf="allPlayersReady; else notReady">
     READY TO GO..

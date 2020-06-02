@@ -194,7 +194,7 @@ export class BetPlacementComponent implements OnInit {
               if (validState) {
                 this.allPlayersReady = true;
                 this.waitingFor = [];
-                this.router.navigateByUrl(`preRace/${this.gameId}/${this.raceId}`);
+                await this.router.navigateByUrl(`preRace/${this.gameId}/${this.raceId}`);
               } else {
                 this.waitingFor = data['playerStates'];
                 window.setTimeout(doCheck, 2000, this);

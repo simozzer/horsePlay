@@ -2,7 +2,7 @@ pipeline {
 	agent { 
 		docker { 
 			image 'node:18-alpine3.15'
-			args '-v /.npm:/'
+			reuseNode true
 		}
 	}
 	stages {

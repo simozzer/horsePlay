@@ -10,7 +10,6 @@ pipeline {
 	stages {
 		stage('log version info') {
 			steps {
-				sh 'echo "ECHO PWD"'
 				sh 'pwd'
 				sh 'ls -la'
 				sh 'node --version'

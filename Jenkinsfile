@@ -4,7 +4,7 @@ pipeline {
 		stage('log version info') {
 			steps {
 				sh 'pwd'
-				sh 'ls'
+				sh 'ls -la'
 				sh 'node --version'
 				sh 'npm --version'
 

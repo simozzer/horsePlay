@@ -1,6 +1,6 @@
 pipeline {
 	agent { docker { image 'node:18-alpine3.15' } }
-	steps {
+	stages {
 		stage('log version info') {
 			sh 'pwd'
 			sh 'ls'

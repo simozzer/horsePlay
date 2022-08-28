@@ -7,7 +7,7 @@ pipeline {
 				sh 'ls -la'
 				sh 'node --version'
 				sh 'npm --version'
-				sh 'npm config -g set prefix .'
+				sh 'sudo npm config -g set prefix .'
 
 			}
 		}

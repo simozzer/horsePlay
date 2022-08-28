@@ -10,8 +10,6 @@ pipeline {
 				sh 'ls -la'
 				sh 'node --version'
 				sh 'npm --version'
-				sh 'sudo npm config -g set prefix .'
-
 			}
 		}
 		stage('install dependencies') {

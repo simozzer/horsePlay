@@ -12,8 +12,9 @@ pipeline {
 		}
 		stage('install dependencies') {
 			steps {
-				sh 'mkdir /.npm'			
-				sh 'npm install'
+				dir('/.npm') }{			
+					sh 'npm install'
+				}
 
 			}
 		}

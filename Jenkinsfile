@@ -3,6 +3,7 @@ pipeline {
 		docker { 
 			image 'node:18-alpine3.15'
 			args '-v /.npm:/home/jenkins/ -u root jenkins/jenkins'
+			reuseNode true
 		}
 	}
 	stages {

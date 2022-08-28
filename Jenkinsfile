@@ -1,7 +1,9 @@
 pipeline {
-	agent { docker { 
-		image 'node:18-alpine3.15'
-		args '-v ${WORKSPACE}:/.npm'
+	agent { 
+		docker { 
+			image 'node:18-alpine3.15'
+			args '-v ${WORKSPACE}:/.npm'
+		}
 	}
 	stages {
 		stage('log version info') {

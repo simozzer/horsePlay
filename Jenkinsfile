@@ -12,7 +12,7 @@ pipeline {
 		}
 		stage('install dependencies') {
 			steps {
-				sh 'chown -R "/.npm"'
+				sh 'chown -R 113:118 "/.npm"'
 				sh 'npm install'
 
 			}
